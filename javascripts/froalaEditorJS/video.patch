@@ -1,0 +1,365 @@
+--- video.js	2019-05-14 14:42:19.000000000 +0800
++++ froalaEncryptVideo.js	2019-05-14 14:42:32.000000000 +0800
+@@ -40,7 +40,7 @@
+   })
+ 
+   $.extend($.FE.DEFAULTS, {
+-    videoAllowedTypes: ['mp4', 'webm', 'ogg'],
++    videoAllowedTypes: ['mp4', 'webm', 'ogg', 'quicktime'],
+     videoAllowedProviders: ['.*'],
+     videoDefaultAlign: 'center',
+     videoDefaultDisplay: 'block',
+@@ -391,7 +391,7 @@
+      * Insert html video into the editor.
+      */
+ 
+-    function insertHtmlVideo (link, sanitize, data, $existing_video, response) {
++    function insertHtmlVideo (link, sanitize, $existing_video, s3Key, videoSize) {
+       editor.edit.off();
+       _setProgressMessage('Loading video');
+ 
+@@ -402,70 +402,12 @@
+         var attr;
+ 
+         if ($existing_video) {
+-          if (!editor.undo.canDo() && !$existing_video.find('video').hasClass('fr-uploading')) editor.undo.saveStep();
+-
+-          var old_src = $existing_video.find('video').data('fr-old-src');
+-
+-          var replaced = $existing_video.data('fr-replaced');
+-          $existing_video.data('fr-replaced', false);
+-
+-          if (editor.$wp) {
+-
+-            // Clone existing video.
+-            $video = $existing_video.clone();
+-            $video.find('video').removeData('fr-old-src').removeClass('fr-uploading');
+-
+-            // Remove load event.
+-            $video.find('video').off('canplay');
+-
+-            // Set new SRC.
+-            if (old_src) $existing_video.find('video').attr('src', old_src);
+-
+-            // Replace existing video with its clone.
+-            $existing_video.replaceWith($video);
+-          }
+-          else {
+-            $video = $existing_video;
+-          }
+-
+-          // Remove old data.
+-          var atts = $video.find('video').get(0).attributes;
+-
+-          for (var i = 0; i < atts.length; i++) {
+-            var att = atts[i];
+-
+-            if (att.nodeName.indexOf('data-') === 0) {
+-              $video.find('video').removeAttr(att.nodeName);
+-            }
+-          }
+-
+-          // Set new data.
+-          if (typeof data != 'undefined') {
+-            for (attr in data) {
+-              if (data.hasOwnProperty(attr)) {
+-                if (attr != 'link') {
+-                  $video.find('video').attr('data-' + attr, data[attr]);
+-                }
+-              }
+-            }
+-          }
+-
+-          $video.find('video').on('canplay', _loadedCallback);
+-          $video.find('video').attr('src', link);
+-          editor.edit.on();
+-          _syncVideos();
+-          editor.undo.saveStep();
+-
+-          // Cursor will not appear if we don't make blur.
+-          editor.$el.blur();
+-
+-          editor.events.trigger(replaced ? 'video.replaced' : 'video.inserted', [$video, response]);
+         }
+         else {
+-          $video = _addVideo(link, data, _loadedCallback);
++          $video = _addVideo(link, s3Key, _loadedCallback, videoSize);
+           _syncVideos();
+           editor.undo.saveStep();
+-          editor.events.trigger('video.inserted', [$video, response]);
++          editor.events.trigger('video.inserted', [$video]);
+         }
+       }
+ 
+@@ -690,45 +632,9 @@
+      * Video was uploaded to the server and we have a response.
+      */
+ 
+-    function _videoUploaded ($video) {
++    function _videoUploaded ($video, link, s3Key, videoSize) {
+       _setProgressMessage('Loading video');
+-
+-      var status = this.status;
+-      var response = this.response;
+-      var responseXML = this.responseXML;
+-      var responseText = this.responseText;
+-
+-      try {
+-        if (editor.opts.videoUploadToS3) {
+-          if (status == 201) {
+-            var link = _parseXMLResponse(responseXML);
+-
+-            if (link) {
+-              insertHtmlVideo(link, false, [], $video, response || responseXML);
+-            }
+-          }
+-          else {
+-            _throwError(BAD_RESPONSE, response || responseXML);
+-          }
+-        }
+-        else {
+-          if (status >= 200 && status < 300) {
+-            var resp = _parseResponse(responseText);
+-
+-            if (resp) {
+-              insertHtmlVideo(resp.link, false, resp, $video, response || responseText);
+-            }
+-          }
+-          else {
+-            _throwError(ERROR_DURING_UPLOAD, response || responseText);
+-          }
+-        }
+-      }
+-      catch (ex) {
+-
+-        // Bad response.
+-        _throwError(BAD_RESPONSE, response || responseText);
+-      }
++      insertHtmlVideo(link, false, $video, s3Key, videoSize);
+     }
+ 
+     /**
+@@ -758,22 +664,12 @@
+       hideProgressBar(true);
+     }
+ 
+-    function _addVideo (link, data, loadCallback) {
++    function _addVideo (link, s3Key, loadCallback, videoSize) {
+ 
+       // Build video data string.
+       var data_str = '';
+       var attr;
+ 
+-      if (data && typeof data != 'undefined') {
+-        for (attr in data) {
+-          if (data.hasOwnProperty(attr)) {
+-            if (attr != 'link') {
+-              data_str += ' data-' + attr + '="' + data[attr] + '"';
+-            }
+-          }
+-        }
+-      }
+-
+       var width = editor.opts.videoDefaultWidth;
+ 
+       if (width && width != 'auto') {
+@@ -784,6 +680,10 @@
+       var $video = $('<span contenteditable="false" draggable="true" class="fr-video fr-dv' + (editor.opts.videoDefaultDisplay[0]) + (editor.opts.videoDefaultAlign != 'center' ? ' fr-fv' + editor.opts.videoDefaultAlign[0] : '') + '"><video src="' + link + '" ' + data_str + (width ? ' style="width: ' + width + ';" ' : '') + ' controls>' + editor.language.translate('Your browser does not support HTML5 video.') + '</video></span>');
+       $video.toggleClass('fr-draggable', editor.opts.videoMove);
+ 
++			$video.find('video').addClass('bSafesVideo');		
++			var id = s3Key + "&" + videoSize;	
++			$video.find('video').attr('id', id);
++
+       // Make sure we have focus.
+       // Call the event.
+       editor.edit.on();
+@@ -1265,7 +1165,73 @@
+      * Do video upload.
+      */
+     function upload (videos) {
++      var itemKey = $('.container').data('itemKey');
++      var itemIV = $('.container').data('itemIV');			
++			var s3Key;
++
++			function uploadToS3(data, fn) {
++				var signedURL;
++				
++				var uploadVideoDeferred = $.Deferred();
++				var uploadVideoPromise = uploadVideoDeferred.promise();
++
++				function preS3Upload(fn) {
++					$.post('/memberAPI/preS3Upload', {
++						type: 'video'
++					}, function(data, textStatus, jQxhr) {
++						if(data.status === 'ok') {
++              s3Key = data.s3Key;
++              signedURL = data.signedURL;
++
++              fn(null);
++            } else {
++              fn(data.error);
++            }
++					}, 'json');
++				};
+ 
++				function _uploadProgress (e) {
++					if (e.lengthComputable) {
++          	var complete = (e.loaded / e.total * 100 | 0);
++             _setProgressMessage(editor.language.translate('Uploading'), complete);
++						 console.log(complete);
++          }
++				};
++
++				preS3Upload(function(err) {
++					if(err) {
++						fn(err);
++					} else {
++						$.ajax({
++              type: 'PUT',
++              url: signedURL,
++              // Content type must much with the parameter you signed your URL with
++              contentType: 'binary/octet-stream',
++              // this flag is important, if not set, it will try to send data as a form
++              processData: false,
++              // the actual data is sent raw
++              data: data,
++              xhr: function() {
++                var myXhr = $.ajaxSettings.xhr();
++                if(myXhr.upload){
++                  myXhr.upload.addEventListener('progress', _uploadProgress, false);
++                }
++                return myXhr;
++              }
++            })
++            .success(function() {
++							fn(null);
++            })
++            .error(function(jqXHR, textStatus, errorThrown) {
++              alert('Uploading failed');
++              console.log(errorThrown);
++              fn('Uploading failed');
++            });
++					}
++				});
++			};
++	
++			//var videoLink;
+       // Make sure we have what to upload.
+       if (typeof videos != 'undefined' && videos.length > 0) {
+ 
+@@ -1276,6 +1242,7 @@
+         }
+ 
+         var video = videos[0];
++				var fileType = video.type;
+ 
+         // Check video max size.
+         if (video.size > editor.opts.videoMaxSize) {
+@@ -1291,81 +1258,32 @@
+           return false;
+         }
+ 
+-        // Create form Data.
+-        var form_data;
+-
+-        if (editor.drag_support.formdata) {
+-          form_data = editor.drag_support.formdata ? new FormData() : null;
+-        }
+-
+-        // Prepare form data for request.
+-        if (form_data) {
+-          var key;
+-
+-          // Upload to S3.
+-          if (editor.opts.videoUploadToS3 !== false) {
+-            form_data.append('key', editor.opts.videoUploadToS3.keyStart + (new Date()).getTime() + '-' + (video.name || 'untitled'));
+-            form_data.append('success_action_status', '201');
+-            form_data.append('X-Requested-With', 'xhr');
+-            form_data.append('Content-Type', video.type);
+-
+-            for (key in editor.opts.videoUploadToS3.params) {
+-              if (editor.opts.videoUploadToS3.params.hasOwnProperty(key)) {
+-                form_data.append(key, editor.opts.videoUploadToS3.params[key]);
+-              }
+-            }
+-          }
+-
+-          // Add upload params.
+-          for (key in editor.opts.videoUploadParams) {
+-            if (editor.opts.videoUploadParams.hasOwnProperty(key)) {
+-              form_data.append(key, editor.opts.videoUploadParams[key]);
+-            }
+-          }
+-
+-          // Set the video in the request.
+-          form_data.append(editor.opts.videoUploadParam, video);
+-
+-          // Create XHR request.
+-          var url = editor.opts.videoUploadURL;
+-
+-          if (editor.opts.videoUploadToS3) {
+-            if (editor.opts.videoUploadToS3.uploadURL) {
+-              url = editor.opts.videoUploadToS3.uploadURL;
+-            }
+-            else {
+-              url = 'https://' + editor.opts.videoUploadToS3.region + '.amazonaws.com/' + editor.opts.videoUploadToS3.bucket;
+-            }
+-          }
+-
+-          var xhr = editor.core.getXHR(url, editor.opts.videoUploadMethod);
+-
+-          // Set upload events.
+-          xhr.onload = function () {
+-            _videoUploaded.call(xhr, $current_video);
+-          };
+-          xhr.onerror = _videoUploadError;
+-          xhr.upload.onprogress = _videoUploadProgress;
+-          xhr.onabort = _videoUploadAborted;
+-
+-          showProgressBar();
+-          editor.events.disableBlur();
+-          editor.edit.off();
+-          editor.events.enableBlur();
+-
+-          var $popup = editor.popups.get('video.insert');
+-
+-          if ($popup) {
+-            $popup.off('abortUpload').on('abortUpload', function () {
+-              if (xhr.readyState != 4) {
+-                xhr.abort();
+-              }
+-            })
+-          }
++        showProgressBar();
++        editor.events.disableBlur();
++        editor.edit.off();
++        editor.events.enableBlur();
+ 
+-          // Send data.
+-          xhr.send(form_data);
+-        }
++				var reader = new FileReader();
++				reader.addEventListener('load', function () {
++					var videoData = reader.result;
++					var videoInUint8Array = new Uint8Array(videoData);
++					var videoSize = videoInUint8Array.length;
++					var videoBlob = new Blob([videoInUint8Array], {type: fileType});
++					$('#testVideo').attr('type', fileType);
++					videoLink = window.URL.createObjectURL(videoBlob);
++
++					encryptArrayBufferAsync(videoData, itemKey, itemIV, function(encryptedVideoDataInUint8Array) {
++						uploadToS3(encryptedVideoDataInUint8Array, function(err) {
++							if(err) {
++                alert('uploadToS3:' + err);
++							} else {
++								_videoUploaded.call(null, $current_video, videoLink, s3Key, videoSize); 	
++							}
++						});
++					});
++				}, false);
++				
++				reader.readAsArrayBuffer(video);
+       }
+     }
+ 

@@ -1,0 +1,15 @@
+--- froala_editor.js	2019-05-14 14:32:10.000000000 +0800
++++ WN_froala_editor.js	2019-05-14 14:32:45.000000000 +0800
+@@ -601,7 +601,11 @@
+             .replace(/%7B/g, '{')
+             .replace(/%7D/g, '}');
+       }
+-
++			// BSafes Changes {
++			if(url.substring(0, 4) === 'blob') { 
++				url = url.replace(new RegExp('%3A', 'g'), ':');
++			}
++			// } Bsafes Changes
+       return url;
+     }
+ 

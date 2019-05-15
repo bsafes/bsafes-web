@@ -1,0 +1,852 @@
+/*--*****   General  */
+body {
+//  padding-top: 60px;
+}
+
+.margin0Px {
+	margin:0px;
+}
+
+.marginTop0Px {
+	margin-top:0px;
+}
+
+.marginTop7Px {
+	margin-top:7px;
+}
+
+.marginTop20Px {
+	margin-top:20px;
+}
+
+.marginBottom0Px {
+	margin-bottom:0px;
+}
+
+.marginBottom10Px {
+	margin-bottom:10px;
+}
+
+.marginTopBottom0Px {
+	margin-top:0px;
+	margin-bottom:0px;
+}
+
+.paddingZero {
+	padding:0px;
+}
+
+.paddingTop0Px {
+	padding-top:0px;
+}
+
+.paddingTop12Px {
+	padding-top:12px;
+}
+
+.paddingLeft0Px {
+	padding-left:0px;
+}
+
+.paddingLeft5Px {
+	adding-left:5px;
+}
+
+.paddingTop0PxMarginTop0Px {
+	padding-top:0px;
+	margin-top:0px;
+}
+
+.paddingTopBottom0Px {
+	padding-top:0px;
+	padding-bottom:0px;
+}
+
+.paddingTop30Px {
+	padding-top:30px;
+}
+
+.paddingLeftRight30Px {
+	padding-left:30px; 
+	padding-right:30px;
+}
+
+.width0Percent {
+	width: 0%;
+}
+
+.width60Percent {
+	width: 60%;
+}
+
+.maxWidth100Percent {
+	max-width:100%;
+}
+
+.maxWidthHeight100Percent {
+	max-width:100%;
+	max-height:100%;
+}
+
+.minHeight120Px { 
+	min-height:120px;
+}
+
+.textAlignCenter {
+	text-align:center;
+}
+
+.textAlignRight {
+	text-align:right;
+}
+
+.backgroundColorWhite {
+	background-color:white;
+}
+
+.displayNone {
+	display: none;
+}
+/* End of general */
+
+/*--***** Custom body */
+.bSafesBody {
+//  padding-top: 60px;
+  margin-bottom: 40px;
+  background-color:#CACFD2;
+}
+/* End of custom body */
+
+/*--***** Custom Text */
+.blackText {
+	color: #000000;
+}
+
+.whiteText {
+	color:white;
+}
+
+.redText {
+	color:#C0392B;
+}
+
+.orangeText {
+	color:orange;
+}
+
+.greenText {
+	color:green;
+}
+
+.E74C3CText {
+	color:#E74C3C;
+}
+.textTransformCapitalize {
+	text-transform:capitalize;
+}
+
+.fontSize14Px {
+	font-size:14px;
+}
+.fontSize18Px {
+  font-size:18px;
+}
+
+.fontSize75Percent {
+	font-size:75%;
+}
+.fontSize90Percent {
+	font-size:90%;
+}
+.fontSize130Percent {
+  font-size:130%;
+}
+
+.fontWeightBold {
+	font-weight:bold;
+}
+
+.ariel12Px {
+	font-family:Arial;
+	font-size:12px;
+}
+
+.constructionText {
+	font-size:24px;
+	background-color:yellow;
+	color: rgb(0, 0, 0);
+}
+
+/* End of Black Text */
+
+/*--***** Index page ******/
+/* MARKETING CONTENT
+-------------------------------------------------- */
+
+/* Center align the text within the three columns below the carousel */
+.marketing .col-lg-4 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.marketing h2 {
+  font-weight: normal;
+}
+.marketing .col-lg-4 p {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+
+/* Featurettes
+------------------------- */
+
+.featurette-divider {
+  margin: 80px 0; /* Space out the Bootstrap <hr> more */
+}
+
+/* Thin out the marketing headings */
+.featurette-heading {
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+
+/* RESPONSIVE CSS
+-------------------------------------------------- */
+@media (min-width: 768px) {
+  .featurette-heading {
+    font-size: 50px;
+  }
+}
+
+@media (min-width: 992px) {
+  .featurette-heading {
+    margin-top: 40px;
+  }
+}
+/*
+.jumbotron {
+  font-family: sans-serif;
+  background-color:#FFFFFF;
+  color: #FFF;
+  no-repeat center center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  margin-bottom:0px;
+  padding-top:0px;
+	padding-bottom:0px;
+}
+
+.topJumbotron {
+  background: url('/images/BSafesIntro2.jpg') no-repeat center center;
+  position: fixed;
+  width: 100%;
+  height: 350px;
+  top:0;
+  left:0;
+  z-index: -1;
+}
+
+
+.bannerRow1 {
+	overflow:hidden;
+}
+
+.bannerMajorText {
+	padding:0 0px;
+	font-family:'Open Sans';
+	line-height:56px;
+	color:#000000;
+	font-size:48px;
+	font-weight:100px
+}
+
+.bannerMajorRedText {
+	color:#C0392B;
+}
+
+#slideshow {
+	display: block;
+	overflow: auto;
+}
+
+#slideshow > div {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+}
+
+.blackBanner {
+	background-color:#000000;
+	padding:8px 16px;
+}
+
+.blackBanner > h3 {
+	text-align:center;
+}
+
+.blackBanner span {
+	"color:#ffffff;
+}
+
+.pinkBanner {
+	background-color:#FDEDEC;
+	padding:8px 16px;
+}
+
+.pinkBanner > * {
+	text-align:center;
+}
+
+.pinkBanner > h4 {
+	font-weight:bold;
+}
+
+.stepsBanner {
+	background-color:#EBF5FB;
+	padding:8px 16px;
+}
+
+.stepsBanner > h3 {
+	text-align:center;
+	font-weight:bold;
+}
+
+.stepNumber {
+	width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #27AE60;
+  color: white;
+  font-family: Helvetica, Arial Black, sans;
+  font-size: 30px;
+  text-align: center;
+  margin-right:0px;
+	display:inline-block;
+}
+
+.stepNumberBlackBackground {
+	background-color: black;
+}
+
+.stepText {
+  height: 48px;
+  color: black;
+  font-family: Helvetica, Arial Black, sans;
+  font-size: 24px;
+  font-weight:100;
+  padding-top:4px;
+  margin-bottom:8px;
+	display:inline-block;
+}
+
+.appIcon > div  {
+	text-align:center;
+}
+
+.appIcon i {
+	font-size:48px;
+	color:#3498DB;
+}
+
+.appIcon p {
+	font-family:Arial;
+	font-size:12px;
+	font-size:12px;
+	color:#99A3A4;
+}
+
+.normalTextBtn {
+	text-transform: none;
+}
+*/
+/*   End of index page */
+
+/*-- Sign in page */
+.facebookBtn {
+	background-color:#3B5998;
+}
+
+.googleBtn {
+	background-color:#d34836;
+}
+
+/* End of sign in page */
+/*--***** Custom buttons */
+.btn-circle {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.btnFloating {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: #FFF;
+  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5), 3px 3px 3px rgba(0, 0, 0, 0.25);
+  position: fixed;
+  display: inline-block;
+  cursor: default;
+  padding-top: 8px;
+  z-index:1000;
+}
+
+.btnFloatingAdd {
+	padding-top:10px;
+	padding-left:15px;
+}
+
+.btnFloatingWrite {
+  background: #03A9F4;
+  bottom: 12px;
+  right: 24px;
+  padding-left:10px;
+}
+
+.btnFloatingSave {
+  background: #229954;
+  bottom: 72px;
+  right: 24px;
+  padding-left:10px;
+}
+
+.btnFloatingCancel {
+  background: #F39C12;
+  bottom: 12px;
+  right: 24px;
+  padding-left:14px;
+}
+
+/* End of custom buttons */
+
+/*--********  Navigation bar */
+.navbar {
+	margin-bottom:0px;
+}
+
+.navbarTeamName {
+	color:black !important;
+	font-size: 200%;
+	font-weight: bold;
+}
+
+.personalLinkBackground {
+	background-color:#FDEDEC;
+}
+
+.memberBadge {
+  display: inline-block;
+  width: 42px;
+  height: 42px;
+  margin-top: 5px;
+  padding-top: 2px;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #000;
+}
+/* End of navigation bar */
+
+/*--****** Messages *********/
+.warningMessage {
+	color:red
+}
+/* End of Messages */
+
+/*--**** New tab ****/
+#newTabHint {
+	background-color:#3363FF;
+}
+/* End of new tab */
+/*--***** Item ********/
+.itemRow {
+  margin-left:0px;
+  margin-right:0px;
+}
+
+.itemVersionRow p {
+	margin:0px;
+}
+/* End of Item */
+/*--****** Items Toolbar ***/
+.itemsToolbar {
+	background-color:#666666;
+	position:fixed;
+	bottom:0px;
+	width:100%;
+	height:54px;
+	margin:0px;
+}
+/* End of items toolbar */
+/*--****** Safe *******/
+	/* Safe general */
+.safeResultItems {
+	min-height:200px;
+}
+.safeItemTypeIcon {
+  margin-right:20px;
+}
+.safeItemOption {
+  font-size:18px;
+}
+.safeItemContainerTypeOption {
+  background-color: #EBF5FB;
+}
+.safeItemBoxTypeOption {
+  background-color: #EBF5FB;
+}
+.safeItemFolderTypeOption {
+  background-color: #FEF9E7;
+}
+.teamsPathItem {
+	background-color:#D6EAF8;
+}
+.teamsPathLink {
+	font-size:18px; 
+	color:black;
+}
+#personalBtn {
+	text-transform:capitalize;
+	color:black;
+	background-color:#FDEDEC;
+	font-weight:bold;
+}
+	/* End of safe general */
+/*--********* Result Item Section */
+.resultItemPanel {
+  margin-bottom:3px;
+}
+
+.resultItemPanelBody {
+  padding-top:0px;
+  padding-bottom:0px;
+  padding-right:0;
+}
+
+.itemTitle {
+	margin-top:0px; 
+	margin-bottom:0px
+}
+
+.addItemBtn, .itemActionBtn {
+  margin-top:7px;
+  padding-top:0px;
+}
+
+.addContainerItemBtn, .containerItemActionBtn {
+  margin-top:0px;
+  padding-top:0px;
+}
+/* End of reuslt item section */
+/* End of safe *******/
+/*--****** Container *******/
+/*--**** Container general */
+.containerTitleLabel {
+  border-radius:5px;
+  background-color:white;
+  padding:10px 20px 10px 20px;
+}
+
+.containerTitle {
+  background:white;
+}
+
+.testBtn {
+  background: #7F8C8D;
+  display: inline-block;
+  margin: 0 1em 1em 0;
+  width: 48px;
+  height: 96px;
+	position: absolute;
+  right:-18px;
+}
+
+.containerOpenBtn {
+  background: #7F8C8D;
+  display: inline-block;
+  margin: 0 1em 1em 0;
+	width: 48px;
+	height: 96px;
+	border-bottom-left-radius: 12px;
+  border-top-left-radius: 12px;
+	position: absolute;
+	right:-18px;
+}
+
+.containerOpenBtn-text {
+	position: absolute;
+	right:6px;
+}
+
+
+.containerControlsPanel {
+  background-color:black;
+}
+
+.containerControlsBtn {
+  margin-top:9px;
+  color:white;
+}
+
+.containerSearchRow .panel-body {
+  padding-top:0px;
+  padding-bottom:0px;
+}
+
+.containerSearchRow .form-group{
+  margin-bottom:3px;
+}
+
+.containerContentsPageTitle
+{
+  color:#000;
+  font-size:100%;
+  font-family:Ariel, Verdana
+}
+
+.containerCoverPanel, .containerContentsPanel, .notebookPanel, .diaryPanel, .boxPanel {
+  min-height: 800px;
+  max-width:800px;
+  margin:0px auto;
+  padding-bottom:48px;
+  box-shadow:0px 1px 2px 2px #C9C9C9;
+  -webkit-box-shadow:0px 1px 2px 2px #C9C9C9;
+  -moz-box-shadow:0px 0px 1px 2px #C9C9C9;
+}
+
+.folderCoverPanel {
+  max-width:800px;
+  margin:0px auto;
+  padding-bottom:48px;
+  box-shadow:0px 0px 0px 0px #C9C9C9;
+  -webkit-box-shadow:0px 0px 0px 0px #C9C9C9;
+  -moz-box-shadow:0px 0px 0px 0px #C9C9C9;
+}
+
+.pageNavigationPart {
+  float:left;
+}
+
+.itemNavigationRow, .turningPageRow {
+  position:fixed;
+  top:80%;
+}
+
+.turningPageRow1 {
+	position:fixed;
+  width:100%;
+  top:60%;
+}
+
+
+.pageBtn {
+  background-color:transparent;
+  display: inline-block;
+  position:fixed;
+  z-index:1000;
+  color: black;
+}
+
+.pageBtn1 {
+  background-color:transparent;
+  z-index:1000;
+  color: black;
+}
+
+
+#previousItemBtn, #previousPageBtn, #previousDiaryPageBtn {
+  left:-10px;
+}
+
+#openBtn, #lastAccessedPageBtn, #nextItemBtn, #nextPageBtn, #nextDiaryPageBtn {
+  right:-10px;
+}
+/* End of container general */
+/*--***** Box */
+.boxCoverPanel {
+  position: relative;
+	margin-bottom:10px;
+  background-color:#EBF5FB;
+  border-radius:10px 10px 10px 10px;
+}
+
+.boxCoverHr {
+	height:1px;
+	border:none;
+	color:black;
+	background-color:#333;
+}
+
+.boxControlsPanelBody {
+  padding-top:0px;
+  padding-bottom:10px;
+  padding-left:5px
+}
+/* End of Box*/
+/*--**** Folder */
+.folderCover {
+	position: relative;
+	min-height: 800px;
+  background-color:#FCF3CF;
+  border-radius:0 20px 20px 0;
+	margin-right:20px;
+}
+
+.folderTab {
+  background-color:#FCF3CF;
+  width: 80px;
+  min-height: 200px;
+  position: absolute;
+  top: 0px;
+  right:-25px;
+  border-radius: 0px 10px 30px 0;
+}
+
+.folderControlsPanelBody {
+  padding-top:0px;
+  padding-bottom:10px;
+  padding-left:5px
+}
+/* End of folder */
+/*--***** Notebook */
+.notebookCoverPanel {
+  border-left: 30px solid #000;
+  background-color:#F2F3F4;
+  border-radius:0 20px 20px 0;
+}
+.notebookControlsPanelBody {
+	padding-top:0px;
+	padding-bottom:0px;
+	padding-left:5px
+}
+
+.pageNumberNavigation {
+}
+
+#pageNumberInput {
+  background-color:transparent;
+  margin-bottom:6px;
+  max-width:50px;
+  align:right;
+  text-align:center;
+  color: white;
+}
+#gotoPageBtn, #gotoFirstItemBtn, #gotoLastItemBtn, #searchNotebookBtn, #datePickerBtn {
+  margin-top:9px;
+  color:white;
+}
+.notebookContentsPagination {
+  width:auto;
+  display:inline-block;
+}
+/* End of notebook */
+/*--****** Diary */
+.diaryCoverPanel {
+  border-left: 30px solid #000;
+  background-color:#FEF5E7;
+  border-radius:0 20px 20px 0;
+}
+.diaryContentsPagination {
+  width:auto;
+  display:inline-block;
+}
+.diaryControlsPanelBody {
+  padding-top:0px;
+  padding-bottom:10px;
+  padding-left:5px
+}
+#datepicker {
+	position: relative; 
+	z-index: 100000;"
+}
+.diaryDateRow {
+	margin-top:20px;
+}	
+.diaryHRBelowDate {
+	margin-top:0px;
+}	
+/* End of diary */
+/* End of container *******/
+
+/*--****** Page *******/
+/*--***** Page general */
+.pagePanel {
+  background-color:#fff;
+  min-height:700px;
+  margin-top:20px;
+  padding-bottom:48px;
+  box-shadow:0px 1px 2px 2px #C9C9C9;
+  -webkit-box-shadow:0px 1px 2px 2px #C9C9C9;
+  -moz-box-shadow:0px 0px 1px 2px #C9C9C9;
+}
+.pageRow {
+  margin-left:0px;
+  margin-right:0px;
+}
+.editorRow {
+  min-height:100px;
+	overflow-x:auto;
+}
+/* End of page general */
+/*--****** Attachment */
+.attachmentPanel {
+  margin-bottom:0;
+}
+
+.attachmentPanelBody {
+  padding-top:0;
+  padding-bottom:0;
+  padding-right:0;
+}
+
+.attachmentFileNameRow {
+  margin-bottom:0;
+}
+
+.attachmentFileNameGrid {
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+
+.attachmentFileNameGrid > h6 {
+  margin-top:10;
+  margin-bottom:0;
+}
+
+.attachmentFileSizeRow {
+  margin-bottom:0;
+}
+
+.attachmentFileSize {
+  margin-top:0;
+  margin-bottom:0;
+}
+
+.attachmentFileProgress {
+  margin-top:0;
+  margin-bottom:0;
+}
+
+.attachmentProgress {
+  margin-top:0;
+  margin-bottom:0;
+}
+
+/* End of attachment */
+/*--***** Comments */
+.comments {
+	margin-left:7px;
+	margin-right:7px
+}
+/* End of comments */
+/* End of page *******/
+
