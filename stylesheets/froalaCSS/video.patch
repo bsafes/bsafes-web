@@ -1,0 +1,30 @@
+--- video.css	2018-11-22 16:14:25.000000000 +0800
++++ video_bsafes.css	2018-11-22 16:14:28.000000000 +0800
+@@ -27,7 +27,7 @@
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+-}
++} 
+ .fr-element .fr-video::after {
+   position: absolute;
+   content: '';
+@@ -35,15 +35,15 @@
+   top: 0;
+   left: 0;
+   right: 0;
+-  bottom: 0;
++  //bottom: 0; bSafesChanges  
+   cursor: pointer;
+   display: block;
+   background: rgba(0, 0, 0, 0);
+-}
++} 
+ .fr-element .fr-video.fr-active > * {
+   z-index: 2;
+   position: relative;
+-}
++} 
+ .fr-element .fr-video > * {
+   -webkit-box-sizing: content-box;
+   -moz-box-sizing: content-box;
