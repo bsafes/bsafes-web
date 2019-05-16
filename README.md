@@ -54,4 +54,4 @@ Serving HTTP on 0.0.0.0 port 8000 ...
  - bsafes-web javascript and css files are now served from your local web. With Chrome developer tools opened, select sources tab, and expand localhost:8000, you would see javascripts and stylesheets.
 ![enter image description here](http://www.imareader.com/images/bsafes/developerOpenbsafesDebug.png)
  - Now you could debug javascripts, add features and test.
- - Please hesitate to ask if you have any question.
+ - Please don't hesitate to ask if you have any question.
