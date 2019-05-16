@@ -45,7 +45,23 @@ $ ls
 ../  .git/      javascripts/
 ~~~~
  - Run a localhost web server to serve javascript and css files for this project
-~~~~
+ 
+ There might be multiple ways to host this folder over http at port 8000. You
+ may chose whatever is convenient for you. Two methods are defined here.
+ ##### Using Chrome Extension
+ Install [Web Server for Chrome](https://chrome.google.com/webstore/detail/web-server-for-chrome/ofhbbkphhbklhfoeikjpcbhemlocgigb?hl=en) app.
+ Enter `chrome://apps` in chrome's address bar and launch the Web Server for Chrom app.
+ 
+ Chose your folder, specify the port `8000` and restart the web server by using
+ the toggle switch under the chose folder button.
+ 
+ You can check the files hosted over http server at [http://localhost:8000](http://localhost:8000)
+ 
+ ![web server for chrome](https://i.ibb.co/mRNd4kS/screenshot-picture.png)
+ ##### Using Python
+ Or if you have already installed the python and want to run an http server through
+ python, please run the following command.
+~~~~ 
 $ python -m SimpleHTTPServer 8000
 Serving HTTP on 0.0.0.0 port 8000 ...
 ~~~~
