@@ -21,10 +21,37 @@ Also, only End-to-End encryption allows you and security experts to openly revie
 This repository gives you all the javascript and stylsheet files used in BSafes and developed by BSafes. Since the rich text editor, Froala editor, requires commercial license, we only publish patch files here. 
 
 For developers and security experts, you could also contribute to this project. You are welcome to create a fork of this project, test your code with **BSafes test server**, and create a pull request. 
-## Getting Started
-
+## Getting started with development
  - Fork this project.
+Please refer to [Fork a repo](https://help.github.com/en/articles/fork-a-repo).
  - Clone your fork to your local computer.
- - Modify and test your code.
- - Push to your fork.
- - Make a pull request.
+ Please refer to [Cloning a repository](https://help.github.com/en/articles/cloning-a-repository).
+ ~~~~
+ $ git clone https://github.com/<Your github account>/bsafes-web.git
+ ~~~~
+ - Now, you should have a bsafes-web project directory on your local computer.
+~~~~
+$ ls
+./  ../  bsafes-web/
+~~~~
+ - Change directory to bsafes-web
+~~~~
+$ cd bsafes-web
+~~~~
+ - You would see javascript and stylesheet files
+~~~~
+$ ls
+./   .DS_Store  README.md  stylesheets/
+../  .git/      javascripts/
+~~~~
+ - Run a localhost web server to serve javascript and css files for this project
+~~~~
+$ python -m SimpleHTTPServer 8000
+Serving HTTP on 0.0.0.0 port 8000 ...
+~~~~
+ - Now, open your browser, and go to test server, https://developer.openbsafes.com
+![https://developer.openbsafes.com](http://www.imareader.com/images/bsafes/developerOpenbsafes.png)
+ - bsafes-web javascript and css files are now served from your local web. With Chrome developer tools opened, select sources tab, and expand localhost:8000, you would see javascripts and stylesheets.
+![enter image description here](http://www.imareader.com/images/bsafes/developerOpenbsafesDebug.png)
+ - Now you could debug javascripts, add features and test.
+ - Please hesitate to ask if you have any question.
