@@ -99,20 +99,26 @@ function rotateImage(link, exifOrientation, callback) {
 
 function _downScaleImage(img, exifOrientation, size, callback) {
 	var imgCV = document.createElement('canvas');
-	
-  imgCV.width = img.naturalWidth;
-  imgCV.height = img.naturalHeight;
+	var imageWidth = parseInt(img.naturalWidth);
+  var imageHeight = parseInt(img.naturalHeight);
+  imgCV.width = imageWidth;
+  imgCV.height = imageHeight;
 
   var imgCtx;
   imgCtx = imgCV.getContext('2d');
   imgCtx.drawImage(img, 0, 0, imgCV.width, imgCV.height);
 	
 	var scale;
-	if(imgCV.width > imgCV.height) {
-		scale = size/imgCV.width;
-	} else {
-		scale = size/imgCV.height;
-	}
+	if (imageWidth > size || imageHeight > size) {
+    if(imgCV.width > imgCV.height) {
+      scale = size/imgCV.width;
+    } else {
+      scale = size/imgCV.height;
+    }
+  } else {
+	  scale = 1;
+  }
+	
   _downScaleCanvas(imgCV, scale, function(canvas){
 		var dataURI = canvas.toDataURL("image/jpeg" , 1.0);
   	var byteString = dataURLToBinaryString(dataURI);
@@ -126,7 +132,7 @@ function _downScaleImage(img, exifOrientation, size, callback) {
 };
 
 function _downScaleCanvas(cv, scale, callback) {
-  if (!(scale < 1) || !(scale > 0)) throw ('scale must be a positive number <1 ');
+  if (!(scale > 0)) throw ('scale must be > 0');
   
 	scale = this._normaliseScale(scale);
   var sqScale = scale * scale; // square scale =  area of a source pixel within target
@@ -286,7 +292,7 @@ function _log2(v) {
 // normalize a scale <1 to avoid some rounding issue with js numbers
 function _normaliseScale(s) {
   if (s>1) throw('s must be <1');
-    
+  
 	s = 0 | (1/s);
   var l = _log2(s);
   var mask = 1 << l;
