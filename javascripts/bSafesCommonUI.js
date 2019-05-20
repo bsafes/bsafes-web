@@ -1360,7 +1360,7 @@ function positionItemNavigationControls() {
 			var $notebookPanel = $('.notebookPanel');
 			var notebookPanelWidth = $notebookPanel.width();
 			
-			// if its a notebook page (notebookPanel)
+			// if its a diary page (diaryPanel)
 			var $diaryPanel = $('.diaryPanel');
 			var diaryPanelWidth = $diaryPanel.width();
 			
