@@ -1356,9 +1356,13 @@ function positionItemNavigationControls() {
 			var $folderCover = $('.folderCover');
 			var folderPageWidth = $folderCover.width();
 			
-			// if its a diary or notebook page (notebookPanel)
+			// if its a notebook page (notebookPanel)
 			var $notebookPanel = $('.notebookPanel');
 			var notebookPanelWidth = $notebookPanel.width();
+			
+			// if its a notebook page (notebookPanel)
+			var $diaryPanel = $('.diaryPanel');
+			var diaryPanelWidth = $diaryPanel.width();
 			
 			// if its a box page (boxPanel)
 			var $boxPanel = $('.boxPanel');
@@ -1367,7 +1371,8 @@ function positionItemNavigationControls() {
 				pagePanelWidth < 1 &&
 				folderPageWidth < 1 &&
 				notebookPanelWidth < 1 &&
-				boxPanelWidth < 1
+				boxPanelWidth < 1 &&
+				diaryPanelWidth < 1
 			) {
 				setTimeout(function(){
 					positionPageControls();
@@ -1378,9 +1383,9 @@ function positionItemNavigationControls() {
 				folderPageWidth - 25,
 				notebookPanelWidth + 25,
 				boxPanelWidth,
+				diaryPanelWidth + 25,
 				0
 			);
-			console.log(pagePanelWidth, folderPageWidth - 25, notebookPanelWidth, boxPanelWidth);
 			var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     	var rightMargin = (w - panelWidth)/2;
     	$(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel").css("right", rightMargin + "px");
