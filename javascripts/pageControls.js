@@ -49,7 +49,6 @@
 				itemCopy.images = itemCopy.images.filter(function(item) {
 				  return itemS3Key !== item.s3Key;
         });
-				delete itemCopy.accumulatedGalleryImages[itemS3Key];
 				// remove the current image from DOM without reload.
 				$this.closest('.imagePanel').slideUp();
 				itemCopy.update = "images";
