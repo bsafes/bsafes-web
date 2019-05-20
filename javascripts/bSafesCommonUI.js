@@ -1346,13 +1346,48 @@ function positionItemNavigationControls() {
 (function(){
   console.log("Always!");
 	function positionPageControls() {
-  	var $pagePanel = $('.pagePanel');
+		var $pagePanel = $('.pagePanel');
   	if($pagePanel.length) {
+  		// if its a page's page
     	var $thisPanel = $($pagePanel[0]);
-    	var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    	var panelWidth = $thisPanel.width();
-    	var margin = (w - panelWidth)/2;
-    	var rightMargin = margin ;
+    	var pagePanelWidth = $thisPanel.width();
+    	
+    	// if its a folder's page
+			var $folderCover = $('.folderCover');
+			var folderPageWidth = $folderCover.width();
+			
+			// if its a notebook page (notebookPanel)
+			var $notebookPanel = $('.notebookPanel');
+			var notebookPanelWidth = $notebookPanel.width();
+			
+			// if its a diary page (diaryPanel)
+			var $diaryPanel = $('.diaryPanel');
+			var diaryPanelWidth = $diaryPanel.width();
+			
+			// if its a box page (boxPanel)
+			var $boxPanel = $('.boxPanel');
+			var boxPanelWidth = $boxPanel.width();
+			if(
+				pagePanelWidth < 1 &&
+				folderPageWidth < 1 &&
+				notebookPanelWidth < 1 &&
+				boxPanelWidth < 1 &&
+				diaryPanelWidth < 1
+			) {
+				setTimeout(function(){
+					positionPageControls();
+				}, 1000);
+			}
+			var panelWidth = Math.max(
+				pagePanelWidth,
+				folderPageWidth - 25,
+				notebookPanelWidth + 25,
+				boxPanelWidth,
+				diaryPanelWidth + 25,
+				0
+			);
+			var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    	var rightMargin = (w - panelWidth)/2;
     	$(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel").css("right", rightMargin + "px");
 /*
 			$nextPageBtn = $('#nextPageBtn');

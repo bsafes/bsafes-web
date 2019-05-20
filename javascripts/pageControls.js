@@ -1,4 +1,4 @@
-	var crypto; 
+	var crypto;
 	var pki;
   var rsa;
 	
@@ -38,17 +38,37 @@
 
 	var currentImageDownloadXhr = null;
 
+	// --- Page Control Functions ---
+	var pageControlFunctions = {
+		deleteImageOnPage: function(e) {
+			e.preventDefault();
+			var confirmDelete = confirm('Are you sure you want to delete this image?');
+			if (confirmDelete) {
+				var $this = $(this);
+				var itemS3Key = $this.data('key');
+				itemCopy.images = itemCopy.images.filter(function(item) {
+				  return itemS3Key !== item.s3Key;
+        });
+				// remove the current image from DOM without reload.
+				$this.closest('.imagePanel').slideUp();
+				itemCopy.update = "images";
+        createNewItemVersionForPage();
+			}
+		}
+	};
+	// --- /Page Control Functions ---
 	function setOldVersion(version) {
 		oldVersion = version;
 		$('#itemVersion').text("v." + version);
 	};
 
 	function setCurrentVersion(version) {
+		var itemVersionAndVersionHistoryContainer = $('#itemVersion, #itemVersionsHistory');
 		if(!version) {
-			$('#itemVersion, #itemVersionsHistory').addClass('hidden');
+			itemVersionAndVersionHistoryContainer.addClass('hidden');
 			return;
 		}
-		$('#itemVersion, #itemVersionsHistory').removeClass('hidden');
+		itemVersionAndVersionHistoryContainer.removeClass('hidden');
 		currentVersion = version;
 		$('#itemVersion').text("v." + version);
 		initializePageItemVersionsHistory();
@@ -61,7 +81,7 @@
 				break;
 			default:
 		}
-	}; 
+	};
 
 	function setupNewItemKey(){
     var salt = forge.random.getBytesSync(128);
@@ -99,7 +119,7 @@
 	};
 
 	function disableEditControls() {
-		$('.editControl').addClass('hidden');		
+		$('.editControl').addClass('hidden');
 	}
 
 	function enableEditControls() {
@@ -149,10 +169,10 @@
 						tags: JSON.stringify(encryptedTags),
 						tagsTokens: JSON.stringify(tagsTokens)
 					}
-					$.post('/memberAPI/addAnItemAfter', 
-					addActionOptions, 
+					$.post('/memberAPI/addAnItemAfter',
+					addActionOptions,
 					function(data, textStatus, jQxhr) {
-						if(data.status === 'ok') {			
+						if(data.status === 'ok') {
 							itemCopy = data.item;
 							setCurrentVersion(itemCopy.version);
 							var item = data.item;
@@ -203,7 +223,7 @@
 				itemCopy.tags = encryptedTags;
 				itemCopy.tagsTokens = tagsTokens;
 				itemCopy.update = "tags";
-      	createNewItemVersionForPage();	
+      	createNewItemVersionForPage();
 			}
       return false;
     });
@@ -224,7 +244,7 @@
 		}
 		var title = editor.html();
 		if(title === '') {
-			editor.html("<h2></h2>");	
+			editor.html("<h2></h2>");
 		}
     editor.froalaEditor({key:'1ZSZGUSXYSMZb1JGZ==',
                          toolbarButtons:['undo', 'redo'],
@@ -329,7 +349,7 @@
 					initializeImageWordsEditor(currentEditor);
 				} else if(id.substring(0,7) === "comment") {
 					initializeCommentEditor(currentEditor);
-				} 
+				}
     };
 		return false;
   };
@@ -381,7 +401,7 @@
   function handleBtnSaveClicked(e) {
     e.preventDefault();
 		$('.btnCancel').addClass('hidden');
- 		$('.btnSave').LoadingOverlay('show', {background: "rgba(255, 255, 255, 0.0)"}); 
+ 		$('.btnSave').LoadingOverlay('show', {background: "rgba(255, 255, 255, 0.0)"});
     switch(currentEditorId) {
       case 'title':
         saveTitle();
@@ -416,14 +436,14 @@
 			itemCopy.accumulatedAttachments = data.accumulatedAttachments;
 			itemCopy.accumulatedGalleryImages = data.accumulatedGalleryImages;
 	
-			setCurrentVersion(itemCopy.version); 
+			setCurrentVersion(itemCopy.version);
 			if((itemCopy.update !== "tags") && currentEditor) doneEditing();
       if((itemCopy.update === "tags") && (!$('.tagsConfirmRow').hasClass('hidden'))) $('.tagsConfirmRow').addClass('hidden');
 		});
 	};
 
   function saveTitle() {
-		if(isBlankPageItem) { 
+		if(isBlankPageItem) {
 		}
     var title = currentEditor.froalaEditor('html.get');
     var titleStr = $(title).text();
@@ -473,7 +493,7 @@
 							$('.btnSave').LoadingOverlay('hide');
             	$('.btnCancel').removeClass('hidden');
             	alert(data.err);
-						}	
+						}
 					},
       		timeout: 30000
 				});
@@ -517,7 +537,7 @@
           	"ivEnvelope": ivEnvelope,
           	"envelopeIV": envelopeIV,
           	"ivEnvelopeIV": ivEnvelopeIV,
-          	"title": encryptedTitle, 
+          	"title": encryptedTitle,
           	"titleTokens": JSON.stringify(titleTokens)
 					},
           error: function(jqXHR, textStatus, errorThrown){
@@ -596,7 +616,7 @@
 			var s3Key = idParts[0];
 			var size = parseInt(idParts[1]);
 			s3ObjectsInContent.push({s3Key:s3Key, size:size});
-      totalS3ObjectsSize += size;	
+      totalS3ObjectsSize += size;
 		});
 		return {content: tempElement.html(), s3ObjectsInContent: s3ObjectsInContent, s3ObjectsSize: totalS3ObjectsSize};
 	};
@@ -609,7 +629,7 @@
 		var result = preProcessEditorContentBeforeSaving(content);
     content = result.content;
 		var s3ObjectsInContent = result.s3ObjectsInContent;
-		var s3ObjectsSize = result.s3ObjectsSize;  
+		var s3ObjectsSize = result.s3ObjectsSize;
 
     var encodedContent = forge.util.encodeUtf8(content);
     var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
@@ -714,7 +734,7 @@
               setCurrentVersion(itemCopy.version);
               isBlankPageItem = false;
               doneEditing();
-            } 
+            }
           },
           timeout: 30000
         });
@@ -725,10 +745,10 @@
 			itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
 			itemCopy.update = "content";
 	
-			createNewItemVersionForPage();		
+			createNewItemVersionForPage();
 
 		}
-  }; 
+  };
 
 	function saveNewComment() {
 		if(isBlankPageItem) {
@@ -743,7 +763,7 @@
 		if(isBlankPageItem) {
 			return;
 		} else {
-			itemCopy.content = encryptedContent;	
+			itemCopy.content = encryptedContent;
     	$.post('/memberAPI/saveNewPageComment', {
         itemId: itemId,
         content: encryptedContent
@@ -762,7 +782,7 @@
         	$comment.find('.fa-pencil').attr('id', id);
         	$comment.find('.froala-editor').attr('id', id);
         	$comment.find('.commentWriterName').html(writerName);
-        	$comment.find('.commentCreationTime').html(creationTime); 
+        	$comment.find('.commentCreationTime').html(creationTime);
         	$comment.find('.froala-editor').html(content);
         	var $commentsSearchResults = $('.commentsSearchResults');
         	$commentsSearchResults.append($comment);
@@ -817,7 +837,7 @@
     var encodedContent = forge.util.encodeUtf8(content);
     var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
 
-		var index = currentEditorId.split('-')[1];		
+		var index = currentEditorId.split('-')[1];
 		itemCopy.images[index].words = encryptedContent;
 		itemCopy.update = "image words";
     createNewItemVersionForPage();
@@ -932,7 +952,7 @@
 			var thisAttachment = { fileName: uploadedAttachments[i].fileName, s3KeyPrefix: uploadedAttachments[i].s3KeyPrefix, size: uploadedAttachments[i].size };
 			addedSize += uploadedAttachments[i].size;
 			newAttachments.push(thisAttachment);
-		}	
+		}
 		itemCopy.attachments = newAttachments;
 		itemCopy.update = "attachments";
     createNewItemVersionForPage(addedSize);
@@ -1002,7 +1022,7 @@
 
         function enableResume() {
             changeDownloadingState($attachment, 'Stopped');
-            $resume = $attachment.find('.resumeBtn');
+            var $resume = $attachment.find('.resumeBtn');
             $resume.off();
             $resume.click(function(e) {
               console.log('resuming downloading chunk:', chunkIndex);
@@ -1017,7 +1037,7 @@
         enableStop();
 
         function enableStop() {
-          $stop = $attachment.find('.stopBtn');
+          var $stop = $attachment.find('.stopBtn');
           $stop.off();
           $stop.click(function(e) {
             xhr.abort();
@@ -1232,7 +1252,7 @@
 
     function sliceEncryptAndUpload($attachment, file, resumingChunkIndex) {
 		  if(isBlankPageItem) {
-			}	
+			}
       fileSize = file.size;
       if(resumingChunkIndex || resumingChunkIndex === 0) chunkIndex = resumingChunkIndex;
 
@@ -1394,7 +1414,7 @@
                       "fileType": file.type,
                       "size": file.size,
                       "numberOfChunks": numberOfChunks
-          					}		
+          					}
           					$.post('/memberAPI/addAnItemAfter',
           					addActionOptions,
           					function(data, textStatus, jQxhr) {
@@ -1568,13 +1588,13 @@
 			} else {
 				var thisIndex = $imagePanel.attr('id').split('-')[1];
 				startingUploadIndex = parseInt(thisIndex) + 1;
-			} 
+			}
 
 			for(var i=0; i< files.length; i++) {
 				var file = files[i];
 				var $uploadImage = $('.uploadImageTemplate').clone().removeClass('uploadImageTemplate hidden').addClass('uploadImage');
 				var id = 'index-' + (startingUploadIndex + i);
-				$uploadImage.attr('id', id);				
+				$uploadImage.attr('id', id);
 				$uploadImage.data('file', file);
         $uploadImage.find('.uploadText').text("Pending");
 				
@@ -1592,7 +1612,7 @@
 				} else {
 					$lastUploadImage.after($uploadImage);
 				}
-				$lastUploadImage = $uploadImage;		
+				$lastUploadImage = $uploadImage;
 			}
 			var $imagePanel = $lastUploadImage.next('.imagePanel');
 			while ($imagePanel.length) {
@@ -1880,7 +1900,7 @@
           		//var decryptedStr = decryptLargeBinaryString(encryptedStr, itemKey, itemIV);
           		var uint8Array = convertBinaryStringToUint8Array(encryptedStr);
           		fn(null, uint8Array);
-        		};					
+        		};
 					
 						encryptDataInBinaryString(imageDataInBinaryString, function(err, encryptedImageDataInUint8Array) {
 							if(err) {
@@ -1903,6 +1923,7 @@
 
 												var id = $uploadImage.attr('id');
                       	var $imagePanel = $('.imagePanelTemplate').clone().removeClass('imagePanelTemplate hidden').addClass('imagePanel');
+												$imagePanel.find('.deleteImageBtn').attr('data-key', s3Key).on('click', pageControlFunctions.deleteImageOnPage);
                       	$imagePanel.attr('id', id);
 												$img.data('width', $img[0].width);
 												$img.data('height', $img[0].height);
@@ -1922,9 +1943,9 @@
 	                    }
                   	});
                 	}
-								});			
+								});
 							}
-						});	
+						});
 					};
 				
 					function doneUploadingAnImage(err) {
@@ -1948,7 +1969,7 @@
 					var reader = new FileReader();
 				
 					reader.addEventListener('load', function () {
-						var imageData = reader.result;	
+						var imageData = reader.result;
 
 	        	function getOrientation(data) {
   	        	var view = new DataView(imageData);
@@ -1974,7 +1995,7 @@
             		else offset += view.getUint16(offset, false);
           		}
           		return -1;
-        		};     
+        		};
 
 						exifOrientation = getOrientation(imageData);
 
@@ -2006,7 +2027,7 @@
 			uploadingImages(function(err) {
 				console.log(uploadedImages);
 				if(uploadedImages.length) {
-					var originalImages = itemCopy.images;			
+					var originalImages = itemCopy.images;
     
 					switch(mode) {
       			case 'appendToTheFront':
@@ -2047,7 +2068,7 @@
 				} else {
 					if(isBlankPageItem) {
     			}
-				} 
+				}
 				break;
 			case 'insert':
 				var imagePanelId = $imagePanel.attr('id');
@@ -2060,7 +2081,7 @@
         insertIndex = parseInt(imagePanelIdParts[1]);
 				break;
 			default:
-		};	
+		};
 
 		if(isBlankPageItem) {
 			if(itemContainer.substring(0, 1) === 'f') {
@@ -2091,7 +2112,7 @@
           		startUploadingImages();
           	}
         	}, 'json');
-			} else if(itemContainer.substring(0, 1) === 'n') { 
+			} else if(itemContainer.substring(0, 1) === 'n') {
         $.post('/memberAPI/createANotebookPage', {
           "itemId": itemId,
           "keyEnvelope": keyEnvelope,
@@ -2126,7 +2147,7 @@
           }
         }, 'json');
 			}
-		} else {	
+		} else {
 			buildUploadImageElements($imagePanel);
 			startUploadingImages();
 		}
@@ -2141,7 +2162,7 @@
 			if(files.length) {
 				uploadImages(files, 'appendToTheFront');
 			}
-		});	
+		});
 	}
 
   function initializeAttachButton() {
@@ -2256,9 +2277,7 @@
         if(parent.hasClass('downloadingImageContainer')) parent.replaceWith(targetElement);
         downloadNextContentImageObject();
       });
-
       targetElement.attr('src', link);
-
     }
 
     $.post('/memberAPI/preS3Download', {
@@ -2319,7 +2338,7 @@
 
     $.post('/memberAPI/preS3Download', {
       itemId: itemId,
-      s3Key: s3Key 
+      s3Key: s3Key
     }, function(data, textStatus, jQxhr ){
       if(data.status === 'ok'){
         var signedURL = data.signedURL;
@@ -2379,7 +2398,7 @@
   }
 
 	function cleanPageItem() {
-		itemCopy = null; 
+		itemCopy = null;
 		$('#tagsInput').off();
 		$('#confirmTagsInputBtn').off();
 		$('#cancelTagsInputBtn').off();
@@ -2387,7 +2406,7 @@
 		$('.attachBtnRow').remove();
 		$('.btnWrite').off();
 		$('.btnSave').off();
-		$('.btnCancel').off();	
+		$('.btnCancel').off();
 		$('#tagsInput').tokenfield('setTokens', []);
 		$('.froala-editor').html('');
 		$('.uploadImage').remove();
@@ -2395,7 +2414,7 @@
 		$('.imagePanel').remove();
 		$('.attachment').remove();
 		$('.comment').remove();
-		$('.imageBtnRow').removeClass('hidden')		
+		$('.imageBtnRow').removeClass('hidden')
 	}
 
   function getPageItem(thisItemId, thisExpandedKey, thisPrivateKey, thisSearchKey, done, thisVersion) {
@@ -2425,7 +2444,7 @@
       		var writerName = comment.writerName;
 					$comment.find('.btnWrite').addClass("hidden othersComment");
 				}
-				writerName = DOMPurify.sanitize(writerName); 
+				writerName = DOMPurify.sanitize(writerName);
 				var creationTime = "Created, " + formatTimeDisplay(comment.creationTime);
 				id = "comment-" + i;
       	$comment.attr('id', id);
@@ -2471,7 +2490,7 @@
     , function(data, textStatus, jQxhr ){
       if(data.status === 'ok') {
 				cleanPageItem();
-				initializePageControls();	
+				initializePageControls();
         if(data.item) {
 					postGetItemData(data.item);
 					itemCopy = data.item;
@@ -2488,9 +2507,9 @@
 
 					itemSpace = item.space;
 					itemContainer = item.container;
-					itemPosition = item.position;				
+					itemPosition = item.position;
 
-					function decryptItem(envelopeKey) {	
+					function decryptItem(envelopeKey) {
           	itemKey = decryptBinaryString(item.keyEnvelope, envelopeKey, item.envelopeIV);
           	itemIV = decryptBinaryString(item.ivEnvelope, envelopeKey, item.ivEnvelopeIV);
           	itemTags = [];
@@ -2528,12 +2547,12 @@
 								titleText = document.title = $(title).text();
 							} catch(err) {
  								alert(err);
-							}							
+							}
 						} else {
 							$('.froala-editor#title').html('<h2></h2>');
 						}
 			
-  					getAndShowPath(itemId, envelopeKey, teamName, titleText); 
+  					getAndShowPath(itemId, envelopeKey, teamName, titleText);
           	if(item.content) {
 							try {
             		var encodedContent = decryptBinaryString(item.content, itemKey, itemIV);
@@ -2544,8 +2563,8 @@
         						node.setAttribute('target','_blank');
     							}
     							// set non-HTML/MathML links to xlink:show=new
-    							if (!node.hasAttribute('target') 
-        						&& (node.hasAttribute('xlink:href') 
+    							if (!node.hasAttribute('target')
+        						&& (node.hasAttribute('xlink:href')
             				|| node.hasAttribute('href'))) {
         						node.setAttribute('xlink:show', 'new');
     							}
@@ -2613,7 +2632,6 @@
 													$downloadImage.find('.downloadText').text("Decrypting");
 													currentImageDownloadXhr = null;
           								var encryptedImageDataInArrayBuffer = this.response;
-          								
 													$.post('/memberAPI/postS3Download', {
             								itemId: itemId,
             								s3Key: s3CommonKey
@@ -2628,20 +2646,21 @@
 															$img.on('load', function(e) {
 																var $thisImg = $(e.target);
 																$thisImg.data('width', $thisImg[0].width);
-																$thisImg.data('height', $thisImg[0].height);	
+																$thisImg.data('height', $thisImg[0].height);
 
 																var $imagePanel = $('.imagePanelTemplate').clone().removeClass('imagePanelTemplate hidden').addClass('imagePanel');
+																$imagePanel.find('.deleteImageBtn').attr('data-key', s3CommonKey).on('click', pageControlFunctions.deleteImageOnPage);
                               	$imagePanel.attr('id', id);
 																$imagePanel.find('.image').append($thisImg);
 																var encryptedWords = $downloadImage.data('words');
 																if(encryptedWords) {
  																	var encodedWords = decryptBinaryString(encryptedWords, itemKey, itemIV);
               										var words = forge.util.decodeUtf8(encodedWords);
-																	words = DOMPurify.sanitize(words);	
+																	words = DOMPurify.sanitize(words);
               										$imagePanel.find('.froala-editor').html(words);
 																}
 																$imagePanel.find('.btnWrite').on('click', handleBtnWriteClicked);
-																$imagePanel.find('.insertImages').on('change', insertImages);	
+																$imagePanel.find('.insertImages').on('change', insertImages);
                               	$downloadImage.before($imagePanel);
                               	$downloadImage.remove();
 
@@ -2663,8 +2682,8 @@
 												currentImageDownloadXhr = xhr;
 
 											}
-										}, 'json');	
-											
+										}, 'json');
+										
 									};
 								
 									var doneDownloadingAnImage = function(err) {
@@ -2691,7 +2710,7 @@
 									} else {
 										$('.imageBtnRow').removeClass('hidden');
 									}
-								});	
+								});
 
 							};
 							
@@ -2730,11 +2749,11 @@
 						var itemSpaceParts = itemSpace.split(':');
 						itemSpaceParts.splice(-2, 2);
 						teamId = itemSpaceParts.join(':');
-          	getTeamData(teamId, function(err, team) { 
-            	if(err) { 
-               
-            	} else { 
-              	var teamKeyEnvelope = team.teamKeyEnvelope;  
+          	getTeamData(teamId, function(err, team) {
+            	if(err) {
+             
+            	} else {
+              	var teamKeyEnvelope = team.teamKeyEnvelope;
 								teamKey = pkiDecrypt(teamKeyEnvelope);
 								var encryptedTeamName = team.team._source.name;
 								var teamIV = team.team._source.IV;
@@ -2759,8 +2778,8 @@
 								decryptItem(teamKey);
 								getPageComments();
 								done(null, item);
-            	} 
-          	}); 
+            	}
+          	});
 					}
         } else {
 					initializeTagsInput();
@@ -2794,7 +2813,7 @@
             		teamId = itemSpaceParts.join(':');
             		getTeamData(teamId, function(err, team) {
              			if(err) {
-										done(err);	
+										done(err);
              			} else {
                			var teamKeyEnvelope = team.teamKeyEnvelope;
                			teamKey = pkiDecrypt(teamKeyEnvelope);
@@ -2805,21 +2824,21 @@
 										teamName = DOMPurify.sanitize(teamName);
                 		var teamSearchKeyEnvelope = team.team._source.searchKeyEnvelope;
                 		var teamSearchKeyIV = team.team._source.searchKeyIV;
-                		teamSearchKey = decryptBinaryString(teamSearchKeyEnvelope, teamKey, teamSearchKeyIV);	
+                		teamSearchKey = decryptBinaryString(teamSearchKeyEnvelope, teamKey, teamSearchKeyIV);
                			$('.pathSpace').find('a').html(teamName);
 										showPath(teamName, itemPath, itemContainer, teamKey, itemId);
 
 									  setupNewItemKey();
-										done(null, null); 
+										done(null, null);
              			}
             		});
 							} else {
 								setupNewItemKey();
 								showPath('Personal', itemPath, itemContainer, expandedKey, itemId);
-								done(null, null);	
-							}						
+								done(null, null);
+							}
 						});
-					} else {	
+					} else {
 						done(null, null);
 					}
 				}
@@ -2842,4 +2861,4 @@
     initializeEditorButtons();
 		initializeImageButton();
     initializeAttachButton();
-	} 
+	}
