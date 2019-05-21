@@ -54,6 +54,22 @@
 				itemCopy.update = "images";
         createNewItemVersionForPage();
 			}
+		},
+		
+		deleteAttachmentOnPage: function(e) {
+			e.preventDefault();
+			var confirmDelete = confirm('Are you sure you want to delete this attachment?');
+			if (confirmDelete) {
+				var $this = $(this);
+				var attachmentKey = $this.closest('.attachment').attr('id');
+				itemCopy.attachments = itemCopy.attachments.filter(function(attachment) {
+					return attachmentKey !== attachment.s3KeyPrefix;
+				});
+				// remove the current attachment from DOM without reload.
+				$this.closest('.attachment').slideUp();
+				itemCopy.update = "attachments";
+				createNewItemVersionForPage();
+			}
 		}
 	};
 	// --- /Page Control Functions ---
@@ -931,7 +947,8 @@
 
   function showAttachment(fileName, fileSize) {
 		fileName = DOMPurify.sanitize(fileName);
-    $attachment = $('.attachmentTemplate').clone().removeClass('attachmentTemplate hidden').addClass('attachment');
+    var $attachment = $('.attachmentTemplate').clone().removeClass('attachmentTemplate hidden').addClass('attachment');
+    $attachment.find('.deleteAnAttachment a').on('click', pageControlFunctions.deleteAttachmentOnPage);
     $attachment.find('.attachmentFileName').text(fileName);
     $attachment.find('.attachmentFileSize').text(numberWithCommas(fileSize)+ ' bytes');
     $('.attachments').append($attachment);
@@ -2173,7 +2190,7 @@
       var files = e.target.files;
       for(var i=0; i< files.length; i++) {
         var file = files[i];
-        $attachment = showAttachment(file.name, file.size);
+        var $attachment = showAttachment(file.name, file.size);
         $attachment.data('file', file);
         changeUploadingState($attachment, "Pending");
 
