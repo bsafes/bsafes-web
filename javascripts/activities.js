@@ -91,10 +91,10 @@ function loadPage(){
 		},
 		separateActivities: function(activities) {
 			// var $this = this;
-			var previousTitle;
+			var previousId;
 			return activities.reduce((acc, activity) => {
-				if (previousTitle !== activity._source.title) {
-					previousTitle = activity._source.title;
+				if (previousId !== activity._source.id) {
+					previousId = activity._source.id;
 					acc.push([activity]);
 				} else {
 					acc[acc.length - 1].push(activity)
@@ -143,21 +143,22 @@ function loadPage(){
 		},
 		makeGroupsCollapsable: function() {
 			var $this = this;
-			var arrowUp = $("<div class='text-center up-arrow'><i class='fa fa-caret-up'></i></div>");
-			var arrowDown = $("<div class='text-center down-arrow hidden'><i class='fa fa-caret-down'></i></div>");
+			var arrowUp = $("<div class='text-center up-arrow hidden'><i class='fa fa-caret-up'></i></div>");
+			var arrowDown = $("<div class='text-center down-arrow'><i class='fa fa-caret-down'></i></div>");
 			arrowUp.off().on('click', $this.hideGroupContainer);
 			arrowDown.off().on('click', $this.showGroupContainer);
 			$('.up-arrow').remove();
 			$('.down-arrow').remove();
 			var $firstElements = $('.groupContainer a:first-child');
 			$firstElements.after(arrowUp, arrowDown);
+			$this.hideAllCollapsibles();
 		},
 		hideGroupContainer: function(e) {
 			e.preventDefault();
 			var $this = $(this);
 			// $this.closest('.groupContainer').slideUp();
 			var collapsible = $this.closest('.groupContainer');
-			collapsible.find('a').slice(1).slideUp();
+			collapsible.find('a').slice(1).hide();
 			$this.addClass('hidden');
 			$this.closest('.groupContainer').find('.down-arrow').removeClass('hidden');
 		},
@@ -166,9 +167,12 @@ function loadPage(){
 			var $this = $(this);
 			// $this.closest('.groupContainer').slideUp();
 			var collapsible = $this.closest('.groupContainer');
-			collapsible.find('a').slice(1).slideDown();
+			collapsible.find('a').slice(1).show();
 			$this.addClass('hidden');
 			$this.closest('.groupContainer').find('.up-arrow').removeClass('hidden');
+		},
+		hideAllCollapsibles: function() {
+			$('.groupContainer a:not(:first-child)').hide();
 		}
 	};
 	
