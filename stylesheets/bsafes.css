@@ -107,6 +107,10 @@ body {
 .displayNone {
 	display: none;
 }
+
+.up-arrow, .down-arrow {
+  cursor: pointer;
+}
 /* End of general */
 
 /*--***** Custom body */
@@ -477,7 +481,7 @@ body {
 }
 /* End of Item */
 /*--****** Items Toolbar ***/
-.itemsToolbar {
+.itemsToolbar, .itemBottomToolbar {
 	background-color:#666666;
 	position:fixed;
 	bottom:0px;
@@ -850,6 +854,4 @@ body {
 /* End of comments */
 /* End of page *******/
 
-.up-arrow, .down-arrow {
-  cursor: pointer;
-}
+
