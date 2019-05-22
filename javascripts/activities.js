@@ -130,6 +130,7 @@ function loadPage(){
 				// check if group has more than 1 items
 				if (groups[0] && groups[0].length > 1) {
 					// group has more than 1 items, need to create a group activity.
+					var $container = $("<div></div>").addClass('groupContainer');
 					groups[0].forEach(function(item) {
 						// create item for each item
 						$this.createSingleActivity(item._source, $container);
