@@ -850,3 +850,6 @@ body {
 /* End of comments */
 /* End of page *******/
 
+.up-arrow, .down-arrow {
+  cursor: pointer;
+}
