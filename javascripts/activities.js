@@ -1,4 +1,183 @@
 function loadPage(){
+	
+	var activitiesFunctions = {
+		$this: this,
+		createSingleActivity: function(source, parentElement) {
+		  if (!source) return;
+			var $resultItem = $('.resultItemTemplate').clone().removeClass('resultItemTemplate hidden').addClass('resultItem');
+			$resultItem.attr('id', source.id);
+			var resultItem = source;
+			if(resultItem.id.charAt(0) === 't') {
+				var title = "Trash Box";
+			} else {
+				var itemKey = decryptResult(resultItem.keyEnvelope, resultItem.envelopeIV);
+				var itemIV = decryptResult(resultItem.ivEnvelope, resultItem.ivEnvelopeIV);
+				if(resultItem.title) {
+					try {
+						var encodedTitle = decryptBinaryString(resultItem.title, itemKey, itemIV);
+						var title = forge.util.decodeUtf8(encodedTitle);
+						title = DOMPurify.sanitize(title);
+						title = $('<div></div>').html(title).text();
+					} catch(err) {
+						alert(err);
+						var title = "";
+					}
+				} else {
+					var title = "";
+				}
+			}
+			$resultItem.find('.itemTitle').html(title);
+			var updatedText;
+			if (source.version === 1) {
+				updatedText = "Creation";
+			} else if(source.version < 0) {
+				updatedText = source.update;
+			} else {
+				updatedText = "Updated " + source.update;
+			}
+			$resultItem.find('.itemVersionUpdate').text(updatedText);
+			var updatedBy = source.displayName?source.displayName:source.updatedBy;
+			updatedBy = DOMPurify.sanitize(updatedBy);
+			$resultItem.find('.itemVersionUpdatedBy').text(updatedBy);
+			var updatedTime = formatTimeDisplay(source.createdTime);
+			$resultItem.find('.itemVersionUpdatedTime').text(updatedTime);
+			if(updatedTime.charAt(updatedTime.length - 1) === 'o') {
+				$resultItem.find('.itemVersionUpdatedTimeStamp').text(timeToString(source.createdTime));
+			}
+			if (parentElement) {
+				parentElement.append($resultItem);
+				$('.resultItems').append(parentElement);
+			} else {
+				$('.resultItems').append($resultItem);
+			}
+			
+			$resultItem.click(function(e) {
+				var $thisItemVersionItem = $(e.target).closest('.resultItem');
+				var thisItemId = $thisItemVersionItem.attr('id');
+				var itemType = thisItemId.split(':')[0];
+				var link = "";
+				switch(itemType) {
+					case 'p':
+						link = '/page/' + thisItemId;
+						break;
+					case 'f':
+						link = '/folder/' + thisItemId;
+						break;
+					case 'b':
+						link = '/box/' + thisItemId;
+						break;
+					case 'n':
+						link = '/notebook/' + thisItemId;
+						break;
+					case 'np':
+						link = '/notebook/p/' + thisItemId;
+						break;
+					case 'd':
+						link = '/diary/' + thisItemId;
+						break;
+					case 'dp':
+						link = '/diary/p/' + thisItemId;
+						break;
+					default:
+						link = '';
+				}
+				window.location.href = link;
+			});
+		},
+		groupAcitivities: function(hits) {
+			var $this = this;
+			var groups = $this.separateActivities(hits);
+			$this.createGroupActivities(groups);
+			$this.makeGroupsCollapsable();
+		},
+		separateActivities: function(activities) {
+			// var $this = this;
+			var previousId;
+			return activities.reduce((acc, activity) => {
+				if (previousId !== activity._source.id) {
+					previousId = activity._source.id;
+					acc.push([activity]);
+				} else {
+					acc[acc.length - 1].push(activity)
+				}
+				return acc;
+			}, []);
+		},
+		createGroupActivities: function(groups) {
+			var $this = this;
+			// create a single listing with arrow and attach the event with that arrow
+			
+			//  check if there are more than one groups
+			if (groups.length > 1) {
+				groups.forEach(function(group) {
+					// check if this group has more than one items
+					if (group.length > 1) {
+						var $container = $("<div></div>").addClass('groupContainer');
+						// yes group has more than one item
+						group.forEach(function(item) {
+							// create item for each item
+							$this.createSingleActivity(item._source, $container);
+						});
+					} else {
+						// no group has only one item
+						var item = group[0];
+						$this.createSingleActivity(item._source, null);
+					}
+				});
+			} else {
+				// there is only one group
+				
+				// check if group has more than 1 items
+				if (groups[0] && groups[0].length > 1) {
+					// group has more than 1 items, need to create a group activity.
+					var $container = $("<div></div>").addClass('groupContainer');
+					groups[0].forEach(function(item) {
+						// create item for each item
+						$this.createSingleActivity(item._source, $container);
+					})
+				} else {
+					// group does not have more than 1 item. create a single activity
+					$this.createSingleActivity(groups[0] && groups[0]._source, null);
+				}
+			}
+			
+			// create other activities normally.
+		},
+		makeGroupsCollapsable: function() {
+			var $this = this;
+			var arrowUp = $("<div class='text-center up-arrow hidden'><i class='fa fa-caret-up'></i></div>");
+			var arrowDown = $("<div class='text-center down-arrow'><i class='fa fa-caret-down'></i></div>");
+			arrowUp.off().on('click', $this.hideGroupContainer);
+			arrowDown.off().on('click', $this.showGroupContainer);
+			$('.up-arrow').remove();
+			$('.down-arrow').remove();
+			var $firstElements = $('.groupContainer a:first-child');
+			$firstElements.after(arrowUp, arrowDown);
+			$this.hideAllCollapsibles();
+		},
+		hideGroupContainer: function(e) {
+			e.preventDefault();
+			var $this = $(this);
+			// $this.closest('.groupContainer').slideUp();
+			var collapsible = $this.closest('.groupContainer');
+			collapsible.find('a').slice(1).hide();
+			$this.addClass('hidden');
+			$this.closest('.groupContainer').find('.down-arrow').removeClass('hidden');
+		},
+		showGroupContainer: function(e) {
+			e.preventDefault();
+			var $this = $(this);
+			// $this.closest('.groupContainer').slideUp();
+			var collapsible = $this.closest('.groupContainer');
+			collapsible.find('a').slice(1).show();
+			$this.addClass('hidden');
+			$this.closest('.groupContainer').find('.up-arrow').removeClass('hidden');
+		},
+		hideAllCollapsibles: function() {
+			$('.groupContainer a:not(:first-child)').hide();
+		}
+	};
+	
   var pki = forge.pki;
   var rsa = forge.pki.rsa;
 
@@ -65,84 +244,10 @@ function loadPage(){
 			if(data.status === 'ok') {
 				var total = data.hits.total;
 				var hits = data.hits.hits;
-				for (var i=0; i < hits.length; i++) {
-					var $resultItem = $('.resultItemTemplate').clone().removeClass('resultItemTemplate hidden').addClass('resultItem');
-					$resultItem.attr('id', hits[i]._source.id);
-					var resultItem = hits[i]._source;
-					if(resultItem.id.charAt(0) === 't') {
-							var title = "Trash Box";
-					} else {
-						var itemKey = decryptResult(resultItem.keyEnvelope, resultItem.envelopeIV);
-						var itemIV = decryptResult(resultItem.ivEnvelope, resultItem.ivEnvelopeIV);
-						if(resultItem.title) {
-    					try {
-      					var encodedTitle = decryptBinaryString(resultItem.title, itemKey, itemIV);
-      					var title = forge.util.decodeUtf8(encodedTitle);
-      					title = DOMPurify.sanitize(title);
-								title = $('<div></div>').html(title).text();
-    					} catch(err) {
-     						 alert(err);
-      					var title = "";
-    					}
-						} else {
-    					var title = "";
-  					}
-					}
-					$resultItem.find('.itemTitle').html(title);
-					var updatedText;
-					if (hits[i]._source.version === 1) {
-            updatedText = "Creation";
-          } else if(hits[i]._source.version < 0) {
-						updatedText = hits[i]._source.update;	
-					} else {
-            updatedText = "Updated " + hits[i]._source.update;
-          }
-					$resultItem.find('.itemVersionUpdate').text(updatedText);
-					var updatedBy = hits[i]._source.displayName?hits[i]._source.displayName:hits[i]._source.updatedBy;
-					updatedBy = DOMPurify.sanitize(updatedBy);
-					$resultItem.find('.itemVersionUpdatedBy').text(updatedBy);
-					var updatedTime = formatTimeDisplay(hits[i]._source.createdTime);
-					$resultItem.find('.itemVersionUpdatedTime').text(updatedTime);	
-					if(updatedTime.charAt(updatedTime.length - 1) === 'o') {
-						$resultItem.find('.itemVersionUpdatedTimeStamp').text(timeToString(hits[i]._source.createdTime));	
-					}
-					$('.resultItems').append($resultItem);
-					$resultItem.click(function(e) {
-            var $thisItemVersionItem = $(e.target).closest('.resultItem');
-            var thisItemId = $thisItemVersionItem.attr('id');
-						var itemType = thisItemId.split(':')[0];
-						var link = "";
-						switch(itemType) {
-							case 'p':
-								link = '/page/' + thisItemId;
-								break;
-							case 'f':
-								link = '/folder/' + thisItemId;
-								break;
-							case 'b':
-								link = '/box/' + thisItemId;
-								break;
-							case 'n':
-								link = '/notebook/' + thisItemId;
-								break;
-              case 'np':
-                link = '/notebook/p/' + thisItemId;
-								break;
-              case 'd':
-								link = '/diary/' + thisItemId;
-                break;
-              case 'dp':
-								link = '/diary/p/' + thisItemId;
-                break;
-							default:
-								link = '';
-						}
-						window.location.href = link;
-          });
-				}
+				activitiesFunctions.groupAcitivities(hits);
 			}
 		}, 'json');
-	}
+	};
 
 	function listAllActivities() {
 		listActivities(currentContentsPage);	
