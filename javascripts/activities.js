@@ -3,6 +3,7 @@ function loadPage(){
 	var activitiesFunctions = {
 		$this: this,
 		createSingleActivity: function(source, parentElement) {
+		  if (!source) return;
 			var $resultItem = $('.resultItemTemplate').clone().removeClass('resultItemTemplate hidden').addClass('resultItem');
 			$resultItem.attr('id', source.id);
 			var resultItem = source;
@@ -127,7 +128,7 @@ function loadPage(){
 				// there is only one group
 				
 				// check if group has more than 1 items
-				if (groups[0].length > 1) {
+				if (groups[0] && groups[0].length > 1) {
 					// group has more than 1 items, need to create a group activity.
 					groups[0].forEach(function(item) {
 						// create item for each item
@@ -135,7 +136,7 @@ function loadPage(){
 					})
 				} else {
 					// group does not have more than 1 item. create a single activity
-					$this.createSingleActivity(groups[0]._source, null);
+					$this.createSingleActivity(groups[0] && groups[0]._source, null);
 				}
 			}
 			
