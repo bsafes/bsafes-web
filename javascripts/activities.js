@@ -136,8 +136,14 @@ function loadPage(){
 						$this.createSingleActivity(item._source, $container);
 					})
 				} else {
+					var source = groups[0] && groups[0]._source;
+					if (!source) {
+						source = groups[0][0]._source;
+					}
 					// group does not have more than 1 item. create a single activity
-					$this.createSingleActivity(groups[0] && groups[0]._source, null);
+					if (source) {
+						$this.createSingleActivity(source, null);
+					}
 				}
 			}
 			
