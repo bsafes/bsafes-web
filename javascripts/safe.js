@@ -282,6 +282,11 @@ function loadPage(){
 				var total = data.hits.total;
 				var hits = data.hits.hits;
 				hideLoading();
+				if(total === 0) {
+					$(".gettingStartedNotice").removeClass('hidden');
+				} else {
+					$(".gettingStartedNotice").addClass('hidden');
+				}
 				displayHits(currentMode, hits);
 				updatePagination(currentMode, currentContentsPage, total, itemsPerPage, lastSearchTokensStr);
 			}	
