@@ -128,7 +128,7 @@ function loadPage() {
         uploadImages(droppedFiles, 'appendToTheFront');
     });
 
-    // define div <images> for drag & drop multi files.
+    // define div <attachments> for drag & drop multi files.
     $('.attachments').css("border", '2px dashed grey');
     
     $('.attachments').on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
