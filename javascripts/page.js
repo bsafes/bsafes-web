@@ -104,9 +104,58 @@ function loadPage() {
         $(e.target).trigger('blur');
         handleTrashAnItem(e);
     });
-    
-    
 
+    // added by <Said M> for issue #25
+
+    // define div <images> for drag & drop multi files.    
+    $('.images').css("border", '2px dashed grey');
+    
+    $('.images').on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    })
+    .on('dragover dragenter', function() {
+        $('.images').css("background-color", 'aliceblue');
+        console.log('edi1');
+    })
+    .on('dragleave dragend drop', function() {
+        $('.images').css("background-color", 'white');
+        console.log('edi2');
+    })
+    .on('drop', function(e) {
+        $('.images').css("background-color", 'white');
+        droppedFiles = e.originalEvent.dataTransfer.files;
+        uploadImages(droppedFiles, 'appendToTheFront');
+    });
+
+    // define div <images> for drag & drop multi files.
+    $('.attachments').css("border", '2px dashed grey');
+    
+    $('.attachments').on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    })
+    .on('dragover dragenter', function() {
+        $('.attachments').css("background-color", 'blanchedalmond');
+    })
+    .on('dragleave dragend drop', function() {
+        $('.attachments').css("background-color", 'white');
+    })
+    .on('drop', function(e) {
+        $('.attachments').css("background-color", 'white');
+        droppedFiles = e.originalEvent.dataTransfer.files;
+        for (var i = 0; i < droppedFiles.length; i++) {
+            var file = droppedFiles[i];
+            var $attachment = showAttachment(file.name, file.size);
+            $attachment.data('file', file);
+            changeUploadingState($attachment, "Pending");
+
+            queueUploadAttachment($attachment);
+        }
+    });
+
+    // ended by <Said M> for issue #25
+    
     var decryptResult = function(encryptedData, iv) {
     	var isATeamSpace = true;
         if (isATeamSpace) {
