@@ -2182,9 +2182,9 @@
 	    // added by <Said M> for issue #25
 	    //define drag & drop dev for drag & drop multi files.
 		var $imageDragDropDiv = $imageBtnRow.find('div');
-	    $imageDragDropDiv.css("border", '2px dashed grey');
-	    $imageDragDropDiv.css("background-color", 'aliceblue');
-	    $imageDragDropDiv.css("margin-bottom", '10px');
+	    $imageDragDropDiv.css("border", '2px dashed grey')
+					    .css("background-color", 'aliceblue')
+					    .css("margin-bottom", '10px');
 	    $imageDragDropDiv.append('<p>Choose gallery images or drag it here.</p>');
 
 		$imageDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
@@ -2225,11 +2225,11 @@
 	    // added by <Said M> for issue #25
 	    //define drag & drop dev for drag & drop multi files.
 	    var $attachDragDropDiv = $attachBtnRow.find('div');
-	    $attachDragDropDiv.css("border", '2px dashed grey');
-	    $attachDragDropDiv.css("background-color", 'blanchedalmond');
-	    $attachDragDropDiv.css("margin-top", '10px');
-	    $attachDragDropDiv.css("margin-bottom", '10px');
-	    $attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
+	    $attachDragDropDiv.css("border", '2px dashed grey')
+						    .css("background-color", 'blanchedalmond')
+						    .css("margin-top", '10px')
+						    .css("margin-bottom", '10px');
+		$attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
 
 		$attachDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
 	        e.preventDefault();
