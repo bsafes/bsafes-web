@@ -2178,6 +2178,32 @@
 	            uploadImages(files, 'appendToTheFront');
 	        }
 	    });
+
+	    // added by <Said M> for issue #25
+	    //define drag & drop dev for drag & drop multi files.
+		var $imageDragDropDiv = $imageBtnRow.find('div');
+	    $imageDragDropDiv.css("border", '2px dashed grey');
+	    $imageDragDropDiv.css("background-color", 'aliceblue');
+	    $imageDragDropDiv.css("margin-bottom", '10px');
+	    $imageDragDropDiv.append('<p>Choose gallery images or drag it here.</p>');
+
+		$imageDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+	        e.preventDefault();
+	        e.stopPropagation();
+	    })
+	    .on('dragover dragenter', function() {
+	        $imageDragDropDiv.css("background-color", 'white');
+	    })
+	    .on('dragleave dragend drop', function() {
+	        $imageDragDropDiv.css("background-color", 'aliceblue');
+	    })
+	    .on('drop', function(e) {
+	        $imageDragDropDiv.css("background-color", 'aliceblue');
+	        droppedFiles = e.originalEvent.dataTransfer.files;
+	        uploadImages(droppedFiles, 'appendToTheFront');
+	    });
+	    // ended by <Said M> for issue #25
+	    
 	}
 
 	function initializeAttachButton() {
@@ -2195,6 +2221,39 @@
 	            queueUploadAttachment($attachment);
 	        }
 	    });
+
+	    // added by <Said M> for issue #25
+	    //define drag & drop dev for drag & drop multi files.
+	    var $attachDragDropDiv = $attachBtnRow.find('div');
+	    $attachDragDropDiv.css("border", '2px dashed grey');
+	    $attachDragDropDiv.css("background-color", 'blanchedalmond');
+	    $attachDragDropDiv.css("margin-top", '10px');
+	    $attachDragDropDiv.css("margin-bottom", '10px');
+	    $attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
+
+		$attachDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+	        e.preventDefault();
+	        e.stopPropagation();
+	    })
+	    .on('dragover dragenter', function() {
+	        $attachDragDropDiv.css("background-color", 'white');
+	    })
+	    .on('dragleave dragend drop', function() {
+	        $attachDragDropDiv.css("background-color", 'blanchedalmond');
+	    })
+	    .on('drop', function(e) {
+	        $attachDragDropDiv.css("background-color", 'blanchedalmond');
+	        droppedFiles = e.originalEvent.dataTransfer.files;
+	        for (var i = 0; i < droppedFiles.length; i++) {
+	            var file = droppedFiles[i];
+	            var $attachment = showAttachment(file.name, file.size);
+	            $attachment.data('file', file);
+	            changeUploadingState($attachment, "Pending");
+
+	            queueUploadAttachment($attachment);
+	        }
+	    });
+	    // ended by <Said M> for issue #25
 	}
 
 	function isImageDisplayed(imageElement) {
