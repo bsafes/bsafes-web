@@ -2186,7 +2186,7 @@
 	    $imageDragDropDiv.css("border", '2px dashed #e4e1e1')
 					    .css("background-color", 'aliceblue')
 						.css("margin-bottom", '10px');
-	    $imageDragDropDiv.append('<p>Choose gallery images or drag it here.</p>');
+//	    $imageDragDropDiv.append('<p>Choose gallery images or drag it here.</p>');
 
 		$imageDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
 	        e.preventDefault();
@@ -2231,7 +2231,7 @@
 						    .css("background-color", 'blanchedalmond')
 						    .css("margin-top", '10px')
 		$attachDragDropDiv.css("margin-bottom", '10px');
-		$attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
+//		$attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
 
 		$attachDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
 	        e.preventDefault();
