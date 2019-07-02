@@ -773,20 +773,27 @@ function newResultItem(resultItem) {
     var id = itemId;
     var container = resultItem.container;
     var position = resultItem.position;
-    var itemKey = decryptResultInContainer(resultItem.keyEnvelope, resultItem.envelopeIV);
-    var itemIV = decryptResultInContainer(resultItem.ivEnvelope, resultItem.ivEnvelopeIV);
-    if (resultItem.title) {
+		if(itemId === "np:mF_hRPgswTh1se8DuWy6762ojHUWOvn6dch4KIvaIo4flg=-1558941669974:1:1562051033484:2") {
+			resultItem.keyEnvelope = undefined;
+		}
+		if((resultItem.keyEnvelope === undefined) || (resultItem.envelopeIV === undefined) || (resultItem.ivEnvelope === undefined) || (resultItem.ivEnvelopeIV === undefined)) {
+			var title = "Error!";		
+		} else {
+    	var itemKey = decryptResultInContainer(resultItem.keyEnvelope, resultItem.envelopeIV);
+    	var itemIV = decryptResultInContainer(resultItem.ivEnvelope, resultItem.ivEnvelopeIV);
+			if (resultItem.title) {
         try {
-            var encodedTitle = decryptBinaryString(resultItem.title, itemKey, itemIV);
-            var title = forge.util.decodeUtf8(encodedTitle);
-            title = DOMPurify.sanitize(title);
+          var encodedTitle = decryptBinaryString(resultItem.title, itemKey, itemIV);
+          var title = forge.util.decodeUtf8(encodedTitle);
+          title = DOMPurify.sanitize(title);
         } catch (err) {
-            alert(err);
-            var title = "";
+          alert(err);
+          var title = "";
         }
-    } else {
+    	} else {
         var title = "";
-    }
+    	}
+		}
 
     function isItemSelected(itemId) {
         for (var i = 0; i < selectedItemsInContainer.length; i++) {
