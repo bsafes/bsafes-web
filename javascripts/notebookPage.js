@@ -76,6 +76,7 @@ function loadPage(){
 		history.pushState({},"","/notebook/p/"+thisItemId);
     getPageItem(thisItemId, expandedKey, thisPrivateKey, thisSearchKey, function(err, item){
       if(err) {
+				currentPageNumber = getNotebookPageNumberFromId(thisItemId);
 				$('#pageNumberInput').val(currentPageNumber);
         alert(err);
       } else {
