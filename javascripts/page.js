@@ -118,6 +118,52 @@ function loadPage() {
     //initContainerFunctions(listItems, searchByTokens, decryptResult, updateToolbar, updateKeyValue, showLoading, hideLoading);
     initContainerFunctions('', '', decryptResult, '', '', '', '');
 
+    {
+        $("<style>")
+        .prop("type", "text/css")
+        .html("\
+            @keyframes aniVertical {\
+                0% {\
+                    opacity: 0.3;\
+                }\
+                50% {\
+                    opacity: 1;\
+                }\
+                100% {\
+                    opacity: 0.3;\
+                }\
+            }\
+            .loading {\
+                height: 30px;\
+                border-radius: 20px;\
+                background-color: #E2E2E2;\
+                animation: aniVertical 3s ease;\
+                animation-iteration-count: infinite;\
+                animation-fill-mode: forwards;\
+                opacity: 0;\
+            }\
+            .content-loading {\
+                height: 20px;\
+                margin-top:20px;\
+                background-color: #E2E2E2;\
+                border-radius: 10px;\
+                animation: aniVertical 5s ease;\
+                animation-iteration-count: infinite;\
+                animation-fill-mode: forwards;\
+                opacity: 0;\
+            }")
+        .appendTo("head");
+
+        $('.froala-editor#title').addClass('loading');
+        //$('.froala-editor#content').addClass('loading');
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:100%;'></div>" );
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:70%;'></div>" );
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:80%;'></div>" );
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:60%;'></div>" );
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:90%;'></div>" );
+        $('.commentsSearchResults').addClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
+    }
+
     bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
         if (err) {
             alert(err);

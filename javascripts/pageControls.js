@@ -951,6 +951,7 @@
 	    $attachment.find('.deleteAnAttachment a').on('click', pageControlFunctions.deleteAttachmentOnPage);
 	    $attachment.find('.attachmentFileName').text(fileName);
 	    $attachment.find('.attachmentFileSize').text(numberWithCommas(fileSize) + ' bytes');
+	    $attachment.removeClass('loading');
 	    $('.attachments').append($attachment);
 	    return $attachment;
 	};
@@ -2186,7 +2187,7 @@
 	    $imageDragDropDiv.css("border", '2px dashed #e4e1e1')
 					    .css("background-color", 'aliceblue')
 						.css("margin-bottom", '10px');
-	    $imageDragDropDiv.append('<p>Choose gallery images or drag it here.</p>');
+//	    $imageDragDropDiv.append('<p>Choose gallery images or drag it here.</p>');
 
 		$imageDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
 	        e.preventDefault();
@@ -2231,7 +2232,7 @@
 						    .css("background-color", 'blanchedalmond')
 						    .css("margin-top", '10px')
 		$attachDragDropDiv.css("margin-bottom", '10px');
-		$attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
+//		$attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
 
 		$attachDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
 	        e.preventDefault();
@@ -2539,6 +2540,7 @@
 	            content = DOMPurify.sanitize(content);
 	            $comment.find('.froala-editor').html(content);
 	            var $commentsSearchResults = $('.commentsSearchResults');
+	            
 	            $commentsSearchResults.append($comment);
 	        }
 	    };
@@ -2550,6 +2552,7 @@
 	            from: 0
 	        }, function(data, textStatus, jQxhr) {
 	            if (data.status === "ok") {
+	            	$('.commentsSearchResults').removeClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
 	                var total = data.hits.total;
 	                var hits = data.hits.hits;
 	                if (hits.length) displayComments(hits);
@@ -2587,6 +2590,10 @@
 	                    itemPosition = item.position;
 
 	                    function decryptItem(envelopeKey) {
+							if((item.keyEnvelope === undefined) || (item.envelopeIV === undefined) || (item.ivEnvelope === undefined) || (item.ivEnvelopeIV === undefined)) {
+								getAndShowPath(itemId, envelopeKey, teamName, "");
+								done("Error: undefined item key");
+							}
 	                        itemKey = decryptBinaryString(item.keyEnvelope, envelopeKey, item.envelopeIV);
 	                        itemIV = decryptBinaryString(item.ivEnvelope, envelopeKey, item.ivEnvelopeIV);
 	                        itemTags = [];
@@ -2628,6 +2635,7 @@
 	                        } else {
 	                            $('.froala-editor#title').html('<h2></h2>');
 	                        }
+	                        $('.froala-editor#title').removeClass('loading');
 
 	                        getAndShowPath(itemId, envelopeKey, teamName, titleText);
 	                        if (item.content) {
@@ -2647,6 +2655,7 @@
 	                                    }
 	                                });
 	                                content = DOMPurify.sanitize(content);
+	                                $('.froala-editor#content').removeClass('loading');
 	                                $('.froala-editor#content').html(content);
 	                            } catch (err) {
 	                                alert(err);
