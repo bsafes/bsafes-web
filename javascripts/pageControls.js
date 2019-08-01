@@ -2653,17 +2653,11 @@
 	                    itemPosition = item.position;
 
 	                    function decryptItem(envelopeKey) {
-<<<<<<< HEAD
 							if((item.keyEnvelope === undefined) || (item.envelopeIV === undefined) || (item.ivEnvelope === undefined) || (item.ivEnvelopeIV === undefined)) {
 								getAndShowPath(itemId, envelopeKey, teamName, "");
 								done("Error: undefined item key");
 							}
-=======
-													if((item.keyEnvelope === undefined) || (item.envelopeIV === undefined) || (item.ivEnvelope === undefined) || (item.ivEnvelopeIV === undefined)) {
-														getAndShowPath(itemId, envelopeKey, teamName, "");
-														done("Error: undefined item key");
-													}
->>>>>>> upstream/master
+							
 	                        itemKey = decryptBinaryString(item.keyEnvelope, envelopeKey, item.envelopeIV);
 	                        itemIV = decryptBinaryString(item.ivEnvelope, envelopeKey, item.ivEnvelopeIV);
 	                        itemTags = [];
