@@ -155,7 +155,6 @@ function loadPage() {
         .appendTo("head");
 
         $('.froala-editor#title').addClass('loading');
-        //$('.froala-editor#content').addClass('loading');
         $('.froala-editor#content').append( "<div class='content-loading' style='width:100%;'></div>" );
         $('.froala-editor#content').append( "<div class='content-loading' style='width:70%;'></div>" );
         $('.froala-editor#content').append( "<div class='content-loading' style='width:80%;'></div>" );
