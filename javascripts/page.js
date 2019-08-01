@@ -118,6 +118,8 @@ function loadPage() {
     //initContainerFunctions(listItems, searchByTokens, decryptResult, updateToolbar, updateKeyValue, showLoading, hideLoading);
     initContainerFunctions('', '', decryptResult, '', '', '', '');
 
+    prepareSkeletonScreen();
+
     bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
         if (err) {
             alert(err);

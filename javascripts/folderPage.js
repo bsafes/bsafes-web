@@ -137,6 +137,7 @@ function loadPage(){
 
 	function getFolderPageItem(thisItemId, thisPrivateKey, thisSearchKey) {
 		history.pushState({},"","/folder/p/"+thisItemId);
+    prepareSkeletonScreen();
     getPageItem(thisItemId, expandedKey, thisPrivateKey, thisSearchKey, function(err, item){
       if(err) {
         alert(err);
@@ -248,6 +249,8 @@ function loadPage(){
 		$(e.target).trigger('blur');
 		return false;
   });
+
+  prepareSkeletonScreen();
 
 	bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
 			if(err) {

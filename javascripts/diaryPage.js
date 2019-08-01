@@ -133,8 +133,10 @@ function loadPage(){
 
 	function getDiaryPageItem(thisItemId, thisPrivateKey, thisSearchKey) {
 		updatePageDate(thisItemId);
+		prepareSkeletonScreen();
 		
     getPageItem(thisItemId, expandedKey, thisPrivateKey, thisSearchKey, function(err, item){
+    	clearSkeletonScreen();
       if(err) {
 				$('#pageNumberInput').val(currentPageNumber);
         alert(err);
@@ -230,6 +232,8 @@ function loadPage(){
 		$(e.target).trigger('blur');
 		return false;
   });
+
+	prepareSkeletonScreen();
 
 	bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
 			if(err) {

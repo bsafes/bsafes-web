@@ -73,8 +73,10 @@ function loadPage(){
   });
 
 	function getNotebookPageItem(thisItemId, thisPrivateKey, thisSearchKey) {
+		prepareSkeletonScreen();
 		history.pushState({},"","/notebook/p/"+thisItemId);
     getPageItem(thisItemId, expandedKey, thisPrivateKey, thisSearchKey, function(err, item){
+    	clearSkeletonScreen();
       if(err) {
 				currentPageNumber = getNotebookPageNumberFromId(thisItemId);
 				$('#pageNumberInput').val(currentPageNumber);
@@ -167,17 +169,20 @@ function loadPage(){
 	});
 
 	$('#previousPageBtn').click(function(e){
-    e.preventDefault();
-    var intendedPageNumber = currentPageNumber - 1;
-		if(intendedPageNumber > 0) {
-    	var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
-    	getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
-		} else {
-			window.location.href = '/notebook/' + notebookId;
-		}
-		$(e.target).trigger('blur');
-		return false;
-  });
+    	e.preventDefault();
+	    var intendedPageNumber = currentPageNumber - 1;
+			if(intendedPageNumber > 0) {
+	    	var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
+	    	getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
+			} else {
+				window.location.href = '/notebook/' + notebookId;
+			}
+			$(e.target).trigger('blur');
+			return false;
+	});
+
+	//prepareSkeletonScreen();
+
 
 	bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
 			if(err) {
@@ -185,7 +190,7 @@ function loadPage(){
 			} else {
 				expandedKey = key;
 				publicKeyPem = thisPublicKey;
-        privateKeyPem = thisPrivateKey;
+        		privateKeyPem = thisPrivateKey;
 				searchKey = thisSearchKey;
 				getNotebookPageItem(itemId, thisPrivateKey, thisSearchKey); 
 				positionPageNavigationControls();

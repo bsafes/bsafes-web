@@ -38,6 +38,69 @@
 
 	var currentImageDownloadXhr = null;
 
+	// Page for skeleton screen
+	function prepareSkeletonScreen()
+	{
+        $("<style>")
+        .prop("type", "text/css")
+        .html("\
+            @keyframes aniVertical {\
+                0% {\
+                    opacity: 0.3;\
+                }\
+                50% {\
+                    opacity: 1;\
+                }\
+                100% {\
+                    opacity: 0.3;\
+                }\
+            }\
+            .loading {\
+                height: 30px;\
+                border-radius: 20px;\
+                background-color: #E2E2E2;\
+                animation: aniVertical 3s ease;\
+                animation-iteration-count: infinite;\
+                animation-fill-mode: forwards;\
+                opacity: 0;\
+            }\
+            .content-loading {\
+                height: 20px;\
+                margin-top:20px;\
+                background-color: #E2E2E2;\
+                border-radius: 10px;\
+                animation: aniVertical 5s ease;\
+                animation-iteration-count: infinite;\
+                animation-fill-mode: forwards;\
+                opacity: 0;\
+            }")
+        .appendTo("head");
+
+        $('.froala-editor#title').html('');
+        $('.froala-editor#content').html('');
+        $('.commentsSearchResults').html('');
+
+        $('.froala-editor#title').addClass('loading');
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:100%;'></div>" );
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:70%;'></div>" );
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:80%;'></div>" );
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:60%;'></div>" );
+        $('.froala-editor#content').append( "<div class='content-loading' style='width:90%;'></div>" );
+        $('.commentsSearchResults').addClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
+    }
+
+    function clearSkeletonScreen()
+	{
+		$('.froala-editor#title').removeClass('loading');
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:100%;'></div>" );
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:70%;'></div>" );
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:80%;'></div>" );
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:60%;'></div>" );
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:90%;'></div>" );
+        $('.commentsSearchResults').removeClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
+	}
+
+
 	// --- Page Control Functions ---
 	var pageControlFunctions = {
 	    deleteImageOnPage: function(e) {
@@ -951,6 +1014,7 @@
 	    $attachment.find('.deleteAnAttachment a').on('click', pageControlFunctions.deleteAttachmentOnPage);
 	    $attachment.find('.attachmentFileName').text(fileName);
 	    $attachment.find('.attachmentFileSize').text(numberWithCommas(fileSize) + ' bytes');
+	    $attachment.removeClass('loading');
 	    $('.attachments').append($attachment);
 	    return $attachment;
 	};
@@ -2539,6 +2603,7 @@
 	            content = DOMPurify.sanitize(content);
 	            $comment.find('.froala-editor').html(content);
 	            var $commentsSearchResults = $('.commentsSearchResults');
+	            
 	            $commentsSearchResults.append($comment);
 	        }
 	    };
@@ -2549,7 +2614,8 @@
 	            size: 10,
 	            from: 0
 	        }, function(data, textStatus, jQxhr) {
-	            if (data.status === "ok") {
+	        	$('.commentsSearchResults').removeClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
+	            if (data.status === "ok") {	            	
 	                var total = data.hits.total;
 	                var hits = data.hits.hits;
 	                if (hits.length) displayComments(hits);
@@ -2587,10 +2653,11 @@
 	                    itemPosition = item.position;
 
 	                    function decryptItem(envelopeKey) {
-													if((item.keyEnvelope === undefined) || (item.envelopeIV === undefined) || (item.ivEnvelope === undefined) || (item.ivEnvelopeIV === undefined)) {
-														getAndShowPath(itemId, envelopeKey, teamName, "");
-														done("Error: undefined item key");
-													}
+							if((item.keyEnvelope === undefined) || (item.envelopeIV === undefined) || (item.ivEnvelope === undefined) || (item.ivEnvelopeIV === undefined)) {
+								getAndShowPath(itemId, envelopeKey, teamName, "");
+								done("Error: undefined item key");
+							}
+							
 	                        itemKey = decryptBinaryString(item.keyEnvelope, envelopeKey, item.envelopeIV);
 	                        itemIV = decryptBinaryString(item.ivEnvelope, envelopeKey, item.ivEnvelopeIV);
 	                        itemTags = [];
@@ -2632,6 +2699,7 @@
 	                        } else {
 	                            $('.froala-editor#title').html('<h2></h2>');
 	                        }
+	                        $('.froala-editor#title').removeClass('loading');
 
 	                        getAndShowPath(itemId, envelopeKey, teamName, titleText);
 	                        if (item.content) {
@@ -2651,6 +2719,7 @@
 	                                    }
 	                                });
 	                                content = DOMPurify.sanitize(content);
+	                                $('.froala-editor#content').removeClass('loading');
 	                                $('.froala-editor#content').html(content);
 	                            } catch (err) {
 	                                alert(err);
