@@ -76,6 +76,10 @@
             }")
         .appendTo("head");
 
+        $('.froala-editor#title').html('');
+        $('.froala-editor#content').html('');
+        $('.commentsSearchResults').html('');
+
         $('.froala-editor#title').addClass('loading');
         $('.froala-editor#content').append( "<div class='content-loading' style='width:100%;'></div>" );
         $('.froala-editor#content').append( "<div class='content-loading' style='width:70%;'></div>" );
