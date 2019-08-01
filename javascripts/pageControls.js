@@ -85,6 +85,18 @@
         $('.commentsSearchResults').addClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
     }
 
+    function clearSkeletonScreen()
+	{
+		$('.froala-editor#title').removeClass('loading');
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:100%;'></div>" );
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:70%;'></div>" );
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:80%;'></div>" );
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:60%;'></div>" );
+        $('.froala-editor#content').removeClass( "<div class='content-loading' style='width:90%;'></div>" );
+        $('.commentsSearchResults').removeClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
+	}
+
+
 	// --- Page Control Functions ---
 	var pageControlFunctions = {
 	    deleteImageOnPage: function(e) {
@@ -2598,8 +2610,8 @@
 	            size: 10,
 	            from: 0
 	        }, function(data, textStatus, jQxhr) {
-	            if (data.status === "ok") {
-	            	$('.commentsSearchResults').removeClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
+	        	$('.commentsSearchResults').removeClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
+	            if (data.status === "ok") {	            	
 	                var total = data.hits.total;
 	                var hits = data.hits.hits;
 	                if (hits.length) displayComments(hits);

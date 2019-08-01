@@ -76,6 +76,7 @@ function loadPage(){
 		prepareSkeletonScreen();
 		history.pushState({},"","/notebook/p/"+thisItemId);
     getPageItem(thisItemId, expandedKey, thisPrivateKey, thisSearchKey, function(err, item){
+    	clearSkeletonScreen();
       if(err) {
 				currentPageNumber = getNotebookPageNumberFromId(thisItemId);
 				$('#pageNumberInput').val(currentPageNumber);
