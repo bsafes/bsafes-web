@@ -38,6 +38,13 @@
 
 	var currentImageDownloadXhr = null;
 
+	var addr_stylesheets = 'http://localhost:8000/stylesheets/icons/';
+	var svgLock = addr_stylesheets + 'lock.svg';
+	var svgLen = addr_stylesheets + 'len.svg';
+	var pngLen = addr_stylesheets + 'pngLen.png';
+	var statusIsLockOrLen;
+	var encrypted_buffer;
+
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
 	{
@@ -89,6 +96,43 @@
         $('.commentsSearchResults').addClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
     }
 
+    function Utf8ArrayToStr(array, limit) {
+	    var out, i, len, c;
+	    var char2, char3;
+
+	    out = "";
+	    len = array.length;
+	    if (len > limit) {
+	    	len = limit;
+	    }
+	    i = 0;
+	    while(i < len) {
+	    c = array[i++];
+	    switch(c >> 4)
+	    { 
+	      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+	        // 0xxxxxxx
+	        out += String.fromCharCode(c);
+	        break;
+	      case 12: case 13:
+	        // 110x xxxx   10xx xxxx
+	        char2 = array[i++];
+	        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+	        break;
+	      case 14:
+	        // 1110 xxxx  10xx xxxx  10xx xxxx
+	        char2 = array[i++];
+	        char3 = array[i++];
+	        out += String.fromCharCode(((c & 0x0F) << 12) |
+	                       ((char2 & 0x3F) << 6) |
+	                       ((char3 & 0x3F) << 0));
+	        break;
+	    }
+	    }
+
+	    return out;
+	}
+
     function clearSkeletonScreen()
 	{
 		$('.froala-editor#title').removeClass('loading');
@@ -100,6 +144,35 @@
         $('.commentsSearchResults').removeClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
 	}
 
+	// data snippet
+	function addSnippet()
+	{
+		var modalSnippet = `
+			<div class='modal fade' id='modalSnippet' tabindex='-1' role='dialog' aria-labelledby='moveItemsModalLabel' aria-hidden='true'>
+				<div class='modal-dialog'>
+					<div class='modal-content'>
+						<div class='modal-header'>
+							<button type='button' class='close closeLogDownloadItemsModal' data-dismiss='modal' aria-hidden='true'>&times;</button>
+							<h4 class='modal-title' id='moveItemsModalLabel'>Your Encrypted Data Snippet</h4>
+							<p>It is what others see without your key. BSafes staffs can't see neither.</p>
+						</div>
+						<div class='modal-body' style='padding: 0 20px 20px 20px;'>
+							<div style='border:1px solid darkgray; border-radius: 5px; padding:10px;'>
+								<span class='enc_buffer'>
+									dgsdgaskldghalsghlkdghjklaglanlknlnoinbnbdfasddgsdga
+									lsghlkdghjklaglanlknlnoinbnbdfasddgsdgaskldghalsghlkdghjklagl
+									anlknlnoinbnbdfasddgsdgaskldghalsghlkdghjklaglan
+									lknlnoinbnbdfasddgsdgaskldghal
+									sghlkdghjklaglanlknlnoinbnbdfasd
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		`;
+		$(modalSnippet).appendTo('body');
+	}
 
 	// --- Page Control Functions ---
 	var pageControlFunctions = {
@@ -201,7 +274,30 @@
 	}
 
 	function enableEditControls() {
-	    $('.editControl').removeClass('hidden');
+	    $('.editControl').removeClass('hidden');	    
+	}
+
+	function addButtonLock() {
+		$('.btnFloatingWrite').after( "<div class='btnLock hidden' style='bottom:-5px; position:fixed; z-index:1000;'></div>" );
+		$('.btnLock').append("<img src='' style='width:80px; height:80px;'></img>");
+		
+		var margin = $('.btnFloatingWrite').css('right');
+		$('.btnLock').css('left',  parseInt(margin) - 50);
+		$('.btnLock img').attr('src', svgLen);
+
+		$('.btnLock').click(function(e) {
+			if (statusIsLockOrLen == 'len') {
+				$(e.target).trigger('blur');
+				var isModalVisible = $('#modalSnippet').is(':visible');
+				if (!isModalVisible) {
+					//showDownloadItemsModal(currentSpace);
+					$('.enc_buffer').html(encrypted_buffer);
+					$('#modalSnippet').modal('show');
+				}	
+			}		
+
+			return false;
+		});
 	}
 
 	function initializeTagsInput() {
@@ -436,6 +532,7 @@
 	};
 
 	function doneEditing() {
+		setStatusLen();
 	    var $downloadingElements = $('.bSafesDownloading');
 	    handleVideoObjects();
 
@@ -453,6 +550,23 @@
 	    $('.navbar-fixed-top, .btnWrite, .pathRow').removeClass('hidden');
 	    $('.othersComment').addClass('hidden');
 	    editorStateChanged('Editor is destroyed');
+	}
+
+	function setStatusLock() {
+		statusIsLockOrLen = 'lock';
+		$('.btnLock img').attr('src', svgLock);
+		$('.btnLock').removeClass('hidden');
+	}
+
+	function setStatusLen() {
+		statusIsLockOrLen = 'len';		
+		$('.btnLock img').attr('src', svgLen);
+
+		setTimeout(function() {
+			if (statusIsLockOrLen == 'len') {
+				$('.btnLock img').attr('src', pngLen);
+			}
+		}, 7000);
 	}
 
 	function handleBtnCancelClicked(e) {
@@ -481,6 +595,7 @@
 
 	function handleBtnSaveClicked(e) {
 	    e.preventDefault();
+	    setStatusLock();
 	    $('.btnCancel').addClass('hidden');
 	    $('.btnSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
 	    switch (currentEditorId) {
@@ -529,6 +644,7 @@
 	    var titleStr = $(title).text();
 	    var encodedTitle = forge.util.encodeUtf8(title);
 	    var encryptedTitle = encryptBinaryString(encodedTitle, itemKey, itemIV);
+	    encrypted_buffer = encryptedTitle;
 
 	    var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
 	    var titleTokens = stringToEncryptedTokens(titleStr, thisSearchKey);
@@ -712,6 +828,8 @@
 
 	    var encodedContent = forge.util.encodeUtf8(content);
 	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
+	    encrypted_buffer = encryptedContent;
+
 	    if (isBlankPageItem) {
 	        if (itemContainer.substring(0, 1) === 'f') {
 	            var addActionOptions = {
@@ -838,6 +956,7 @@
 
 	    var encodedContent = forge.util.encodeUtf8(content);
 	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
+	    encrypted_buffer = encryptedContent;
 
 	    if (isBlankPageItem) {
 	        return;
@@ -1048,6 +1167,7 @@
 	            downloadAttachment(downloadEvent);
 	        }
 	    }
+	    //console.log('isUploading', isUploading);
 	    if (!isUploading) {
 	        if (uploadQueue.length) {
 	            isUploading = true;
@@ -1315,6 +1435,8 @@
 	    var s3UploadingDeferred;
 	    var s3UploadingPromise;
 
+	    setStatusLock();
+
 	    changeUploadingState($attachment, 'Uploading');
 	    var file = $attachment.data('file');
 	    $progress = $('.attachmentProgressTemplate').clone().removeClass('attachmentProgressTemplate hidden').addClass('attachmentProgressRow');
@@ -1465,6 +1587,10 @@
 	                        }
 	                    }).success(function() {
 	                        console.log('Uploading succeeded:', chunkIndex);
+	                        console.log('uploadQueue', uploadQueue);
+	                        if (uploadQueue.length < 1) {
+	                        	setStatusLen();
+	                        }
 	                        if (stopped) s3UploadingDeferred.reject();
 	                        s3UploadingDeferred.resolve();
 
@@ -1624,6 +1750,8 @@
 	                        }
 	                    }).error(function(jqXHR, textStatus, errorThrown) {
 	                        console.log('Uploading failed', chunkIndex);
+	                        alert('Uploading failed');
+	                        setStatusLen();
 	                        uploadFailed();
 	                    });
 	                }
@@ -1638,6 +1766,8 @@
 
 	            encryptArrayBufferAsync(data, itemKey, itemIV, function(encryptedData) {
 	                s3UploadingPromise.done(function() {
+	                	//encrypted_buffer = encryptedData;
+	                	encrypted_buffer = Utf8ArrayToStr(encryptedData, 1000);
 	                    uploadAChunk(chunkIndex, encryptedData);
 	                    chunkIndex += 1;
 
@@ -1987,6 +2117,8 @@
 	                            console.log("encryptDataInBinaryString failed");
 	                            doneUploadingAnImage("encryptDataInBinaryString failed");
 	                        } else {
+	                        	//encrypted_buffer = encryptedImageDataInUint8Array;
+	                        	encrypted_buffer = Utf8ArrayToStr(encryptedImageDataInUint8Array, 1000);
 	                            $uploadImage.find('.uploadText').text("Uploading");
 	                            uploadToS3(encryptedImageDataInUint8Array, function(err) {
 	                                if (err) {
@@ -2107,6 +2239,7 @@
 
 	        uploadingImages(function(err) {
 	            console.log(uploadedImages);
+	            setStatusLen();
 	            if (uploadedImages.length) {
 	                var originalImages = itemCopy.images;
 
@@ -2140,6 +2273,8 @@
 	            }
 	        });
 	    };
+
+	    setStatusLock();
 
 	    switch (mode) {
 	        case 'appendToTheFront':
@@ -2250,7 +2385,7 @@
 	    $imageDragDropDiv.css("border", '2px dashed #e4e1e1')
 					    .css("background-color", 'aliceblue')
 						.css("margin-bottom", '10px');
-//	    $imageDragDropDiv.append('<p>Choose gallery images or drag it here.</p>');
+	    // $imageDragDropDiv.append('<p>Choose gallery images or drag it here.</p>');
 
 		$imageDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
 	        e.preventDefault();
@@ -2295,7 +2430,7 @@
 						    .css("background-color", 'blanchedalmond')
 						    .css("margin-top", '10px')
 		$attachDragDropDiv.css("margin-bottom", '10px');
-//		$attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
+		// $attachDragDropDiv.append('<p>Choose attatching files or drag it here.</p>');
 
 		$attachDragDropDiv.on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
 	        e.preventDefault();
@@ -2643,7 +2778,7 @@
 	                    }
 	                    isBlankPageItem = false;
 	                    $('#nextPageBtn, #previousPageBtn').removeClass('hidden');
-	                    console.log(data.item);
+	                    //console.log(data.item);
 
 	                    var item = data.item;
 
@@ -2657,7 +2792,6 @@
 								getAndShowPath(itemId, envelopeKey, teamName, "");
 								done("Error: undefined item key");
 							}
-							
 	                        itemKey = decryptBinaryString(item.keyEnvelope, envelopeKey, item.envelopeIV);
 	                        itemIV = decryptBinaryString(item.ivEnvelope, envelopeKey, item.ivEnvelopeIV);
 	                        itemTags = [];
@@ -3012,6 +3146,8 @@
 	    initializeEditorButtons();
 	    initializeImageButton();
 	    initializeAttachButton();
+	    addButtonLock();
+	    addSnippet();
 	}
 
 	function handleMoveAnItem(e) {

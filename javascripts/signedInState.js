@@ -25,7 +25,7 @@
 
 		var isSignedIn = localStorage.getItem("isSignedIn");
 		if(isSignedIn && (isSignedIn === "true")) {
-			console.log("signedIn");
+			//console.log("signedIn");
 			var isKeySetup = localStorage.getItem("encodedSearchKeyIV");
 			var redirectURL = $('.redirectURL').text();
 			if(redirectURL && (redirectURL !== 'undefined')) {
