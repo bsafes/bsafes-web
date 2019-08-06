@@ -58,7 +58,7 @@
 		checkLastActiveTime();
     var isSignedIn = localStorage.getItem("isSignedIn");
     if(isSignedIn && (isSignedIn === "true")) {
-      console.log("signedIn");
+      //console.log("signedIn");
       var isKeySetup = localStorage.getItem("encodedSearchKeyIV");
 			if(!isKeySetup) {
 				lockBSafes("auto");
