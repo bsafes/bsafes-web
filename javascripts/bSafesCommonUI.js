@@ -1451,7 +1451,7 @@ function positionItemNavigationControls() {
 }
 
 (function() {
-    console.log("Always!");
+    //console.log("Always!");
 
     function positionPageControls() {
         var $pagePanel = $('.pagePanel');
@@ -1497,6 +1497,11 @@ function positionItemNavigationControls() {
             var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             var rightMargin = (w - panelWidth) / 2;
             $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel").css("right", rightMargin + "px");
+
+            // var margin = (w - panelWidth) / 2;
+            // var leftMargin = margin - 30;
+            // var rightMargin = margin - 30;
+            $('.btnLock').css('left', rightMargin - 30 + 'px');
             /*
                   $nextPageBtn = $('#nextPageBtn');
                   rightMargin = margin - 24;  
@@ -1524,7 +1529,7 @@ function positionItemNavigationControls() {
     });
 
     $(window).scroll(function() {
-        console.log("Window offset(X, Y)", window.pageXOffset, window.pageYOffset);
+        //console.log("Window offset(X, Y)", window.pageXOffset, window.pageYOffset);
         if (window.pageYOffset >= 66) {} else {}
     });
     positionPageControls();
