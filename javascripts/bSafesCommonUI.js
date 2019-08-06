@@ -1501,7 +1501,7 @@ function positionItemNavigationControls() {
             // var margin = (w - panelWidth) / 2;
             // var leftMargin = margin - 30;
             // var rightMargin = margin - 30;
-            $('.btnLock').css('left', rightMargin - 50 + 'px');
+            $('.btnLock').css('left', rightMargin - 30 + 'px');
             /*
                   $nextPageBtn = $('#nextPageBtn');
                   rightMargin = margin - 24;  
