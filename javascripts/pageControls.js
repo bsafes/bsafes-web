@@ -287,7 +287,7 @@
 			$('.btnLock').append("<img src='' style='width:80px; height:80px;'></img>");
 			
 			var margin = $('.btnFloatingWrite').css('right');
-			$('.btnLock').css('left',  parseInt(margin) - 50);
+			$('.btnLock').css('left',  parseInt(margin) - 30);
 			$('.btnLock img').attr('src', svgLen);
 
 			$('.btnLock').click(function(e) {
