@@ -303,6 +303,8 @@
 
 				return false;
 			});
+		} else {
+			$('.btnLock').addClass('hidden');
 		}
 	}
 
