@@ -45,6 +45,9 @@
 	var statusIsLockOrLen;
 	var encrypted_buffer;
 
+	var editorContentsStatus;
+	var lastEditorContent;
+
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
 	{
@@ -278,26 +281,29 @@
 	}
 
 	function addButtonLock() {
-		$('.btnFloatingWrite').after( "<div class='btnLock hidden' style='bottom:-5px; position:fixed; z-index:1000;'></div>" );
-		$('.btnLock').append("<img src='' style='width:80px; height:80px;'></img>");
+		if ($('.btnLock').length == 0) {
 		
-		var margin = $('.btnFloatingWrite').css('right');
-		$('.btnLock').css('left',  parseInt(margin) - 50);
-		$('.btnLock img').attr('src', svgLen);
+			$('.btnFloatingWrite').after( "<div class='btnLock hidden' style='bottom:-5px; position:fixed; z-index:1000;'></div>" );
+			$('.btnLock').append("<img src='' style='width:80px; height:80px;'></img>");
+			
+			var margin = $('.btnFloatingWrite').css('right');
+			$('.btnLock').css('left',  parseInt(margin) - 50);
+			$('.btnLock img').attr('src', svgLen);
 
-		$('.btnLock').click(function(e) {
-			if (statusIsLockOrLen == 'len') {
-				$(e.target).trigger('blur');
-				var isModalVisible = $('#modalSnippet').is(':visible');
-				if (!isModalVisible) {
-					//showDownloadItemsModal(currentSpace);
-					$('.enc_buffer').html(encrypted_buffer);
-					$('#modalSnippet').modal('show');
-				}	
-			}		
+			$('.btnLock').click(function(e) {
+				if (statusIsLockOrLen == 'len') {
+					$(e.target).trigger('blur');
+					var isModalVisible = $('#modalSnippet').is(':visible');
+					if (!isModalVisible) {
+						//showDownloadItemsModal(currentSpace);
+						$('.enc_buffer').html(encrypted_buffer);
+						$('#modalSnippet').modal('show');
+					}	
+				}		
 
-			return false;
-		});
+				return false;
+			});
+		}
 	}
 
 	function initializeTagsInput() {
@@ -322,8 +328,10 @@
 	        e.preventDefault();
 	        if (isBlankPageItem) {}
 	        console.log('confirmTagsInputBtn');
+	    	setStatusLock();
 	        var tags = $('#tagsInput').tokenfield('getTokens');
 	        var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
+	        encrypted_buffer = encryptedTags;
 	        encryptedTags.push('null');
 	        var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
 	        var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
@@ -398,6 +406,7 @@
 	            itemCopy.update = "tags";
 	            createNewItemVersionForPage();
 	        }
+	        setTimeout(setStatusLen, 1500);
 	        return false;
 	    });
 
@@ -405,6 +414,7 @@
 	    $('#cancelTagsInputBtn').click(function(e) {
 	        e.preventDefault();
 	        console.log('cancelTagsInputBtn');
+	        setStatusLen();
 	        $('#tagsInput').tokenfield('setTokens', itemTags);
 	        $('.tagsConfirmRow').addClass('hidden');
 	        return false;
@@ -474,7 +484,7 @@
 
 	function editorInitialized() {
 	    $('.btnSave, .btnCancel').removeClass('hidden');
-	    editorStateChanged('Editor is initialized');
+	    editorStateChanged('Editor is initialized');	    
 	}
 
 	function handleBtnWriteClicked(e) {
@@ -512,11 +522,13 @@
 	    var $editorRow = currentEditor.closest('.editorRow');
 	    $editorRow.css('overflow-x', 'initial');
 	    originalEditorContent = currentEditor.html();
+	    lastEditorContent = originalEditorContent;
 	    switch (id) {
 	        case 'title':
 	            initializeTitleEditor(currentEditor);
 	            break;
 	        case 'content':
+	        	editorContentsStatus = true;
 	            initializeContentEditor(currentEditor);
 	            break;
 	        case 'newComment':
@@ -528,11 +540,15 @@
 	                initializeCommentEditor(currentEditor);
 	            }
 	    };
+
+
 	    return false;
 	};
 
 	function doneEditing() {
 		setStatusLen();
+		editorContentsStatus = false;
+		localStorage.removeItem(itemId);
 	    var $downloadingElements = $('.bSafesDownloading');
 	    handleVideoObjects();
 
@@ -820,6 +836,7 @@
 	function saveContent() {
 	    if (isBlankPageItem) {}
 	    var content = currentEditor.froalaEditor('html.get');
+		localStorage.removeItem(itemId);
 
 	    var result = preProcessEditorContentBeforeSaving(content);
 	    content = result.content;
@@ -2854,7 +2871,15 @@
 	                                });
 	                                content = DOMPurify.sanitize(content);
 	                                $('.froala-editor#content').removeClass('loading');
+	                                //$('.froala-editor#content').html(content);
 	                                $('.froala-editor#content').html(content);
+	                                if (localStorage.getItem(itemId)) {
+	                                	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
+									    	$('.froala-editor#content').html(localStorage.getItem(itemId));
+										} else {
+										    // Do nothing!
+										}
+	                                }
 	                            } catch (err) {
 	                                alert(err);
 	                            }
@@ -3167,3 +3192,17 @@
 	    }
 	    return false;
 	}
+
+	var backupContentsInLocalStorage = function() {
+	    if (editorContentsStatus) {
+	    	var current_contents = currentEditor.froalaEditor('html.get');
+	    	if (lastEditorContent != current_contents) {
+	    		console.log('originalEditorContent', originalEditorContent);
+	    		console.log('current_contents', current_contents);	
+	    		localStorage.setItem(itemId, current_contents);
+	    	}
+	    	lastEditorContent = current_contents;
+	    	
+	    }
+	    setTimeout(backupContentsInLocalStorage, 3000);
+	}; 
