@@ -38,7 +38,8 @@
 
 	var currentImageDownloadXhr = null;
 
-	var addr_stylesheets = 'http://localhost:8000/stylesheets/icons/';
+	//var addr_stylesheets = 'http://localhost:8000/stylesheets/icons/';
+	var addr_stylesheets = '/stylesheets/icons/';
 	var svgLock = addr_stylesheets + 'lock.svg';
 	var svgLen = addr_stylesheets + 'len.svg';
 	var pngLen = addr_stylesheets + 'pngLen.png';
