@@ -162,13 +162,13 @@
 						</div>
 						<div class='modal-body' style='padding: 0 20px 20px 20px;'>
 							<div style='border:1px solid darkgray; border-radius: 5px; padding:10px;'>
-								<span class='enc_buffer' style='width:100%;'>
+								<div class='enc_buffer' style='width:100%; overflow: hidden;'>
 									dgsdgaskldghalsghlkdghjklaglanlknlnoinbnbdfasddgsdga
 									lsghlkdghjklaglanlknlnoinbnbdfasddgsdgaskldghalsghlkdghjklagl
 									anlknlnoinbnbdfasddgsdgaskldghalsghlkdghjklaglan
 									lknlnoinbnbdfasddgsdgaskldghal
 									sghlkdghjklaglanlknlnoinbnbdfasd
-								</span>
+								</div>
 							</div>
 						</div>
 					</div>
