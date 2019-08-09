@@ -178,6 +178,11 @@
 		$(modalSnippet).appendTo('body');
 	}
 
+	function modifyPrevnextButton()
+	{
+		$('.itemNavigationRow').css('z-index', '1000');
+	}
+
 	// --- Page Control Functions ---
 	var pageControlFunctions = {
 	    deleteImageOnPage: function(e) {
@@ -3176,6 +3181,7 @@
 	    initializeAttachButton();
 	    addButtonLock();
 	    addSnippet();
+	    modifyPrevnextButton();
 	}
 
 	function handleMoveAnItem(e) {

@@ -20,6 +20,14 @@
 		$('.reEnterHint').addClass('hidden');
 	});
 
+	$( "#enterKey" ).on( "keydown", function(event) {
+      if(event.which == 13) {        
+        event.preventDefault();
+	    $('#enterDoneButton').trigger('click');
+	    return false;
+      }
+    });
+
 	$('#enterDoneButton').click(function(e) {
 		e.preventDefault();
 		showV5LoadingIn($('.keyForm'));
