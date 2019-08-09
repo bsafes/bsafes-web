@@ -10,6 +10,7 @@ function loadPage() {
     var searchKey;
 
     var itemId = $('#itemId').text();
+    console.log('itemId', itemId);
     var itemPosition;
 
     setTimeout(checkUploadDownlodQueue, 1000);

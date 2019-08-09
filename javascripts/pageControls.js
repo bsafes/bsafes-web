@@ -2874,21 +2874,21 @@
 	                                });
 	                                content = DOMPurify.sanitize(content);
 	                                $('.froala-editor#content').removeClass('loading');
-	                                //$('.froala-editor#content').html(content);
 	                                $('.froala-editor#content').html(content);
-	                                if (localStorage.getItem(itemId)) {
-	                                	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
-									    	$('.froala-editor#content').html(localStorage.getItem(itemId));
-										} else {
-										    // Do nothing!
-										}
-	                                }
 	                            } catch (err) {
 	                                alert(err);
 	                            }
 	                            downloadContentImageObjects();
 	                            handleVideoObjects();
 	                        }
+
+	                        if (localStorage.getItem(itemId)) {
+                            	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
+							    	$('.froala-editor#content').html(localStorage.getItem(itemId));
+								} else {
+								    // Do nothing!
+								}
+                            }
 
 	                        if (item.images && item.images.length) {
 	                            function downloadAndDisplayImages() {
