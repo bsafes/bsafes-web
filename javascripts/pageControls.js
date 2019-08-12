@@ -48,6 +48,7 @@
 
 	var editorContentsStatus;
 	var lastEditorContent;
+	var flgIsLoadingFromLocalStorage = false;
 
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
@@ -2891,7 +2892,8 @@
 	                        if (localStorage.getItem(itemId)) {
                             	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
 							    	$('.froala-editor#content').html(localStorage.getItem(itemId));
-							    	$( ".btnWrite#content" ).trigger( "click" );
+							    	flgIsLoadingFromLocalStorage = true;
+							    	//$('.btnWrite.editControl#content').trigger( "click" );
 								} else {
 								    // Do nothing!
 								}
@@ -3050,13 +3052,17 @@
 	                        }
 	                        if (!thisVersion || thisVersion === currentVersion) {
 	                            enableEditControls();
-	                            /*          		initializeEditorButtons();
-	                            							initializeImageButton();
-	                                      		initializeAttachButton();
+	                            /*initializeEditorButtons();
+	                            initializeImageButton();
+	                            initializeAttachButton();
 	                            */
 	                        } else {
 	                            disableEditControls();
 	                        }
+
+	                        if (flgIsLoadingFromLocalStorage) {
+		                		$('.btnWrite.editControl#content').trigger( "click" );	
+		                	}	
 	                    }
 	                    if (itemSpace.substring(0, 1) === 'u') {
 	                        $('.navbarTeamName').text("Yours");
