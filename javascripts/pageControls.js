@@ -181,6 +181,7 @@
 	function modifyPrevnextButton()
 	{
 		$('.itemNavigationRow').css('z-index', '1000');
+		$('.turningPageRow').css('z-index', '1000');
 	}
 
 	// --- Page Control Functions ---
