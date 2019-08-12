@@ -18,6 +18,8 @@ function loadPage(){
 	var addAction;
 
 	setTimeout(checkUploadDownlodQueue, 1000);
+  setTimeout(backupContentsInLocalStorage, 3000);
+  console.log('itemId', itemId);
 
 	function setIsATeamItem(thisTeamKey ,thisTeamSearchKey) {
 		isATeamItem = true;

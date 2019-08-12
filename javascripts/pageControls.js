@@ -2890,6 +2890,7 @@
 	                        if (localStorage.getItem(itemId)) {
                             	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
 							    	$('.froala-editor#content').html(localStorage.getItem(itemId));
+							    	$( ".btnWrite#content" ).trigger( "click" );
 								} else {
 								    // Do nothing!
 								}
