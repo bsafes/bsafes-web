@@ -19,6 +19,8 @@ function loadPage(){
 
 	notebookId = notebookPageMajorPart.replace("np","n");
 
+	//setTimeout(backupContentsInLocalStorage, 3000);
+
   function setIsATeamItem(thisTeamKey ,thisTeamSearchKey) {
     isATeamItem = true;
     teamKey = thisTeamKey;

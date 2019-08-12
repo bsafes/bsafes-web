@@ -19,6 +19,8 @@ function loadPage(){
 
 	diaryId = diaryPageMajorPart.replace("dp","d");
 
+	//setTimeout(backupContentsInLocalStorage, 3000);
+
   function setIsATeamItem(thisTeamKey ,thisTeamSearchKey) {
     isATeamItem = true;
     teamKey = thisTeamKey;

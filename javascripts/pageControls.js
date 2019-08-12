@@ -3183,6 +3183,7 @@
 	    addButtonLock();
 	    addSnippet();
 	    modifyPrevnextButton();
+	    backupContentsInLocalStorage();
 	}
 
 	function handleMoveAnItem(e) {

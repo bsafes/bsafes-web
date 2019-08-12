@@ -14,7 +14,7 @@ function loadPage() {
     var itemPosition;
 
     setTimeout(checkUploadDownlodQueue, 1000);
-    setTimeout(backupContentsInLocalStorage, 3000);
+    //setTimeout(backupContentsInLocalStorage, 3000);
 
     function setIsATeamItem(thisTeamKey, thisTeamSearchKey) {
         isATeamItem = true;
