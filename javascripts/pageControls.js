@@ -2902,7 +2902,7 @@
 							    	$('.froala-editor#content').html(localStorage.getItem(itemId));							    	
 							    	//$('.btnWrite.editControl#content').trigger( "click" );
 								} else {
-								    // Do nothing!
+								    localStorage.removeItem(itemId);
 								}
                             }
 
