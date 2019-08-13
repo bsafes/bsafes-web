@@ -559,6 +559,7 @@
 	function doneEditing() {
 		setStatusLen();
 		editorContentsStatus = false;
+		flgIsLoadingFromLocalStorage = false;
 		localStorage.removeItem(itemId);
 	    var $downloadingElements = $('.bSafesDownloading');
 	    handleVideoObjects();
