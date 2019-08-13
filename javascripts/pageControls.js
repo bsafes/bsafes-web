@@ -49,6 +49,7 @@
 	var editorContentsStatus;
 	var lastEditorContent;
 	var flgIsLoadingFromLocalStorage = false;
+	var contentsFromServer = null;
 
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
@@ -599,6 +600,10 @@
 	    e.preventDefault();
 	    var tempOriginalElement = $('<div></div>');
 	    tempOriginalElement.html(originalEditorContent);
+	    if (editorContentsStatus && flgIsLoadingFromLocalStorage) {
+	    	flgIsLoadingFromLocalStorage = false;
+	    	tempOriginalElement.html(contentsFromServer);
+	    }
 	    var displayedImages = $('.bSafesDisplayed');
 	    displayedImages.each(function() {
 	        var id = $(this).attr('id');
@@ -2891,8 +2896,9 @@
 
 	                        if (localStorage.getItem(itemId)) {
                             	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
-							    	$('.froala-editor#content').html(localStorage.getItem(itemId));
 							    	flgIsLoadingFromLocalStorage = true;
+							    	contentsFromServer = $('.froala-editor#content').html();
+							    	$('.froala-editor#content').html(localStorage.getItem(itemId));							    	
 							    	//$('.btnWrite.editControl#content').trigger( "click" );
 								} else {
 								    // Do nothing!
