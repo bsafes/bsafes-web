@@ -3204,7 +3204,7 @@
 	    $(e.target).trigger('blur');
 	    var isModalVisible = $('#moveAnItemModal').is(':visible');
 	    if (!isModalVisible) {
-	        showMoveAnItemModal(itemId, itemSpace);
+	        showMoveAnItemModal(itemCopy, itemSpace);
 	    }
 	    return false;
 	}

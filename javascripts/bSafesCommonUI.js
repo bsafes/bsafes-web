@@ -1236,7 +1236,8 @@ function showMoveItemsModal(thisSpace) {
     return false;
 }
 
-function showMoveAnItemModal(thisItemId, thisSpace) {
+function showMoveAnItemModal(thisItem, thisSpace) {
+		var thisItemId = thisItem.id;
     $('#moveAnItemModal').modal('show');
 
     $('#moreContainersBtn').click(function(e) {
@@ -1266,7 +1267,7 @@ function showMoveAnItemModal(thisItemId, thisSpace) {
         showLoadingInMoveAnItemModal(); 
         $.post('/memberAPI/moveAnItemToTarget', {
             space: currentSpace,
-            item: thisItemId,
+            item: JSON.stringify(thisItem),
             targetItem: currentTargetContainer
         }, function(data, textStatus, jQxhr) {
             hideLoadingInMoveAnItemModal(); 
