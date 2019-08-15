@@ -454,6 +454,7 @@ var listContainerItems;
 var showLoadingInContainer;
 var hideLoadingInConainer;
 var currentSpace;
+var itemInfo = [];
 
 function initCurrentSpace(thisSpace) {
     currentSpace = thisSpace;
@@ -1236,7 +1237,8 @@ function showMoveItemsModal(thisSpace) {
     return false;
 }
 
-function showMoveAnItemModal(thisItemId, thisSpace) {
+function showMoveAnItemModal(thisItem, thisSpace) {
+	var thisItemId = thisItem.id;
     $('#moveAnItemModal').modal('show');
 
     $('#moreContainersBtn').click(function(e) {
@@ -1266,7 +1268,7 @@ function showMoveAnItemModal(thisItemId, thisSpace) {
         showLoadingInMoveAnItemModal(); 
         $.post('/memberAPI/moveAnItemToTarget', {
             space: currentSpace,
-            item: thisItemId,
+            item: JSON.stringify(thisItem),
             targetItem: currentTargetContainer
         }, function(data, textStatus, jQxhr) {
             hideLoadingInMoveAnItemModal(); 
@@ -1342,20 +1344,19 @@ function showTrashAnItemModal(thisSpace, originalContainer) {
     $thisBtn.click(function(e) {
         if (!goTrashEnabled) return;
         showLoadingInTrashModal();
+        
         $.post('/memberAPI/trashItems', {
-            items: JSON.stringify(selectedItemsInContainer),
+            items: JSON.stringify(itemInfo),
             targetSpace: thisSpace,
             originalContainer: originalContainer
         }, function(data, textStatus, jQxhr) {
             hideLoadingInTrashModal();
             if (data.status === 'ok') {
-                var movedItems = selectedItemsInContainer.slice(0);
-                selectedItemsInContainer.length = 0;
-                $('#trashModal').modal('hide');
-                showLoadingInContainer();
+                $('#trashAnItemModal').modal('hide');
+                //showLoadingInContainer();
                 setTimeout(function() {
-                    hideLoadingInContainer();
-                    $('#listAllItems').trigger('click');
+                    //hideLoadingInContainer();
+                    window.location.href = $('.pathItem:nth-last-child(3) a:first-child').attr('href');
                 }, 1500);
             }
         }, 'json');

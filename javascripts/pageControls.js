@@ -38,11 +38,10 @@
 
 	var currentImageDownloadXhr = null;
 
-	//var addr_stylesheets = 'http://localhost:8000/stylesheets/icons/';
-	var addr_stylesheets = '/stylesheets/icons/';
-	var svgLock = addr_stylesheets + 'lock.svg';
-	var svgLen = addr_stylesheets + 'len.svg';
-	var pngLen = addr_stylesheets + 'pngLen.png';
+	var addr_images = '/images/';
+	var svgLock = addr_images + 'lock.svg';
+	var svgLen = addr_images + 'len.svg';
+	var pngLen = addr_images + 'pngLen.png';
 	var statusIsLockOrLen;
 	var encrypted_buffer;
 
@@ -3204,7 +3203,7 @@
 	    $(e.target).trigger('blur');
 	    var isModalVisible = $('#moveAnItemModal').is(':visible');
 	    if (!isModalVisible) {
-	        showMoveAnItemModal(itemId, itemSpace);
+	        showMoveAnItemModal(itemCopy, itemSpace);
 	    }
 	    return false;
 	}
