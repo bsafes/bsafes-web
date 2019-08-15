@@ -1238,7 +1238,11 @@ function showMoveItemsModal(thisSpace) {
 }
 
 function showMoveAnItemModal(thisItem, thisSpace) {
+<<<<<<< HEAD
 	var thisItemId = thisItem.id;
+=======
+		var thisItemId = thisItem.id;
+>>>>>>> upstream/master
     $('#moveAnItemModal').modal('show');
 
     $('#moreContainersBtn').click(function(e) {
