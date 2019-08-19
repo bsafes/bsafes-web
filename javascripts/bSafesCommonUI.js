@@ -1348,7 +1348,7 @@ function showTrashAnItemModal(thisSpace, originalContainer) {
         $.post('/memberAPI/trashItems', {
             items: JSON.stringify(itemInfo),
             targetSpace: thisSpace,
-            originalContainer: originalContainer
+            originalContainer: itemInfo[0].container// originalContainer
         }, function(data, textStatus, jQxhr) {
             hideLoadingInTrashModal();
             if (data.status === 'ok') {

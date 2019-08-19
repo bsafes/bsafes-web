@@ -125,8 +125,6 @@ function loadPage(){
     });
   }
 
-  //addItemBottomToolbar();
-
   function addTrashAnItemModal()
   {
     var htmlTrashAnItemModal = `
@@ -153,11 +151,7 @@ function loadPage(){
 
     $('.bSafesBody').append(htmlTrashAnItemModal);
   }
-
-  //$('#moveItemsModal').remove();
-
-  //addTrashAnItemModal();
-
+  
   function addMoveAnItemModal()
   {
     var htmlMoveAnItemModal = `
@@ -204,14 +198,11 @@ function loadPage(){
     $('.bSafesBody').append(htmlMoveAnItemModal);
   }
 
-  //$('#trashModal').remove();
-  //addMoveAnItemModal();
-
   function handleTrashAnItem(e) {
       $(e.target).trigger('blur');
       var isModalVisible = $('#trashItemModal').is(':visible');
       if (!isModalVisible) {
-          showTrashAnItemModal(itemId, itemSpace);
+          showTrashAnItemModal(itemSpace, itemId);
       }
       return false;
   }
@@ -289,7 +280,16 @@ function loadPage(){
 
   $('#moreActionsBtn').click(function(e) {
     $(e.target).trigger('blur');
-    $('.itemBottomToolbar').removeClass('hidden');
+
+    if ($('.itemBottomToolbar').length == 0) {
+      addItemBottomToolbar();
+      $('#moveItemsModal').remove();
+      addTrashAnItemModal();
+      $('#trashModal').remove();
+      addMoveAnItemModal();
+      $('.itemBottomToolbar').removeClass('hidden');  
+    }
+    
   });
 
   function getItem(done, thisVersion) {

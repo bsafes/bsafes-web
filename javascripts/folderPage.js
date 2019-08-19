@@ -8,7 +8,7 @@ function loadPage(){
   var publicKeyPem;
   var privateKeyPem;
 	var searchKey;
-
+  var itemSpace;
 	var itemId = $('#itemId').text();
 	var isATeamItem = false;
 	var folderId;
@@ -164,6 +164,8 @@ function loadPage(){
             title: item.title
         };
         itemInfo.push(info);
+
+        itemSpace = item.space;
 				
       }
     });

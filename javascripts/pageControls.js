@@ -3212,7 +3212,7 @@
 	    $(e.target).trigger('blur');
 	    var isModalVisible = $('#trashAnItemModal').is(':visible');
 	    if (!isModalVisible) {
-	        showTrashAnItemModal(itemId, itemSpace);
+	        showTrashAnItemModal(itemSpace, itemSpace);
 	    }
 	    return false;
 	}
