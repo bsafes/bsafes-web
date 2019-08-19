@@ -125,7 +125,7 @@ function loadPage(){
     });
   }
 
-  addItemBottomToolbar();
+  //addItemBottomToolbar();
 
   function addTrashAnItemModal()
   {
@@ -154,9 +154,9 @@ function loadPage(){
     $('.bSafesBody').append(htmlTrashAnItemModal);
   }
 
-  $('#moveItemsModal').remove();
+  //$('#moveItemsModal').remove();
 
-  addTrashAnItemModal();
+  //addTrashAnItemModal();
 
   function addMoveAnItemModal()
   {
@@ -204,8 +204,8 @@ function loadPage(){
     $('.bSafesBody').append(htmlMoveAnItemModal);
   }
 
-  $('#trashModal').remove();
-  addMoveAnItemModal();
+  //$('#trashModal').remove();
+  //addMoveAnItemModal();
 
   function handleTrashAnItem(e) {
       $(e.target).trigger('blur');
