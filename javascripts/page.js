@@ -10,7 +10,7 @@ function loadPage() {
     var searchKey;
 
     var itemId = $('#itemId').text();
-    console.log('itemId', itemId);
+    //console.log('itemId', itemId);
     var itemPosition;
 
     setTimeout(checkUploadDownlodQueue, 1000);
@@ -118,7 +118,7 @@ function loadPage() {
     };
 
     //initContainerFunctions(listItems, searchByTokens, decryptResult, updateToolbar, updateKeyValue, showLoading, hideLoading);
-    initContainerFunctions('', '', decryptResult, '', '', '', '');
+    initContainerFunctions('', '', decryptResult, '', '', showLoading, hideLoading);
 
     prepareSkeletonScreen();
 
@@ -134,6 +134,18 @@ function loadPage() {
                     alert(err);
                 } else {
                     itemPosition = item.position;
+
+                    var info = {
+                        id: item.id,
+                        container: item.container,
+                        position: item.position,
+                        keyEnvelope: item.keyEnvelope,
+                        envelopeIV: item.envelopeIV,
+                        ivEnvelope: item.ivEnvelope,
+                        ivEnvelopeIV: item.ivEnvelopeIV,
+                        title: item.title
+                    };
+                    itemInfo.push(info);
                 }
             });
             positionItemNavigationControls();
