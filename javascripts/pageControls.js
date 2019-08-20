@@ -50,6 +50,10 @@
 	var flgIsLoadingFromLocalStorage = false;
 	var contentsFromServer = null;
 
+	var lc;
+	var contentType;
+	var constContentTypeDraw = 'contentType#Draw';
+
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
 	{
@@ -651,6 +655,7 @@
 
 	function createNewItemVersionForPage(addedSize) {
 	    createNewItemVersion(itemId, itemCopy, currentVersion, addedSize, function(err, data) {
+	    	$('.btnCanvasSave').LoadingOverlay('hide');
 	        if (err) {
 	            if ((itemCopy.update === 'title') || (itemCopy.update === 'content')) {
 	                $('.btnSave').LoadingOverlay('hide');
@@ -1072,6 +1077,142 @@
 	    itemCopy.update = "image words";
 	    createNewItemVersionForPage();
 
+	};
+
+	function saveCanvasDrawingContent() {
+		$('.btnCanvasSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
+		// get drawing snapshot...
+		var snapshot = lc.getSnapshot();
+		// JSON.stringify(snapshot)
+	    if (isBlankPageItem) {}
+	    //var content = currentEditor.froalaEditor('html.get');
+		var content = JSON.stringify(snapshot);
+		//localStorage.removeItem(itemId);
+
+	    var result = preProcessEditorContentBeforeSaving(content);
+	    content = result.content;
+	    var s3ObjectsInContent = result.s3ObjectsInContent;
+	    var s3ObjectsSize = result.s3ObjectsSize;
+
+	    var encodedContent = forge.util.encodeUtf8(content);
+	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
+	    encrypted_buffer = encryptedContent;
+
+	    if (isBlankPageItem) {
+	        if (itemContainer.substring(0, 1) === 'f') {
+	            var addActionOptions = {
+	                "targetContainer": itemContainer,
+	                "targetItem": itemId,
+	                "targetPosition": itemPosition,
+	                "type": 'Page',
+	                "keyEnvelope": keyEnvelope,
+	                "ivEnvelope": ivEnvelope,
+	                "envelopeIV": envelopeIV,
+	                "ivEnvelopeIV": ivEnvelopeIV,
+	                "content": encryptedContent,
+	                "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
+	                "s3ObjectsSizeInContent": s3ObjectsSize
+	            }
+
+	            $.ajax({
+	                url: '/memberAPI/addAnItemAfter',
+	                type: 'POST',
+	                dataType: 'json',
+	                data: addActionOptions,
+	                error: function(jqXHR, textStatus, errorThrown) {
+	                    $('.btnSave').LoadingOverlay('hide');
+	                    $('.btnCancel').removeClass('hidden');
+	                    alert(textStatus);
+	                },
+	                success: function(data) {
+	                    if (data.status === 'ok') {
+	                        itemCopy = data.item;
+	                        setCurrentVersion(itemCopy.version);
+	                        var item = data.item;
+	                        itemId = item.id;
+	                        itemPosition = item.position;
+	                        setupContainerPageKeyValue('itemId', itemId);
+	                        setupContainerPageKeyValue('itemPosition', itemPosition);
+	                        isBlankPageItem = false;
+	                        doneEditing();
+	                    } else {
+	                        $('.btnSave').LoadingOverlay('hide');
+	                        $('.btnCancel').removeClass('hidden');
+	                        alert(data.err);
+	                    }
+	                },
+	                timeout: 30000
+	            });
+	        } else if (itemContainer.substring(0, 1) === 'n') {
+	            $.ajax({
+	                url: '/memberAPI/createANotebookPage',
+	                type: 'POST',
+	                dataType: 'json',
+	                data: {
+	                    "itemId": itemId,
+	                    "keyEnvelope": keyEnvelope,
+	                    "ivEnvelope": ivEnvelope,
+	                    "envelopeIV": envelopeIV,
+	                    "ivEnvelopeIV": ivEnvelopeIV,
+	                    "content": encryptedContent,
+	                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
+	                    "s3ObjectsSizeInContent": s3ObjectsSize
+	                },
+	                error: function(jqXHR, textStatus, errorThrown) {
+	                    $('.btnSave').LoadingOverlay('hide');
+	                    $('.btnCancel').removeClass('hidden');
+	                    alert(textStatus);
+	                },
+	                success: function(data) {
+	                    if (data.status === 'ok') {
+	                        itemCopy = data.item;
+	                        setCurrentVersion(itemCopy.version);
+	                        isBlankPageItem = false;
+	                        doneEditing();
+	                    }
+	                },
+	                timeout: 30000
+	            });
+	        } else if (itemContainer.substring(0, 1) === 'd') {
+	            $.ajax({
+	                url: '/memberAPI/createADiaryPage',
+	                type: 'POST',
+	                dataType: 'json',
+	                data: {
+	                    "itemId": itemId,
+	                    "keyEnvelope": keyEnvelope,
+	                    "ivEnvelope": ivEnvelope,
+	                    "envelopeIV": envelopeIV,
+	                    "ivEnvelopeIV": ivEnvelopeIV,
+	                    "content": encryptedContent,
+	                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
+	                    "s3ObjectsSizeInContent": s3ObjectsSize
+	                },
+	                error: function(jqXHR, textStatus, errorThrown) {
+	                    $('.btnSave').LoadingOverlay('hide');
+	                    $('.btnCancel').removeClass('hidden');
+	                    alert(textStatus);
+	                },
+	                success: function(data) {
+	                    if (data.status === 'ok') {
+	                        itemCopy = data.item;
+	                        setCurrentVersion(itemCopy.version);
+	                        isBlankPageItem = false;
+	                        doneEditing();
+	                    }
+	                },
+	                timeout: 30000
+	            });
+	        }
+	    } else {
+	        itemCopy.content = encryptedContent;
+	        itemCopy.s3ObjectsInContent = s3ObjectsInContent;
+	        itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
+	        itemCopy.update = "content";
+
+	        createNewItemVersionForPage();
+
+	    }
 	};
 
 	function initializeEditorButtons() {
@@ -2835,6 +2976,10 @@
 	                                    var encodedTag = decryptBinaryString(encryptedTag, itemKey, itemIV);
 	                                    var tag = forge.util.decodeUtf8(encodedTag);
 	                                    itemTags.push(tag);
+
+	                                    if (tag == constContentTypeDraw) {
+	                                    	contentType = tag;
+	                                    }
 	                                } catch (err) {
 	                                    alert(err);
 	                                }
@@ -2886,12 +3031,25 @@
 	                                });
 	                                content = DOMPurify.sanitize(content);
 	                                $('.froala-editor#content').removeClass('loading');
-	                                $('.froala-editor#content').html(content);
+	                                if (contentType == constContentTypeDraw) {
+	                                	initCanvasDrawView(content);
+	                                } else {
+	                                	$('.froala-editor#content').html(content);	
+	                                }
+	                                
 	                            } catch (err) {
 	                                alert(err);
 	                            }
 	                            downloadContentImageObjects();
 	                            handleVideoObjects();
+	                            
+	                            if (!content) {
+	                            	console.log('empty contents1', content);	
+	                            	addSelectContentTypeView();
+	                            }
+	                        } else {
+	                        	console.log('empty contents');
+	                        	addSelectContentTypeView();
 	                        }
 
 	                        if (localStorage.getItem(itemId)) {
@@ -2904,6 +3062,8 @@
 								    localStorage.removeItem(itemId);
 								}
                             }
+
+
 
 	                        if (item.images && item.images.length) {
 	                            function downloadAndDisplayImages() {
@@ -3230,3 +3390,168 @@
 	    }
 	    setTimeout(backupContentsInLocalStorage, 3000);
 	}; 
+
+	function addSelectContentTypeView()
+	{
+		var content = '<a href="" class="selectContentType">Write, Draw, etc.</a>';
+		$('.froala-editor#content').html(content);
+		
+		$('.selectContentType').click(function(e) {
+			$('#selectContentTypeModal').modal('show');
+			return false;
+		});
+
+	}
+
+	function loadLiterallycanvasJsAndCss(snapshotJSON)
+	{
+		function loadCSS(href) {
+			var cssLink = $("<link>");
+			$("head").append(cssLink);
+			cssLink.attr({
+				rel:  "stylesheet",
+				type: "text/css",
+				href: href
+			});
+		};
+
+		loadCSS('http://localhost:8000/stylesheets/literallycanvas.css');
+
+		function loadJS(jsFile, done)
+		{
+			$(function (d, s, id) {
+			    'use strict';
+
+			    var js, fjs = d.getElementsByTagName(s)[0];
+			    js = d.createElement(s);
+			    js.onload = function() {
+			      done();
+			    };
+			    js.src = jsFile;
+				js.setAttribute("crossorigin", "anonymous");
+			    fjs.parentNode.insertBefore(js, fjs);
+
+			}(document, 'script', 'forge'));	
+		}
+
+		loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
+			loadJS("/javascripts/literallycanvas/js/react-dom.js", function() {
+				loadJS("/javascripts/literallycanvas/js/literallycanvas.js", function() {
+					console.log('literallycanvas library is loaded...');
+					lc = LC.init(
+			            document.getElementsByClassName('drawCanvas')[0], 
+			            	{imageURLPrefix: 'img', 
+			            	imageURLPrefix: '/javascripts/literallycanvas/img'}
+			        );
+
+			        if (snapshotJSON != null)
+			        {
+			        	lc.loadSnapshot(JSON.parse(snapshotJSON))
+			        }
+				});
+			});
+		});
+		
+	}
+
+	//loadLiterallycanvasJsAndCss();
+
+	function addSelectContentTypeModal()
+	{
+		var htmlSelectContentTypeModal = `
+			<div class="modal fade in" id="selectContentTypeModal" tabindex="-1" role="dialog" aria-labelledby="selectContentTypeModal" aria-hidden="true" style="display: none; padding-right: 17px;">
+				<div class="modal-dialog">
+					<div class="modal-content" style="overflow: hidden;">
+						<div class="modal-header">
+							<button type="button" class="close" id="closeMoveItemsModal" data-dismiss="modal" aria-hidden="true">×</button>
+							<h4 class="modal-title" id="moveItemsModalLabel">Please Select a Type</h4>
+						</div>
+						<div class="modal-body" style="max-height: 336px; overflow-y: auto;">
+							
+							<div class="list-group containersList">
+								<a href="#" class="list-group-item contentTypeWrite">
+									<em class="fontSize18Px">Write</em>
+								</a>
+								<a href="#" class="list-group-item constContentTypeDraw">
+									<em class="fontSize18Px">Draw</em>
+								</a>
+							</div>
+						</div>
+					</div>
+				<!-- /.modal-content -->
+				</div>
+			<!-- /.modal-dialog -->
+			</div>
+		`;
+
+		$(htmlSelectContentTypeModal).appendTo('body');
+
+		$('.contentTypeWrite').click(function(e) {
+			$('#selectContentTypeModal').modal('hide');
+			$('.froala-editor#content').html('');
+			$('.btnWrite.editControl#content').trigger( "click" );
+		});
+
+		$('.constContentTypeDraw').click(function(e) {
+			$('#selectContentTypeModal').modal('hide');
+			
+			//loadLiterallycanvas();
+			initCanvasDrawView(null);	
+			//addCanvasSaveButton();
+			createTagDraw();			
+		});
+
+		
+
+		
+
+		function createTagDraw()
+		{
+			if ($.inArray(constContentTypeDraw, itemTags) == -1) {
+
+				var tags = $('#tagsInput').tokenfield('getTokens');
+				tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
+				var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
+				encrypted_buffer = encryptedTags;
+				encryptedTags.push('null');
+				var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
+				var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
+
+				itemCopy.tags = encryptedTags;
+				itemCopy.tagsTokens = tagsTokens;
+				itemCopy.update = "tags";
+				createNewItemVersionForPage();
+			}
+		}
+	}
+
+	addSelectContentTypeModal();
+
+	function initCanvasDrawView(snapshotJSON)
+	{
+		$('.btnWrite.editControl#content').addClass('hidden');
+		$('.froala-editor#content').addClass('drawCanvas');
+
+		function addCanvasSaveButton()
+		{
+			var htmlButton = `
+				<div class="btnEditor btn btnFloatingSave btnCanvasSave" style="">
+					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
+				</div>
+			`;
+			$( ".drawCanvas" ).after( htmlButton );
+			var button_left = parseInt($('.drawCanvas').css('width')) - 70;
+			//button_left = 200;
+			$('.btnCanvasSave').css('margin-left', button_left + 'px');
+
+			$('.btnCanvasSave').click(function(e) {
+				saveCanvasDrawingContent();
+			});
+		}
+
+		loadLiterallycanvasJsAndCss(snapshotJSON);
+		addCanvasSaveButton();
+
+	}
+	
+	
