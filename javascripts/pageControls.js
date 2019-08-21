@@ -344,6 +344,11 @@
 	        console.log('confirmTagsInputBtn');
 	    	setStatusLock();
 	        var tags = $('#tagsInput').tokenfield('getTokens');
+	        // add contentType
+	        if (contentType == onstContentTypeDraw) {
+	        	tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
+	        }
+	        
 	        var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
 	        encrypted_buffer = encryptedTags;
 	        encryptedTags.push('null');
@@ -2975,10 +2980,11 @@
 	                                    var encryptedTag = encryptedTags[i];
 	                                    var encodedTag = decryptBinaryString(encryptedTag, itemKey, itemIV);
 	                                    var tag = forge.util.decodeUtf8(encodedTag);
-	                                    itemTags.push(tag);
-
+	                                    
 	                                    if (tag == constContentTypeDraw) {
 	                                    	contentType = tag;
+	                                    } else {
+	                                    	itemTags.push(tag);
 	                                    }
 	                                } catch (err) {
 	                                    alert(err);
@@ -3415,7 +3421,8 @@
 			});
 		};
 
-		loadCSS('http://localhost:8000/stylesheets/literallycanvas.css');
+		//loadCSS('http://localhost:8000/stylesheets/literallycanvas.css');
+		loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
 
 		function loadJS(jsFile, done)
 		{
@@ -3440,8 +3447,7 @@
 					console.log('literallycanvas library is loaded...');
 					lc = LC.init(
 			            document.getElementsByClassName('drawCanvas')[0], 
-			            	{imageURLPrefix: 'img', 
-			            	imageURLPrefix: '/javascripts/literallycanvas/img'}
+			            	{imageURLPrefix: '/javascripts/literallycanvas/img'}
 			        );
 
 			        if (snapshotJSON != null)
@@ -3501,13 +3507,10 @@
 			createTagDraw();			
 		});
 
-		
-
-		
-
 		function createTagDraw()
 		{
-			if ($.inArray(constContentTypeDraw, itemTags) == -1) {
+			//if ($.inArray(constContentTypeDraw, itemTags) == -1) 
+			{
 
 				var tags = $('#tagsInput').tokenfield('getTokens');
 				tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
@@ -3530,7 +3533,16 @@
 	function initCanvasDrawView(snapshotJSON)
 	{
 		$('.btnWrite.editControl#content').addClass('hidden');
-		$('.froala-editor#content').addClass('drawCanvas');
+		$('.btnWrite.btnEditor#content').addClass('hidden');
+		//$('.froala-editor#content').addClass('drawCanvas');
+		$('.pageRow.editorRow').append('<div class="drawCanvas"></div>');
+		var canvas_width = $('.pageRow.editorRow').css('width');
+		var canvas_margin = 10;
+		canvas_width = parseInt(canvas_width) - 2 * canvas_margin;
+		canvas_height = canvas_width / 1.414;
+		//$('.drawCanvas').css('height', canvas_height + 'px');
+		$('.drawCanvas').css('margin-left', canvas_margin + 'px');
+		$('.drawCanvas').css('margin-right', canvas_margin + 'px');
 
 		function addCanvasSaveButton()
 		{
