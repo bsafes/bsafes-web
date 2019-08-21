@@ -52,7 +52,9 @@
 
 	var lc;
 	var contentType;
+	var constContentTypeWrite = 'contentType#Write';
 	var constContentTypeDraw = 'contentType#Draw';
+	var constContentTypeSpreadsheet = 'contentType#Spreadsheet';
 
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
@@ -3399,19 +3401,18 @@
 	    if (editorContentsStatus) {
 	    	var current_contents = currentEditor.froalaEditor('html.get');
 	    	if (lastEditorContent != current_contents) {
-	    		console.log('originalEditorContent', originalEditorContent);
-	    		console.log('current_contents', current_contents);	
+	    		//console.log('originalEditorContent', originalEditorContent);
+	    		//console.log('current_contents', current_contents);	
 	    		localStorage.setItem(itemId, current_contents);
 	    	}
-	    	lastEditorContent = current_contents;
-	    	
+	    	lastEditorContent = current_contents;	    	
 	    }
 	    setTimeout(backupContentsInLocalStorage, 3000);
 	}; 
 
 	function addSelectContentTypeView()
 	{
-		var html = '<a href="" class="selectContentType">Write, Draw, etc.</a>';
+		var html = '<a href="" class="selectContentType">Write, Draw, Spreadsheet, etc.</a>';
 		//$('.froala-editor#content').html(content);
 		$('.btnWrite.editControl#content').after( html );
 		
@@ -3434,7 +3435,6 @@
 			});
 		};
 
-		//loadCSS('http://localhost:8000/stylesheets/literallycanvas.css');
 		loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
 
 		function loadJS(jsFile, done)
@@ -3460,8 +3460,10 @@
 					console.log('literallycanvas library is loaded...');
 					lc = LC.init(
 			            document.getElementsByClassName('drawCanvas')[0], 
-			            	{imageURLPrefix: '/javascripts/literallycanvas/img'}
+			            	{imageURLPrefix: '/javascripts/literallycanvas/img',
+			            	backgroundColor: 'whitesmoke'}
 			        );
+			        //lc.loadSnapshotJSON('{"shapes":[],"colors":{"primary":"#000","secondary":"#fff","background":"black"}}');
 
 			        if (snapshotJSON != null)
 			        {
@@ -3472,8 +3474,6 @@
 		});
 		
 	}
-
-	//loadLiterallycanvasJsAndCss();
 
 	function addSelectContentTypeModal()
 	{
@@ -3491,8 +3491,11 @@
 								<a href="#" class="list-group-item contentTypeWrite">
 									<em class="fontSize18Px">Write</em>
 								</a>
-								<a href="#" class="list-group-item constContentTypeDraw">
+								<a href="#" class="list-group-item contentTypeDraw">
 									<em class="fontSize18Px">Draw</em>
+								</a>
+								<a href="#" class="list-group-item contentTypeSpreadsheet">
+									<em class="fontSize18Px">Spreadsheet</em>
 								</a>
 							</div>
 						</div>
@@ -3507,13 +3510,23 @@
 
 		
 		$('.contentTypeWrite').click(function(e) {
+			contentType = constContentTypeWrite;
 			$('#selectContentTypeModal').modal('hide');
 			$('.selectContentType').addClass('hidden');
-			$('.froala-editor#content').html('');
+			//$('.froala-editor#content').html('');
 			$('.btnWrite.editControl#content').trigger( "click" );
 		});
 
-		$('.constContentTypeDraw').click(function(e) {
+		$('.contentTypeDraw').click(function(e) {
+			contentType = constContentTypeDraw;
+			$('#selectContentTypeModal').modal('hide');
+			$('.selectContentType').addClass('hidden');
+			
+			initCanvasDrawView(null);	
+		});
+
+		$('.contentTypeSpreadsheet').click(function(e) {
+			contentType = constContentTypeSpreadsheet;
 			$('#selectContentTypeModal').modal('hide');
 			$('.selectContentType').addClass('hidden');
 			
@@ -3537,6 +3550,8 @@
 		//$('.drawCanvas').css('height', canvas_height + 'px');
 		$('.drawCanvas').css('margin-left', canvas_margin + 'px');
 		$('.drawCanvas').css('margin-right', canvas_margin + 'px');
+		$('.drawCanvas').css('border', '1px solid rgba(0, 0, 0, 0.15)');
+		$('.drawCanvas').css('-webkit-border-radius', '4px;');
 
 		function addCanvasSaveButton()
 		{
