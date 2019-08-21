@@ -1086,11 +1086,11 @@
 
 	function saveCanvasDrawingContent() {
 		$('.btnCanvasSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
+		if (isBlankPageItem) {}
 		// get drawing snapshot...
-		var snapshot = lc.getSnapshot();
-		// JSON.stringify(snapshot)
-	    if (isBlankPageItem) {}
+			    
 	    //var content = currentEditor.froalaEditor('html.get');
+	    var snapshot = lc.getSnapshot();
 		var content = JSON.stringify(snapshot);
 		//localStorage.removeItem(itemId);
 
@@ -1210,6 +1210,18 @@
 	            });
 	        }
 	    } else {
+	    	// insert contentType tag
+	    	var tags = $('#tagsInput').tokenfield('getTokens');
+			tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
+			var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
+			//encrypted_buffer = encryptedTags;
+			encryptedTags.push('null');
+			var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
+			var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
+	    	itemCopy.tags = encryptedTags;
+			itemCopy.tagsTokens = tagsTokens;
+
+			// set content
 	        itemCopy.content = encryptedContent;
 	        itemCopy.s3ObjectsInContent = s3ObjectsInContent;
 	        itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
@@ -3399,8 +3411,9 @@
 
 	function addSelectContentTypeView()
 	{
-		var content = '<a href="" class="selectContentType">Write, Draw, etc.</a>';
-		$('.froala-editor#content').html(content);
+		var html = '<a href="" class="selectContentType">Write, Draw, etc.</a>';
+		//$('.froala-editor#content').html(content);
+		$('.btnWrite.editControl#content').after( html );
 		
 		$('.selectContentType').click(function(e) {
 			$('#selectContentTypeModal').modal('show');
@@ -3469,7 +3482,7 @@
 				<div class="modal-dialog">
 					<div class="modal-content" style="overflow: hidden;">
 						<div class="modal-header">
-							<button type="button" class="close" id="closeMoveItemsModal" data-dismiss="modal" aria-hidden="true">×</button>
+							<button type="button" class="close" id="closeSelectContentTypeModal" data-dismiss="modal" aria-hidden="true">×</button>
 							<h4 class="modal-title" id="moveItemsModalLabel">Please Select a Type</h4>
 						</div>
 						<div class="modal-body" style="max-height: 336px; overflow-y: auto;">
@@ -3492,40 +3505,21 @@
 
 		$(htmlSelectContentTypeModal).appendTo('body');
 
+		
 		$('.contentTypeWrite').click(function(e) {
 			$('#selectContentTypeModal').modal('hide');
+			$('.selectContentType').addClass('hidden');
 			$('.froala-editor#content').html('');
 			$('.btnWrite.editControl#content').trigger( "click" );
 		});
 
 		$('.constContentTypeDraw').click(function(e) {
 			$('#selectContentTypeModal').modal('hide');
+			$('.selectContentType').addClass('hidden');
 			
-			//loadLiterallycanvas();
 			initCanvasDrawView(null);	
-			//addCanvasSaveButton();
-			createTagDraw();			
 		});
 
-		function createTagDraw()
-		{
-			//if ($.inArray(constContentTypeDraw, itemTags) == -1) 
-			{
-
-				var tags = $('#tagsInput').tokenfield('getTokens');
-				tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
-				var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
-				encrypted_buffer = encryptedTags;
-				encryptedTags.push('null');
-				var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
-				var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
-
-				itemCopy.tags = encryptedTags;
-				itemCopy.tagsTokens = tagsTokens;
-				itemCopy.update = "tags";
-				createNewItemVersionForPage();
-			}
-		}
 	}
 
 	addSelectContentTypeModal();
@@ -3546,6 +3540,10 @@
 
 		function addCanvasSaveButton()
 		{
+			if ($('.btnCanvasSave').length) {
+				return;
+			}
+
 			var htmlButton = `
 				<div class="btnEditor btn btnFloatingSave btnCanvasSave" style="">
 					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
