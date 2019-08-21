@@ -1497,14 +1497,14 @@ function positionItemNavigationControls() {
             );
             var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             var rightMargin = (w - panelWidth) / 2;
-            $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel").css("right", rightMargin + "px");
+            $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel, .btnCanvasSave").css("right", rightMargin + "px");
 
             // var margin = (w - panelWidth) / 2;
             // var leftMargin = margin - 30;
             // var rightMargin = margin - 30;
             $('.btnLock').css('left', rightMargin - 30 + 'px');
-            var button_left = parseInt($('.drawCanvas').css('width')) - 70;
-            $('.btnCanvasSave').css('margin-left', button_left + 'px');
+            //var button_left = parseInt($('.drawCanvas').css('width')) - 70;
+            //$('.btnCanvasSave').css('margin-left', button_left + 'px');
             /*
                   $nextPageBtn = $('#nextPageBtn');
                   rightMargin = margin - 24;  

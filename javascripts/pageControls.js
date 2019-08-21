@@ -3558,16 +3558,16 @@
 			if ($('.btnCanvasSave').length) {
 				return;
 			}
-
+			//btnEditor btn btnFloatingWrite btnFloating btnWrite
 			var htmlButton = `
-				<div class="btnEditor btn btnFloatingSave btnCanvasSave" style="">
+				<div class="btnEditor btn btnFloatingCanvasSave btnFloating btnCanvasSave" style="right:150px;">
 					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
 				</div>
 			`;
 			$( ".drawCanvas" ).after( htmlButton );
 			var button_left = parseInt($('.drawCanvas').css('width')) - 70;
 			//button_left = 200;
-			$('.btnCanvasSave').css('margin-left', button_left + 'px');
+			//$('.btnCanvasSave').css('margin-left', button_left + 'px');
 
 			$('.btnCanvasSave').click(function(e) {
 				saveCanvasDrawingContent();
