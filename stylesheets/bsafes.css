@@ -402,19 +402,19 @@ body {
   z-index:1000;
 }
 
-.btnCanvasSave {
+/*.btnCanvasSave {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   color: #FFF;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5), 3px 3px 3px rgba(0, 0, 0, 0.25);
-  /*position: fixed;*/
+  
   display: inline-block;
   cursor: default;
   padding-top: 8px;
-  /*z-index:1000;*/
+  
   margin: 10px 10px 10px 10px;
-}
+}*/
 
 .btnFloatingAdd {
 	padding-top:10px;
@@ -876,5 +876,13 @@ body {
 /* End of comments */
 
 /*edi append*/
+.wrapper {
+  padding-left:10px;
+  padding-right:10px;
+}
+.contentContainer {  
+  border:1px solid rgba(0, 0, 0, 0.15);
+  -webkit-border-radius:4px;
+}
 
 /* End of page *******/

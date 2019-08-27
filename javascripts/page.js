@@ -146,7 +146,7 @@ function loadPage() {
                         title: item.title
                     };
                     itemInfo.push(info);
-                    if (contentType == constContentTypeDraw) {
+                    if (pageContentType == constContentTypeDraw) {
                         $('.btnWrite.editControl#content').addClass('hidden');
                     }
                 }
@@ -154,4 +154,6 @@ function loadPage() {
             positionItemNavigationControls();
         }
     });
+
+    
 };

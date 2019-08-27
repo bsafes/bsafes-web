@@ -46,14 +46,13 @@
 	var encrypted_buffer;
 
 	var editorContentsStatus;
-	var lastContent;
+	var lastEditorContent;
 	var flgIsLoadingFromLocalStorage = false;
 	var contentsFromServer = null;
-	var pageLocalStorageKey = null;
 
 	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, etc </a>';
 	
-	var pageContentType = null;
+	var pageContentType;
 	var constContentTypeWrite = 'contentType#Write';
 	var constContentTypeDraw = 'contentType#Draw';
 	var constContentTypeSpreadsheet = 'contentType#Spreadsheet';
@@ -551,7 +550,7 @@
 	    var $editorRow = currentEditor.closest('.editorRow');
 	    $editorRow.css('overflow-x', 'initial');
 	    originalEditorContent = currentEditor.html();
-	    lastContent = originalEditorContent;
+	    lastEditorContent = originalEditorContent;
 	    switch (id) {
 	        case 'title':
 	            initializeTitleEditor(currentEditor);
@@ -579,7 +578,7 @@
 
 		editorContentsStatus = false;
 		flgIsLoadingFromLocalStorage = false;
-		localStorage.removeItem(pageLocalStorageKey);
+		localStorage.removeItem(itemId);
 	    var $downloadingElements = $('.bSafesDownloading');
 	    handleVideoObjects();
 
@@ -661,8 +660,7 @@
 	            saveTitle();
 	            break;
 	        case 'content':
-	            //saveWriteTypeContent();
-	            saveContent();
+	            saveWriteTypeContent();
 	            break;
 	        case 'newComment':
 	            saveNewComment();
@@ -880,7 +878,7 @@
 	function saveWriteTypeContent() {
 	    if (isBlankPageItem) {}
 	    var content = currentEditor.froalaEditor('html.get');
-		localStorage.removeItem(pageLocalStorageKey);
+		localStorage.removeItem(itemId);
 
 	    var result = preProcessEditorContentBeforeSaving(content);
 	    content = result.content;
@@ -1103,32 +1101,22 @@
 
 	};
 
-	function getCurrentContent()
-	{
-		var content = null;
-		if (pageContentType == constContentTypeWrite) {
-	    	content = currentEditor.froalaEditor('html.get');
-	    } else if ( (pageContentType == constContentTypeDraw) && lc ) {
-			content = JSON.stringify(lc.getSnapshot());	
-	    } else if ( (pageContentType == constContentTypeSpreadsheet) && spreadsheet) {
-	    	//content = spreadsheet.toJSON();
-	    	content = JSON.stringify(spreadsheet.toJSON(), null, 2);
-	    } else if (pageContentType == constContentTypeDoc) {
-
-	    }
-
-	    return content;
-	}
-
 	//function saveOtherTypeContent() {
-	function saveContent() {
+	function saveOtherTypeContent() {
 		$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
 		
 		// get drawing snapshot...
 		//var content = currentEditor.froalaEditor('html.get');
-	    var content = getCurrentContent();
+	    var content;
+
+	    if (pageContentType == constContentTypeDraw) {
+	    	var snapshot = lc.getSnapshot();
+			content = JSON.stringify(snapshot);	
+	    } else if (pageContentType == constContentTypeSpreadsheet) {
+	    	content = spreadsheet.toJSON();
+	    }
 	    
-		localStorage.removeItem(pageLocalStorageKey);
+		//localStorage.removeItem(itemId);
 
 	    var result = preProcessEditorContentBeforeSaving(content);
 	    content = result.content;
@@ -3048,12 +3036,6 @@
 	                            $('#tagsInput').tokenfield('setTokens', itemTags);
 	                        };
 
-	                        if (pageContentType == null) {
-	                        	pageContentType = constContentTypeWrite;
-	                        }
-	                        //pageLocalStorageKey = itemId + pageContentType;
-	                        //console.log('pageLocalStorageKey', pageLocalStorageKey);
-
 	                        if (!thisVersion) {
 	                            initializeTagsInput();
 	                        } else {
@@ -3080,12 +3062,10 @@
 	                        $('.froala-editor#title').removeClass('loading');
 
 	                        getAndShowPath(itemId, envelopeKey, teamName, titleText);
-
-	                        var content = null;
 	                        if (item.content) {
 	                            try {
 	                                var encodedContent = decryptBinaryString(item.content, itemKey, itemIV);
-	                                content = forge.util.decodeUtf8(encodedContent);
+	                                var content = forge.util.decodeUtf8(encodedContent);
 	                                DOMPurify.addHook('afterSanitizeAttributes', function(node) {
 	                                    // set all elements owning target to target=_blank
 	                                    if ('target' in node) {
@@ -3100,22 +3080,39 @@
 	                                });
 	                                content = DOMPurify.sanitize(content);
 	                                $('.froala-editor#content').removeClass('loading');
-
-	                                // if (pageContentType == constContentTypeDraw) {
-	                                // 	initContentView(constContentTypeDraw, content);
-	                                // } else {
-	                                // 	$('.froala-editor#content').html(content);	
-	                                // }
-	                                
-	                                //initContentView(pageContentType, content);
+	                                if (pageContentType == constContentTypeDraw) {
+	                                	initContentView(constContentTypeDraw, content);
+	                                } else {
+	                                	$('.froala-editor#content').html(content);	
+	                                }
 	                                
 	                            } catch (err) {
 	                                alert(err);
 	                            }
 	                            downloadContentImageObjects();
-	                            handleVideoObjects();	                            
+	                            handleVideoObjects();
 	                            
-	                        } 
+	                            if (!content) {
+	                            	console.log('empty contents1', content);	
+	                            	addSelectContentTypeView();
+	                            }
+	                        } else {
+	                        	console.log('empty contents');
+	                        	addSelectContentTypeView();
+	                        }
+
+	                        if (localStorage.getItem(itemId)) {
+                            	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
+							    	flgIsLoadingFromLocalStorage = true;
+							    	contentsFromServer = $('.froala-editor#content').html();
+							    	$('.froala-editor#content').html(localStorage.getItem(itemId));							    	
+							    	//$('.btnWrite.editControl#content').trigger( "click" );
+								} else {
+								    localStorage.removeItem(itemId);
+								}
+                            }
+
+
 
 	                        if (item.images && item.images.length) {
 	                            function downloadAndDisplayImages() {
@@ -3278,50 +3275,9 @@
 	                            disableEditControls();
 	                        }
 
-	                  //       if (flgIsLoadingFromLocalStorage) {
-		                	// 	$('.btnWrite.editControl#content').trigger( "click" );	
-		                	// }
-
-		                	if (localStorage.getItem(itemId + constContentTypeWrite)) {
-                            	pageLocalStorageKey = itemId + constContentTypeWrite;
-                            } else if (localStorage.getItem(itemId + constContentTypeDraw)) {
-                            	pageLocalStorageKey = itemId + constContentTypeDraw;
-                            } else if (localStorage.getItem(itemId + constContentTypeSpreadsheet)) {
-                            	pageLocalStorageKey = itemId + constContentTypeSpreadsheet;
-                            } else if (localStorage.getItem(itemId + constContentTypeDoc)) {
-                            	pageLocalStorageKey = itemId + constContentTypeDoc;
-                            } else {
-                            	pageLocalStorageKey = null;
-                            }
-
-                            var flg = true;
-
-	                        if (pageLocalStorageKey) {
-                            	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
-                            		flg = false;
-							    	pageContentType = pageLocalStorageKey.replace(itemId, '');
-							    	flgIsLoadingFromLocalStorage = true;
-							    	//contentsFromServer = $('.froala-editor#content').html();
-							    	contentsFromServer = content;
-
-							    	//$('.froala-editor#content').html(localStorage.getItem(pageLocalStorageKey));							    	
-								    console.log('load from localstorage', localStorage.getItem(pageLocalStorageKey));
-								    console.log('pageContentType', pageContentType);
-							    	initContentView(pageContentType, localStorage.getItem(pageLocalStorageKey));
-							    	//$('.btnWrite.editControl#content').trigger( "click" );
-								} else {
-								    localStorage.removeItem(pageLocalStorageKey);								    
-								}
-                            }
-
-                            if (flg) {
-                            	if (!content || content == null) {
-	                            	console.log('empty contents');	
-	                            	addSelectContentTypeView();
-	                            } else {
-	                            	initContentView(pageContentType, content);
-	                            }
-                            }	
+	                        if (flgIsLoadingFromLocalStorage) {
+		                		$('.btnWrite.editControl#content').trigger( "click" );	
+		                	}	
 	                    }
 	                    if (itemSpace.substring(0, 1) === 'u') {
 	                        $('.navbarTeamName').text("Yours");
@@ -3449,7 +3405,7 @@
 	    addButtonLock();
 	    addSnippet();
 	    modifyPrevnextButton();
-	    //backupContentsInLocalStorage();
+	    backupContentsInLocalStorage();
 	}
 
 	function handleMoveAnItem(e) {
@@ -3471,26 +3427,14 @@
 	}
 
 	var backupContentsInLocalStorage = function() {
-		//console.log('backupContentsInLocalStorage, pageContentType', pageContentType);
-
-	    if (pageContentType)
-	    {
-	    	var flg = true;
-	    	if ( (pageContentType == constContentTypeWrite) && !editorContentsStatus ) {
-	    		flg = false;
+	    if (editorContentsStatus) {
+	    	var current_contents = currentEditor.froalaEditor('html.get');
+	    	if (lastEditorContent != current_contents) {
+	    		//console.log('originalEditorContent', originalEditorContent);
+	    		//console.log('current_contents', current_contents);	
+	    		localStorage.setItem(itemId, current_contents);
 	    	}
-	    	if (flg) {
-	    		//var current_contents = currentEditor.froalaEditor('html.get');
-		    	var current_contents = getCurrentContent();
-		    	if (lastContent != current_contents) {
-		    		console.log('lastContent', lastContent);
-		    		console.log('current_contents', current_contents);	
-		    		pageLocalStorageKey = itemId + pageContentType;
-		    		localStorage.setItem(pageLocalStorageKey, current_contents);
-		    	}
-		    	lastContent = current_contents;	  
-	    	}
-	    	  	
+	    	lastEditorContent = current_contents;	    	
 	    }
 	    setTimeout(backupContentsInLocalStorage, 3000);
 	}; 
@@ -3548,7 +3492,7 @@
 			$('#selectContentTypeModal').modal('hide');
 			$('.selectContentType').addClass('hidden');
 			
-			$('.btnWrite.editControl#content').trigger("click");
+			$('.btnWrite.editControl#content').trigger( "click" );
 		});
 
 		$('.contentTypeDraw').click(function(e) {
@@ -3582,6 +3526,10 @@
 	
 	function initContentView(type, contentJSON)
 	{
+		$('.btnWrite.editControl#content').addClass('hidden');
+		$('.btnWrite.btnEditor#content').addClass('hidden');		
+		$('.pageRow.editorRow').append('<div class="wrapper"><div class="contentContainer"></div></div>');	
+
 		function addContentSaveButton()
 		{
 			if ($('.btnContentSave').length) {
@@ -3598,17 +3546,16 @@
 			$('.btnContentSave').click(function(e) {
 				e.preventDefault();
 
-				saveContent();
-
-				// if (pageContentType == constContentTypeDraw) {
-				// 	saveOtherTypeContent();	
-				// } else if (pageContentType == constContentTypeSpreadsheet) {
-				// } else if (pageContentType == constContentTypeDoc) {
-				// }
+				if (pageContentType == constContentTypeDraw) {
+					saveOtherTypeContent();	
+				} else if (pageContentType == constContentTypeSpreadsheet) {
+				} else if (pageContentType == constContentTypeDoc) {
+				}
 				
 			});
 		}
 	
+		addContentSaveButton();
 
 		function loadCSS(href) 
 		{
@@ -3638,70 +3585,478 @@
 			}(document, 'script', 'forge'));	
 		}
 
-		if (pageContentType == constContentTypeWrite) {
-			$('.froala-editor#content').html(contentJSON);	
 
-			if (flgIsLoadingFromLocalStorage) {
-        		$('.btnWrite.editControl#content').trigger( "click" );	
-        	}			
-		} else {
-			$('.btnWrite.editControl#content').addClass('hidden');
-			$('.btnWrite.btnEditor#content').addClass('hidden');		
-			$('.pageRow.editorRow').append('<div class="wrapper"><div class="contentContainer"></div></div>');		
+		if (type == constContentTypeDraw) {
+			loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
 
-			addContentSaveButton();
+			loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
+				loadJS("/javascripts/literallycanvas/js/react-dom.js", function() {
+					loadJS("/javascripts/literallycanvas/js/literallycanvas.js", function() {
+						console.log('literallycanvas library is loaded...');
+						lc = LC.init(
+				            document.getElementsByClassName('contentContainer')[0], 
+				            	{imageURLPrefix: '/javascripts/literallycanvas/img',
+				            	backgroundColor: 'whitesmoke'}
+				        );
+				        //lc.loadSnapshotJSON('{"shapes":[],"colors":{"primary":"#000","secondary":"#fff","background":"black"}}');
 
-			if (type == constContentTypeDraw) {
-				loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
-
-				loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
-					loadJS("/javascripts/literallycanvas/js/react-dom.js", function() {
-						loadJS("/javascripts/literallycanvas/js/literallycanvas.js", function() {
-							console.log('literallycanvas library is loaded...');
-							lc = LC.init(
-					            document.getElementsByClassName('contentContainer')[0], 
-					            	{imageURLPrefix: '/javascripts/literallycanvas/img',
-					            	backgroundColor: 'whitesmoke'}
-					        );
-					        //lc.loadSnapshotJSON('{"shapes":[],"colors":{"primary":"#000","secondary":"#fff","background":"black"}}');
-
-					        if (contentJSON != null)
-					        {
-					        	lc.loadSnapshot(JSON.parse(contentJSON))
-					        }
-						});
+				        if (contentJSON != null)
+				        {
+				        	lc.loadSnapshot(JSON.parse(contentJSON))
+				        }
 					});
 				});
-			} else if (type == constContentTypeSpreadsheet) {
-				
-				$( ".contentContainer" ).attr('id', 'spreadsheet');
-				
-	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.common-material.min.css');
-	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.rtl.min.css');
-	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
-	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.mobile.min.css');
-	    		loadCSS('http://localhost:8000/javascripts/kendo/css/kendo.examples.css');
+			});
+		} else if (type == constContentTypeSpreadsheet) {
+			//$('.contentContainer').append('<div id="spreadsheet"></div>');
+			$( ".contentContainer" ).attr('id', 'spreadsheet');
+			//loadCSS('/javascripts/kendo/css/kendo.common-material.min.css');
+			//loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.common-material.min.css');
+			//loadCSS('/javascripts/kendo/css/kendo.material.min.css');
+			//loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
+			//loadCSS('/javascripts/kendo/css/kendo.material.mobile.min.css');
+			//loadCSS('http://localhost:8000/javascripts/kendo/css/kendo.common.min.css');
 
-				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
-					loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
-						$('#spreadsheet').css('width', '100%');
-						$("#spreadsheet").kendoSpreadsheet();
-						spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+			
+    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.common-material.min.css');
+    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.rtl.min.css');
+    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
+    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.mobile.min.css');
+    		loadCSS('http://localhost:8000/javascripts/kendo/css/kendo.examples.css');
+    		//loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.default.min.css');
+    		//loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.default.mobile.min.css');
 
-						if (contentJSON != null) {
-							spreadsheet.fromJSON(JSON.parse(contentJSON));
-						} 
-					});
+			loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
+				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
+					//tmpinitSheet();
+					$('#spreadsheet').css('width', '100%');
+					$("#spreadsheet").kendoSpreadsheet();
+					spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+
+
 				});
-				
+			});
+			
 
-			} else if (type == constContentTypeDoc) {
-			}
-
+		} else if (type == constContentTypeDoc) {
 		}
-		
-		backupContentsInLocalStorage();		
 
+		
+
+		function tmpinitSheet()
+		{
+
+			//var spreadsheet = $("#spreadsheet").kendoSpreadsheet();
+			
+			//$("#spreadsheet").css({height:auto, width:"600px;"});
+			//$("#spreadsheet").data("kendoSpreadsheet").resize();
+
+			
+			/*
+			$("#spreadsheet").kendoSpreadsheet({
+	            excel: {                
+	                // Required to enable saving files in older browsers
+	                proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+	            },
+	            pdf: {                
+	                proxyURL: "https://demos.telerik.com/kendo-ui/service/export"
+	            },
+	            sheets: [
+	                {
+	                    name: "Food Order",
+	                    mergedCells: [
+	                        "A1:G1",
+	                        "C15:E15"
+	                    ],
+	                    rows: [
+	                        {
+	                            height: 70,
+	                            cells: [
+	                                {
+	                                    index: 0, value: "Invoice #52 - 06/23/2015", fontSize: 32, background: "rgb(96,181,255)",
+	                                    textAlign: "center", color: "white"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            height: 25,
+	                            cells: [
+	                                {
+	                                    value: "ID", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Product", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Quantity", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Price", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Tax", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Amount", background: "rgb(167,214,255)", textAlign: "center", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(167,214,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 216321, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Calzone", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 1, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 12.39, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C3*D3*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C3*D3+E3", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 546897, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Margarita", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 2, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 8.79, format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C4*D4*0.2", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C4*D4+E4", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 456231, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Pollo Formaggio", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 1, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 13.99, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C5*D5*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C5*D5+E5", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 455873, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Greek Salad", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 1, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 9.49, format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C6*D6*0.2", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C6*D6+E6", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 456892, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Spinach and Blue Cheese", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 3, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 11.49, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C7*D7*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C7*D7+E7", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 546564, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Rigoletto", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 1, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 10.99, format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C8*D8*0.2", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C8*D8+E8", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 789455, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Creme Brulee", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 5, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 6.99, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C9*D9*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C9*D9+E9", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 123002, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Radeberger Beer", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 4, textAlign: "center", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 4.99, format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C10*D10*0.2", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C10*D10+E10", format: "$#,##0.00", background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            cells: [
+	                                {
+	                                    value: 564896, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Budweiser Beer", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 3, textAlign: "center", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: 4.49, format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C11*D11*0.2", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    formula: "C11*D11+E11", format: "$#,##0.00", background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            index: 11,
+	                            cells: [
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(229,243,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            index: 12,
+	                            cells: [
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(255,255,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            height: 25,
+	                            index: 13,
+	                            cells: [
+	                                {
+	                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+	                                },
+	                                {
+	                                    value: "Tip:", background: "rgb(193,226,255)", color: "rgb(0,62,117)", textAlign: "right", verticalAlign: "bottom"
+	                                },
+	                                {
+	                                    formula: "SUM(F3:F11)*0.1", background: "rgb(193,226,255)", color: "rgb(0,62,117)", format: "$#,##0.00", bold: "true", verticalAlign: "bottom"
+	                                },
+	                                {
+	                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        },
+	                        {
+	                            height: 50,
+	                            index: 14,
+	                            cells: [
+	                                {
+	                                    index: 0, background: "rgb(193,226,255)", color: "rgb(0,62,117)",
+	                                },
+	                                {
+	                                    index: 1, background: "rgb(193,226,255)", color: "rgb(0,62,117)",
+	                                },
+	                                {
+	                                    index: 2, fontSize: 20, value: "Total Amount:",
+	                                    background: "rgb(193,226,255)", color: "rgb(0,62,117)", textAlign: "right"
+	                                },
+	                                {
+	                                    index: 5, fontSize: 20, formula: "SUM(F3:F14)", background: "rgb(193,226,255)", color: "rgb(0,62,117)",
+	                                    format: "$#,##0.00", bold: "true"
+	                                },
+	                                {
+	                                    index: 6, background: "rgb(193,226,255)", color: "rgb(0,62,117)"
+	                                }
+	                            ]
+	                        }
+	                    ],
+	                    columns: [
+	                        {
+	                            width: 100
+	                        },
+	                        {
+	                            width: 215
+	                        },
+	                        {
+	                            width: 115
+	                        },
+	                        {
+	                            width: 115
+	                        },
+	                        {
+	                            width: 115
+	                        },
+	                        {
+	                            width: 155
+	                        }
+	                    ]
+	                }
+	            ]
+	        });
+			*/
+		}
 		
 	}
 
