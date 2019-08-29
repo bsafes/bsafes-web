@@ -1497,7 +1497,7 @@ function positionItemNavigationControls() {
             );
             var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             var rightMargin = (w - panelWidth) / 2;
-            $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel, .btnCanvasSave").css("right", rightMargin + "px");
+            $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel, .btnFloatingCanvasSave").css("right", rightMargin + "px");
 
             // var margin = (w - panelWidth) / 2;
             // var leftMargin = margin - 30;

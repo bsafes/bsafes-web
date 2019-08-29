@@ -59,6 +59,8 @@
 	var constContentTypeSpreadsheet = 'contentType#Spreadsheet';
 	var constContentTypeDoc = 'contentType#Doc';
 
+	var syncfusionKey;
+
 	// library object.
 	var lc; // literallycanvas
 	var spreadsheet; // spreedsheet
@@ -1111,10 +1113,9 @@
 	    } else if ( (pageContentType == constContentTypeDraw) && lc ) {
 			content = JSON.stringify(lc.getSnapshot());	
 	    } else if ( (pageContentType == constContentTypeSpreadsheet) && spreadsheet) {
-	    	//content = spreadsheet.toJSON();
 	    	content = JSON.stringify(spreadsheet.toJSON(), null, 2);
-	    } else if (pageContentType == constContentTypeDoc) {
-
+	    } else if (pageContentType == constContentTypeDoc) {	
+	    	content = localStorage.getItem(syncfusionKey);
 	    }
 
 	    return content;
@@ -1122,6 +1123,7 @@
 
 	//function saveOtherTypeContent() {
 	function saveContent() {
+		
 		$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
 		
 		// get drawing snapshot...
@@ -3101,13 +3103,6 @@
 	                                content = DOMPurify.sanitize(content);
 	                                $('.froala-editor#content').removeClass('loading');
 
-	                                // if (pageContentType == constContentTypeDraw) {
-	                                // 	initContentView(constContentTypeDraw, content);
-	                                // } else {
-	                                // 	$('.froala-editor#content').html(content);	
-	                                // }
-	                                
-	                                //initContentView(pageContentType, content);
 	                                
 	                            } catch (err) {
 	                                alert(err);
@@ -3278,9 +3273,6 @@
 	                            disableEditControls();
 	                        }
 
-	                  //       if (flgIsLoadingFromLocalStorage) {
-		                	// 	$('.btnWrite.editControl#content').trigger( "click" );	
-		                	// }
 
 		                	if (localStorage.getItem(itemId + constContentTypeWrite)) {
                             	pageLocalStorageKey = itemId + constContentTypeWrite;
@@ -3423,6 +3415,8 @@
 	                                done(null, null);
 	                            }
 	                        });
+
+	                        addSelectContentTypeView();
 	                    } else {
 	                        done(null, null);
 	                    }
@@ -3589,26 +3583,20 @@
 			}
 			
 			var htmlButton = `
-				<div class="btnEditor btn btnFloatingCanvasSave btnFloating btnContentSave" style="right:150px;">
+				<div class="btnEditor btn btnFloatingCanvasSave btnFloating btnContentSave" style="">
 					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
 				</div>
 			`;
-			$( ".contentContainer" ).after( htmlButton );		
+			$(".contentContainer").after( htmlButton );	
+			$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
 
 			$('.btnContentSave').click(function(e) {
 				e.preventDefault();
-
+				
 				saveContent();
-
-				// if (pageContentType == constContentTypeDraw) {
-				// 	saveOtherTypeContent();	
-				// } else if (pageContentType == constContentTypeSpreadsheet) {
-				// } else if (pageContentType == constContentTypeDoc) {
-				// }
 				
 			});
-		}
-	
+		}	
 
 		function loadCSS(href) 
 		{
@@ -3638,6 +3626,8 @@
 			}(document, 'script', 'forge'));	
 		}
 
+		showLoadingPage();
+
 		if (pageContentType == constContentTypeWrite) {
 			$('.froala-editor#content').html(contentJSON);	
 
@@ -3657,7 +3647,8 @@
 				loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
 					loadJS("/javascripts/literallycanvas/js/react-dom.js", function() {
 						loadJS("/javascripts/literallycanvas/js/literallycanvas.js", function() {
-							console.log('literallycanvas library is loaded...');
+							//console.log('literallycanvas library is loaded...');
+							$( ".contentContainer" ).attr('id', 'literallycanvas');
 							lc = LC.init(
 					            document.getElementsByClassName('contentContainer')[0], 
 					            	{imageURLPrefix: '/javascripts/literallycanvas/img',
@@ -3669,12 +3660,11 @@
 					        {
 					        	lc.loadSnapshot(JSON.parse(contentJSON))
 					        }
+					        hideLoadingPage();
 						});
 					});
 				});
 			} else if (type == constContentTypeSpreadsheet) {
-				
-				$( ".contentContainer" ).attr('id', 'spreadsheet');
 				
 	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.common-material.min.css');
 	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.rtl.min.css');
@@ -3684,6 +3674,7 @@
 
 				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
 					loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
+						$( ".contentContainer" ).attr('id', 'spreadsheet');
 						$('#spreadsheet').css('width', '100%');
 						$("#spreadsheet").kendoSpreadsheet();
 						spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
@@ -3691,18 +3682,57 @@
 						if (contentJSON != null) {
 							spreadsheet.fromJSON(JSON.parse(contentJSON));
 						} 
+
+						hideLoadingPage();
 					});
-				});
-				
+				});				
 
 			} else if (type == constContentTypeDoc) {
+				syncfusionKey = itemId + 'SyncfusionWordContent';
+
+				var template = `
+					<div class="sample-browser" style="">
+						<div class='content e-view'>
+							<div class='sample-content'>
+								<div class="control-content">
+									<div class="container-fluid">
+										<div class="control-section">
+											<div class="control-section">
+												<title>Essential JS 2 - DocumentEditor</title>
+												<div id="panel">
+													<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
+													<div id="documenteditor_container_body" style="display: flex;position:relative; height:650px">
+														<div id="container" style="width: 100%;height: 100%;"></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				`;
+
+				$(".contentContainer").css("border", "1px solid red;");
+				$(".contentContainer").append(template);
+
+				loadCSS('http://localhost:8000/javascripts/syncfusion/css/material.css');				
+				loadCSS('http://localhost:8000/javascripts/syncfusion/css/docEditor.css');
+
+				loadJS("http://localhost:8000/javascripts/syncfusion/js/ej2.min.js", function() {
+					loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
+						$('.sample-browser').css('height', '690px')
+						loadSyncfusionWordContent(contentJSON);
+						hideLoadingPage();
+					});
+
+				});
 			}
 
 		}
 		
-		backupContentsInLocalStorage();		
-
-		
+		backupContentsInLocalStorage();				
 	}
 
 	

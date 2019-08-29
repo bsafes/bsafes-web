@@ -3206,7 +3206,7 @@ html.k-materialblack .demo-section.k-content {
   .btn {
     border: 0;
     line-height: 2em;
-    border-radius: 0;
+    /*border-radius: 0;*/
     margin: 0;
   }
 
