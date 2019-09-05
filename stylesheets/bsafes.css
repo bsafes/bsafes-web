@@ -399,7 +399,7 @@ body {
   display: inline-block;
   cursor: default;
   padding-top: 8px;
-  z-index:1000;
+  z-index:15000;
 }
 
 /*.btnCanvasSave {
@@ -948,5 +948,26 @@ body {
   }
 
   /** sample level font icons ends*/
+
+#editor-ui-container {
+  position:relative;
+  height:720px;
+  width:100%;
+  border:1px solid rgba(0, 0, 0, 0.15);
+  -webkit-border-radius:4px;
+}
+
+#editor-ui-container * {
+  box-sizing:initial;
+}  
+
+.geDialog  {
+  box-sizing:initial;
+  font-size:12px;
+}
+
+.mxPopupMenu , .geToolbarMenu {
+  box-sizing:initial;
+}
 
 /* End of page *******/

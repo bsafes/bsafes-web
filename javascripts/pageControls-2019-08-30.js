@@ -51,21 +51,20 @@
 	var contentsFromServer = null;
 	var pageLocalStorageKey = null;
 
-	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, etc </a>';
+	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, etc </a>';
 	
 	var pageContentType = null;
 	var constContentTypeWrite = 'contentType#Write';
 	var constContentTypeDraw = 'contentType#Draw';
 	var constContentTypeSpreadsheet = 'contentType#Spreadsheet';
 	var constContentTypeDoc = 'contentType#Doc';
-	var constContentTypeMxGraph = 'contentType#MxGraph';
 
 	var syncfusionKey;
 
 	// library object.
 	var lc; // literallycanvas
 	var spreadsheet; // spreedsheet
-	var mxGraphUI = null;
+
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
 	{
@@ -886,9 +885,7 @@
 		localStorage.removeItem(pageLocalStorageKey);
 
 	    var result = preProcessEditorContentBeforeSaving(content);
-	    if (pageContentType != constContentTypeMxGraph) {
-	    	content = result.content;	
-	    }	    
+	    content = result.content;
 	    var s3ObjectsInContent = result.s3ObjectsInContent;
 	    var s3ObjectsSize = result.s3ObjectsSize;
 
@@ -1119,8 +1116,6 @@
 	    	content = JSON.stringify(spreadsheet.toJSON(), null, 2);
 	    } else if (pageContentType == constContentTypeDoc) {	
 	    	content = localStorage.getItem(syncfusionKey);
-	    } else if ( (pageContentType == constContentTypeMxGraph) && (mxGraphUI) ) {	    		
-	    	content = mxUtils.getXml(mxGraphUI.editor.getGraphXml());
 	    }
 
 	    return content;
@@ -1128,24 +1123,17 @@
 
 	//function saveOtherTypeContent() {
 	function saveContent() {
-		window.onbeforeunload = null;
+		
 		$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
 		
 		// get drawing snapshot...
 		//var content = currentEditor.froalaEditor('html.get');
 	    var content = getCurrentContent();
-	    if (content == null) {
-	    	alert('Can not get contents');
-	    	return;
-	    }
 	    
 		localStorage.removeItem(pageLocalStorageKey);
 
 	    var result = preProcessEditorContentBeforeSaving(content);
-	    //content = result.content;
-	    if (pageContentType != constContentTypeMxGraph) {
-	    	content = result.content;	
-	    }	
+	    content = result.content;
 	    var s3ObjectsInContent = result.s3ObjectsInContent;
 	    var s3ObjectsSize = result.s3ObjectsSize;
 
@@ -3052,8 +3040,6 @@
 	                                    	pageContentType = tag;
 	                                    } else if (tag == constContentTypeDoc) {
 	                                    	pageContentType = tag;
-	                                    } else if (tag == constContentTypeMxGraph) {
-	                                    	pageContentType = tag;
 	                                    } else {
 	                                    	itemTags.push(tag);
 	                                    }
@@ -3114,10 +3100,7 @@
 	                                        node.setAttribute('xlink:show', 'new');
 	                                    }
 	                                });
-	                                //content = DOMPurify.sanitize(content);
-	                                if (pageContentType != constContentTypeMxGraph) {
-	                                	content = DOMPurify.sanitize(content);	
-	                                }	                                
+	                                content = DOMPurify.sanitize(content);
 	                                $('.froala-editor#content').removeClass('loading');
 
 	                                
@@ -3299,8 +3282,6 @@
                             	pageLocalStorageKey = itemId + constContentTypeSpreadsheet;
                             } else if (localStorage.getItem(itemId + constContentTypeDoc)) {
                             	pageLocalStorageKey = itemId + constContentTypeDoc;
-                            } else if (localStorage.getItem(itemId + constContentTypeMxGraph)) {
-                            	pageLocalStorageKey = itemId + constContentTypeMxGraph;
                             } else {
                             	pageLocalStorageKey = null;
                             }
@@ -3495,14 +3476,13 @@
 	    	if (flg) {
 	    		//var current_contents = currentEditor.froalaEditor('html.get');
 		    	var current_contents = getCurrentContent();
-		    	if ( (current_contents != null) && (lastContent != current_contents) ) {
+		    	if (lastContent != current_contents) {
 		    		console.log('lastContent', lastContent);
 		    		console.log('current_contents', current_contents);	
 		    		pageLocalStorageKey = itemId + pageContentType;
 		    		localStorage.setItem(pageLocalStorageKey, current_contents);
-		    		lastContent = current_contents;	
 		    	}
-		    	//lastContent = current_contents;	  
+		    	lastContent = current_contents;	  
 	    	}
 	    	  	
 	    }
@@ -3534,20 +3514,17 @@
 						<div class="modal-body" style="max-height: 336px; overflow-y: auto;">
 							
 							<div class="list-group containersList">
-								<a href="#" class="list-group-item contentTypeItem contentTypeWrite">
+								<a href="#" class="list-group-item contentTypeWrite">
 									<em class="fontSize18Px">Write</em>
 								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeDraw">
+								<a href="#" class="list-group-item contentTypeDraw">
 									<em class="fontSize18Px">Draw</em>
 								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeSpreadsheet">
+								<a href="#" class="list-group-item contentTypeSpreadsheet">
 									<em class="fontSize18Px">Spreadsheet</em>
 								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeDoc">
+								<a href="#" class="list-group-item contentTypeDoc">
 									<em class="fontSize18Px">Doc</em>
-								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeMxGraph">
-									<em class="fontSize18Px">Diagram</em>
 								</a>
 							</div>
 						</div>
@@ -3559,52 +3536,42 @@
 		`;
 
 		$(htmlSelectContentTypeModal).appendTo('body');
-
-		$('.contentTypeItem').click(function(e) {
+		
+		$('.contentTypeWrite').click(function(e) {
+			pageContentType = constContentTypeWrite;
 			$('#selectContentTypeModal').modal('hide');
 			$('.selectContentType').addClass('hidden');
-
-			var $contentTypeItem = $(e.target);
-
-		    if ($contentTypeItem.hasClass('contentTypeWrite')) {
-		    	pageContentType = constContentTypeWrite;
-		    	$('.btnWrite.editControl#content').trigger("click");
-		    	return;
-		    } else if ($contentTypeItem.hasClass('contentTypeDraw')) {
-		    	pageContentType = constContentTypeDraw;
-		    } else if ($contentTypeItem.hasClass('contentTypeSpreadsheet')) {
-		    	pageContentType = constContentTypeSpreadsheet;
-		    } else if ($contentTypeItem.hasClass('contentTypeDoc')) {
-		    	pageContentType = constContentTypeDoc;
-		    } else if ($contentTypeItem.hasClass('contentTypeMxGraph')) {
-		    	pageContentType = constContentTypeMxGraph;
-		    }
 			
-			initContentView(pageContentType, null);	
-		})
-		
-		
+			$('.btnWrite.editControl#content').trigger("click");
+		});
+
+		$('.contentTypeDraw').click(function(e) {
+			pageContentType = constContentTypeDraw;
+			$('#selectContentTypeModal').modal('hide');
+			$('.selectContentType').addClass('hidden');
+			
+			initContentView(constContentTypeDraw, null);	
+		});
+
+		$('.contentTypeSpreadsheet').click(function(e) {
+			pageContentType = constContentTypeSpreadsheet;
+			$('#selectContentTypeModal').modal('hide');
+			$('.selectContentType').addClass('hidden');
+			
+			initContentView(constContentTypeSpreadsheet, null);	
+		});
+
+		$('.contentTypeDoc').click(function(e) {
+			pageContentType = constContentTypeDoc;
+			$('#selectContentTypeModal').modal('hide');
+			$('.selectContentType').addClass('hidden');
+			
+			initContentView(constContentTypeDoc, null);	
+		});
 
 	}
 
 	addSelectContentTypeModal();
-
-	function loadJS(jsFile, done)
-	{
-		$(function (d, s, id) {
-		    'use strict';
-
-		    var js, fjs = d.getElementsByTagName(s)[0];
-		    js = d.createElement(s);
-		    js.onload = function() {
-		      done();
-		    };
-		    js.src = jsFile;
-			js.setAttribute("crossorigin", "anonymous");
-		    fjs.parentNode.insertBefore(js, fjs);
-
-		}(document, 'script', 'forge'));	
-	}
 
 	
 	function initContentView(type, contentJSON)
@@ -3642,22 +3609,22 @@
 			});
 		};
 
-		// function loadJS(jsFile, done)
-		// {
-		// 	$(function (d, s, id) {
-		// 	    'use strict';
+		function loadJS(jsFile, done)
+		{
+			$(function (d, s, id) {
+			    'use strict';
 
-		// 	    var js, fjs = d.getElementsByTagName(s)[0];
-		// 	    js = d.createElement(s);
-		// 	    js.onload = function() {
-		// 	      done();
-		// 	    };
-		// 	    js.src = jsFile;
-		// 		js.setAttribute("crossorigin", "anonymous");
-		// 	    fjs.parentNode.insertBefore(js, fjs);
+			    var js, fjs = d.getElementsByTagName(s)[0];
+			    js = d.createElement(s);
+			    js.onload = function() {
+			      done();
+			    };
+			    js.src = jsFile;
+				js.setAttribute("crossorigin", "anonymous");
+			    fjs.parentNode.insertBefore(js, fjs);
 
-		// 	}(document, 'script', 'forge'));	
-		// }
+			}(document, 'script', 'forge'));	
+		}
 
 		showLoadingPage();
 
@@ -3761,68 +3728,12 @@
 					});
 
 				});
-			} else if (type == constContentTypeMxGraph) {
-				$('.contentContainer').addClass('geEditor');
-				$('.contentContainer').attr('id', 'editor-ui-container');
-				//mxBasePath = 'http://localhost:8000/javascripts/mxGraph/mxClient';
-				loadCSS('/javascripts/grapheditor/styles/grapheditor.css');
-
-				loadJS('/javascripts/grapheditor/grapheditorOptions.js', function() {
-				loadJS('/javascripts/grapheditor/js/Init.js', function() {
-				loadJS('/javascripts/grapheditor/deflate/pako.min.js', function() {
-				loadJS('/javascripts/grapheditor/deflate/base64.js', function() {
-				loadJS('/javascripts/grapheditor/jscolor/jscolor.js', function() {
-				loadJS('/javascripts/grapheditor/sanitizer/sanitizer.min.js', function() {
-				//loadJS('/javascripts/grapheditor/src/js/mxClient.js', function() {
-				loadJS('http://localhost:8000/javascripts/grapheditor/mxClient/mxClient.js', function() {
-				loadJS('/javascripts/grapheditor/js/EditorUi.js', function() {
-				loadJS('/javascripts/grapheditor/js/Editor.js', function() {
-				loadJS('http://localhost:8000/javascripts/grapheditor/js/Sidebar.js', function() {
-				loadJS('/javascripts/grapheditor/js/Graph.js', function() {
-				loadJS('/javascripts/grapheditor/js/Format.js', function() {
-				loadJS('/javascripts/grapheditor/js/Shapes.js', function() {
-				loadJS('/javascripts/grapheditor/js/Actions.js', function() {
-				loadJS('/javascripts/grapheditor/js/Menus.js', function() {
-				loadJS('/javascripts/grapheditor/js/Toolbar.js', function() {
-					loadJS('/javascripts/grapheditor/js/Dialogs.js', function() {
-						loadJS('http://localhost:8000/javascripts/grapheditor/index.js', function() {
-							if (contentJSON != null) {
-								function loadMxGraphContent() {
-									if (mxGraphUI == null) {
-										setTimeout(loadMxGraphContent, 500);
-									} else {
-										window.onbeforeunload = null;
-										//var doc = mxUtils.parseXml($.parseXML(contentJSON));
-										var doc = mxUtils.parseXml(contentJSON);
-										mxGraphUI.editor.setGraphXml(doc.documentElement);
-									}
-								}
-
-								loadMxGraphContent();
-							} 
-							hideLoadingPage();
-						});
-					});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
-				});
 			}
 
 		}
 		
-		//backupContentsInLocalStorage();				
+		backupContentsInLocalStorage();				
 	}
 
+	
+	
