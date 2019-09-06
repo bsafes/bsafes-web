@@ -880,6 +880,7 @@
 	    return { content: tempElement.html(), s3ObjectsInContent: s3ObjectsInContent, s3ObjectsSize: totalS3ObjectsSize };
 	};
 
+	/*
 	function saveWriteTypeContent() {
 	    if (isBlankPageItem) {}
 	    var content = currentEditor.froalaEditor('html.get');
@@ -1012,6 +1013,7 @@
 
 	    }
 	};
+	*/
 
 	function saveNewComment() {
 	    if (isBlankPageItem) {
@@ -3589,22 +3591,22 @@
 
 	addSelectContentTypeModal();
 
-	function loadJS(jsFile, done)
-	{
-		$(function (d, s, id) {
-		    'use strict';
+	// function loadJS(jsFile, done)
+	// {
+	// 	$(function (d, s, id) {
+	// 	    'use strict';
 
-		    var js, fjs = d.getElementsByTagName(s)[0];
-		    js = d.createElement(s);
-		    js.onload = function() {
-		      done();
-		    };
-		    js.src = jsFile;
-			js.setAttribute("crossorigin", "anonymous");
-		    fjs.parentNode.insertBefore(js, fjs);
+	// 	    var js, fjs = d.getElementsByTagName(s)[0];
+	// 	    js = d.createElement(s);
+	// 	    js.onload = function() {
+	// 	      done();
+	// 	    };
+	// 	    js.src = jsFile;
+	// 		js.setAttribute("crossorigin", "anonymous");
+	// 	    fjs.parentNode.insertBefore(js, fjs);
 
-		}(document, 'script', 'forge'));	
-	}
+	// 	}(document, 'script', 'forge'));	
+	// }
 
 	
 	function initContentView(type, contentJSON)
@@ -3642,22 +3644,22 @@
 			});
 		};
 
-		// function loadJS(jsFile, done)
-		// {
-		// 	$(function (d, s, id) {
-		// 	    'use strict';
+		function loadJS(jsFile, done)
+		{
+			$(function (d, s, id) {
+			    'use strict';
 
-		// 	    var js, fjs = d.getElementsByTagName(s)[0];
-		// 	    js = d.createElement(s);
-		// 	    js.onload = function() {
-		// 	      done();
-		// 	    };
-		// 	    js.src = jsFile;
-		// 		js.setAttribute("crossorigin", "anonymous");
-		// 	    fjs.parentNode.insertBefore(js, fjs);
+			    var js, fjs = d.getElementsByTagName(s)[0];
+			    js = d.createElement(s);
+			    js.onload = function() {
+			      done();
+			    };
+			    js.src = jsFile;
+				js.setAttribute("crossorigin", "anonymous");
+			    fjs.parentNode.insertBefore(js, fjs);
 
-		// 	}(document, 'script', 'forge'));	
-		// }
+			}(document, 'script', 'forge'));	
+		}
 
 		showLoadingPage();
 
@@ -3670,7 +3672,15 @@
 		} else {
 			$('.btnWrite.editControl#content').addClass('hidden');
 			$('.btnWrite.btnEditor#content').addClass('hidden');		
-			$('.pageRow.editorRow').append('<div class="wrapper"><div class="contentContainer"></div></div>');		
+			
+			// $('.pageRow.editorRow').append('<button class="expandWidget">click me</button>');
+
+			// $('.expandWidget').click(function(e) {
+			// 	$('#contentsWrapper').toggleClass('fullscreen'); 
+			// });
+
+			//$('.pageRow.editorRow').append('<div class="wrapper"><div class="contentContainer"></div></div>');		
+			$('.pageRow.editorRow').append('<div id="contentsWrapper"><div class="contentContainer"></div></div>');		
 
 			addContentSaveButton();
 
@@ -3750,11 +3760,11 @@
 				$(".contentContainer").css("border", "1px solid red;");
 				$(".contentContainer").append(template);
 
-				loadCSS('http://localhost:8000/javascripts/syncfusion/css/material.css');				
-				loadCSS('http://localhost:8000/javascripts/syncfusion/css/docEditor.css');
+				loadCSS('/javascripts/syncfusion/css/material.css');				
+				loadCSS('/javascripts/syncfusion/css/docEditor.css');
 
-				loadJS("http://localhost:8000/javascripts/syncfusion/js/ej2.min.js", function() {
-					loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
+				loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
+					loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
 						$('.sample-browser').css('height', '690px')
 						loadSyncfusionWordContent(contentJSON);
 						hideLoadingPage();
@@ -3820,6 +3830,8 @@
 				});
 				});
 			}
+
+			
 
 		}
 		
