@@ -3836,6 +3836,6 @@
 
 		}
 		
-		//backupContentsInLocalStorage();				
+		backupContentsInLocalStorage();				
 	}
 
