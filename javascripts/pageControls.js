@@ -3713,7 +3713,8 @@
 	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.rtl.min.css');
 	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
 	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.mobile.min.css');
-	    		loadCSS('http://localhost:8000/javascripts/kendo/css/kendo.examples.css');
+	    		//loadCSS('http://localhost:8000/javascripts/kendo/css/kendo.examples.css');
+	    		loadCSS('/javascripts/kendo/css/kendo.examples.css');
 
 				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
 					loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
@@ -3784,10 +3785,10 @@
 				loadJS('/javascripts/grapheditor/jscolor/jscolor.js', function() {
 				loadJS('/javascripts/grapheditor/sanitizer/sanitizer.min.js', function() {
 				//loadJS('/javascripts/grapheditor/src/js/mxClient.js', function() {
-				loadJS('http://localhost:8000/javascripts/grapheditor/mxClient/mxClient.js', function() {
+				loadJS('/javascripts/grapheditor/mxClient/mxClient.js', function() {
 				loadJS('/javascripts/grapheditor/js/EditorUi.js', function() {
 				loadJS('/javascripts/grapheditor/js/Editor.js', function() {
-				loadJS('http://localhost:8000/javascripts/grapheditor/js/Sidebar.js', function() {
+				loadJS('/javascripts/grapheditor/js/Sidebar.js', function() {
 				loadJS('/javascripts/grapheditor/js/Graph.js', function() {
 				loadJS('/javascripts/grapheditor/js/Format.js', function() {
 				loadJS('/javascripts/grapheditor/js/Shapes.js', function() {
@@ -3795,7 +3796,7 @@
 				loadJS('/javascripts/grapheditor/js/Menus.js', function() {
 				loadJS('/javascripts/grapheditor/js/Toolbar.js', function() {
 					loadJS('/javascripts/grapheditor/js/Dialogs.js', function() {
-						loadJS('http://localhost:8000/javascripts/grapheditor/index.js', function() {
+						loadJS('/javascripts/grapheditor/index.js', function() {
 							if (contentJSON != null) {
 								function loadMxGraphContent() {
 									if (mxGraphUI == null) {
