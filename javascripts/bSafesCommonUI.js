@@ -1497,7 +1497,18 @@ function positionItemNavigationControls() {
             );
             var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             var rightMargin = (w - panelWidth) / 2;
-            $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel, .btnFloatingCanvasSave").css("right", rightMargin + "px");
+            //$(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel, .btnFloatingCanvasSave").css("right", rightMargin + "px");
+            $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel").css("right", rightMargin + "px");
+            
+            //if ((pageContentType == null) || (pageContentType == constContentTypeWrite) || (pageContentType == constContentTypeDraw)) {
+            if (typeof pageContentType !== "undefined") {
+                if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > 0) {
+                    $(".btnFloatingCanvasSave").css("right", rightMargin + "px");
+                } else {
+                    $(".btnFloatingCanvasSave").css("right", "20px");
+                    $(".btnFloatingMinimize").css("right", "20px");
+                }
+            }
 
             // var margin = (w - panelWidth) / 2;
             // var leftMargin = margin - 30;

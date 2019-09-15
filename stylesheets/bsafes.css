@@ -449,6 +449,13 @@ body {
   padding-left:14px;
 }
 
+.btnFloatingMinimize {
+  background: #F39C12;
+  top: 12px;
+  right: 24px;
+  padding-left:14px;
+}
+
 /* End of custom buttons */
 
 /*--********  Navigation bar */
@@ -876,7 +883,8 @@ body {
 /* End of comments */
 
 /*edi append*/
-#contentsWrapper {
+.contentsWrapper {
+  background-color: #CACFD2;
   padding-left:10px;
   padding-right:10px;
 }
@@ -979,5 +987,21 @@ body {
     left: 10px; 
     overflow: auto;
  }
-
+.contentContainer {
+  margin-left:10px; 
+  margin-right:10px;
+}
+/*.panel-fullscreen {
+    display: block;
+    z-index: 9999;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    overflow: auto;
+    padding: 20px;
+}*/
 /* End of page *******/

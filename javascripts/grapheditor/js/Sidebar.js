@@ -263,9 +263,9 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 					this.tooltip = document.createElement('div');
 					this.tooltip.className = 'geSidebarTooltip';
 					this.tooltip.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
-					//document.body.appendChild(this.tooltip);
+					document.body.appendChild(this.tooltip);
 					//document.getElementsByClassName('contentContainer')[0].parentElement.appendChild(this.tooltip);
-					document.getElementById('editor-ui-container').parentElement.appendChild(this.tooltip);
+					//document.getElementById('editor-ui-container').parentElement.appendChild(this.tooltip);
 					
 					this.graph2 = new Graph(this.tooltip, null, null, this.editorUi.editor.graph.getStylesheet());
 					this.graph2.resetViewOnRootChange = false;

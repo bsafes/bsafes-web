@@ -38,7 +38,7 @@
 
 	var currentImageDownloadXhr = null;
 
-	var addr_images = 'http://localhost:8000/stylesheets/images/';
+	var addr_images = '/images/';
 	var svgLock = addr_images + 'lock.svg';
 	var svgLen = addr_images + 'len.svg';
 	var pngLen = addr_images + 'pngLen.png';
@@ -47,7 +47,7 @@
 
 	var editorContentsStatus;
 	var lastContent;
-	var flgIsLoadingFromLocalStorageForWrite = false;
+	var flgIsLoadingFromLocalStorage = false;
 	var contentsFromServer = null;
 	var pageLocalStorageKey = null;
 
@@ -66,11 +66,6 @@
 	var lc; // literallycanvas
 	var spreadsheet; // spreedsheet
 	var mxGraphUI = null;
-
-	var iconSpreadsheet = addr_images + 'spreadSheet.jpg';
-	var iconDoc = addr_images + 'doc.jpg';
-	var iconDiagram = addr_images + 'diagram.jpg';
-
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
 	{
@@ -113,7 +108,7 @@
         $('.froala-editor#content').html('');
         $('.commentsSearchResults').html('');
 
-        //$('.froala-editor#title').addClass('loading');
+        $('.froala-editor#title').addClass('loading');
         $('.froala-editor#content').append( "<div class='content-loading' style='width:100%;'></div>" );
         $('.froala-editor#content').append( "<div class='content-loading' style='width:70%;'></div>" );
         $('.froala-editor#content').append( "<div class='content-loading' style='width:80%;'></div>" );
@@ -586,7 +581,7 @@
 		setStatusLen();
 
 		editorContentsStatus = false;
-		flgIsLoadingFromLocalStorageForWrite = false;
+		flgIsLoadingFromLocalStorage = false;
 		localStorage.removeItem(pageLocalStorageKey);
 	    var $downloadingElements = $('.bSafesDownloading');
 	    handleVideoObjects();
@@ -635,8 +630,8 @@
 	    e.preventDefault();
 	    var tempOriginalElement = $('<div></div>');
 	    tempOriginalElement.html(originalEditorContent);
-	    if (editorContentsStatus && flgIsLoadingFromLocalStorageForWrite) {
-	    	flgIsLoadingFromLocalStorageForWrite = false;
+	    if (editorContentsStatus && flgIsLoadingFromLocalStorage) {
+	    	flgIsLoadingFromLocalStorage = false;
 	    	tempOriginalElement.html(contentsFromServer);
 	    }
 	    var displayedImages = $('.bSafesDisplayed');
@@ -670,7 +665,7 @@
 	            break;
 	        case 'content':
 	            //saveWriteTypeContent();
-	            saveFroalaEditorContent();
+	            saveContent();
 	            break;
 	        case 'newComment':
 	            saveNewComment();
@@ -1130,473 +1125,11 @@
 	    	content = mxUtils.getXml(mxGraphUI.editor.getGraphXml());
 	    }
 
-	    //console.log('mxGraphUI=', mxGraphUI);
-
 	    return content;
 	}
 
-	function saveOtherTypesContent() {
-		window.onbeforeunload = null;
-		if (isOldVersion()) {
-			alert('Sorry, Can not save content on old version.');
-			return;
-		}
-
-		$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
-
-		var content = getCurrentContent();
-		if (content == null) {
-	    	alert('Can not get contents');
-	    	return;
-	    }
-	    //console.log('content = ', content);
-		
-		///
-		// var $img;
-		// var link;
-		// var imageDataInBinaryString;
-		// var exifOrientation;
-        var s3Key;
-        var s3ObjectSize;
-        var totalUploadedSize = 0;
-        //var $progressBar = $uploadImage.find('.progress-bar');
-
-        function startUploadingOtherTypesContent() {
-            // var imgDOM = $img[0];
-            // var imageWidth = imgDOM.width;
-            // var imageHeight = imgDOM.height;
-
-            // $img.off('load');
-
-            function uploadToS3(data, fn) {
-                var signedURL;
-                var signedGalleryURL;
-                var signedThumbnailURL;
-
-                // var prepareGalleryImgDeferred = $.Deferred();
-                // var prepareGalleryImgPromise;
-                // var prepareThumbnailImgDeferred = $.Deferred();
-                // var prepareThumbnailImgPromise = prepareThumbnailImgDeferred.promise();
-                // var uploadOriginalImgDeferred = $.Deferred();
-                // var uploadOriginalImgPromise = uploadOriginalImgDeferred.promise();
-                // var uploadGalleryImgDeferred = $.Deferred();
-                // var uploadGalleryImgPromise = uploadGalleryImgDeferred.promise();
-                // var uploadThumbnailImgDeferred = $.Deferred();
-                // var uploadThumbnailImgPromise = uploadThumbnailImgDeferred.promise();
-
-                var uploadOriginalContentDeferred = $.Deferred();
-	            var uploadOriginalConentPromise = uploadOriginalContentDeferred.promise();
-                var originalXhr = null;
-                var galleryXhr = null;
-                var thumbnailXhr = null;
-
-                function preS3Upload(fn) {
-                    $.ajax({
-                        type: 'POST',
-                        timeout: 7000,
-                        url: "/memberAPI/preS3Upload",
-                        dataType: "json",
-                        data: {},
-                        success: function(data) {
-                            if (data.status === 'ok') {
-                            	console.log('preS3Upload_ok', data);
-                                s3Key = data.s3Key;
-                                signedURL = data.signedURL;
-                                signedGalleryURL = data.signedGalleryURL;
-                                signedThumbnailURL = data.signedThumbnailURL;
-                                fn(null);
-                            } else {
-                                fn("preS3Upload failed");
-                            }
-                        },
-                        error: function(data, textStatus, errorThrown) {
-                            fn("preS3Upload failed");
-                        }
-                    });
-                };
-
-                function _uploadProgress(e) {
-                    if (e.lengthComputable) {
-                        var complete = (e.loaded / e.total * 100 | 0);
-                        //$progressBar.css('width', complete + '%');
-                        console.log('Uploading Original', complete);
-                    }
-                    /*
-                    if (!prepareGalleryImgPromise) {
-                        prepareGalleryImgPromise = prepareGalleryImgDeferred.promise();
-                        _downscaleImgAndEncryptInUint8Array(720, prepareGalleryImgDeferred);
-
-                        prepareGalleryImgPromise.done(function(data) {
-                            totalUploadedSize += data.byteLength;
-                            $.ajax({
-                                    type: 'PUT',
-                                    url: signedGalleryURL,
-                                    // Content type must much with the parameter you signed your URL with
-                                    contentType: 'binary/octet-stream',
-                                    // this flag is important, if not set, it will try to send data as a form
-                                    processData: false,
-                                    // the actual data is sent raw
-                                    data: data,
-                                    xhr: function() {
-                                        var myXhr = $.ajaxSettings.xhr();
-                                        galleryXhr = myXhr;
-                                        if (myXhr.upload) {
-                                            myXhr.upload.addEventListener('progress', function(e) {
-                                                if (e.lengthComputable) {
-                                                    var complete = (e.loaded / e.total * 100 | 0);
-                                                    console.log('Uploading Gallery', complete);
-                                                }
-                                            }, false);
-                                        }
-                                        return myXhr;
-                                    }
-                                })
-                                .success(function() {
-                                    console.log('Gallery uploading succeeded');
-                                    uploadGalleryImgDeferred.resolve();
-                                    galleryXhr = null;
-                                })
-                                .error(function(jqXHR, textStatus, errorThrown) {
-                                    console.log('Gallery uploading failed');
-                                    uploadGalleryImgDeferred.reject();
-                                    galleryXhr.abort();
-                                });
-
-                            prepareThumbnailImgPromise = prepareThumbnailImgDeferred.promise();
-                            _downscaleImgAndEncryptInUint8Array(120, prepareThumbnailImgDeferred);
-                            prepareThumbnailImgPromise.done(function(data) {
-                                totalUploadedSize += data.byteLength;
-                                $.ajax({
-                                        type: 'PUT',
-                                        url: signedThumbnailURL,
-                                        // Content type must much with the parameter you signed your URL with
-                                        contentType: 'binary/octet-stream',
-                                        // this flag is important, if not set, it will try to send data as a form
-                                        processData: false,
-                                        // the actual data is sent raw
-                                        data: data,
-                                        xhr: function() {
-                                            var myXhr;
-                                            myXhr = $.ajaxSettings.xhr();
-                                            thumbnailXhr = myXhr;
-                                            if (myXhr.upload) {
-                                                myXhr.upload.addEventListener('progress', function(e) {
-                                                    if (e.lengthComputable) {
-                                                        var complete = (e.loaded / e.total * 100 | 0);
-                                                        console.log('Uploading Thumbnail', complete);
-                                                    }
-                                                }, false);
-                                            }
-                                            return myXhr;
-                                        }
-                                    })
-                                    .success(function() {
-                                        console.log('Thumbnail uploading succeeded');
-                                        uploadThumbnailImgDeferred.resolve();
-                                        thumbnailXhr = null;
-                                    })
-                                    .error(function(jqXHR, textStatus, errorThrown) {
-                                        console.log('Thumbnail uploading failed');
-                                        uploadThumbnailImgDeferred.reject();
-                                        thumbnailXhr.abort();
-                                    });
-                            });
-                        });
-                    }
-                    */
-                };
-
-                /*
-                function _downscaleImgAndEncryptInUint8Array(size, deferred) {
-                    _downScaleImage(imgDOM, exifOrientation, size, function(err, binaryString) {
-                        if (err) {
-                            console.log(err);
-                            deferred.reject();
-                        } else {
-                            encryptDataInBinaryString(binaryString, function(err, encryptedImageDataInUint8Array) {
-                                if (err) {
-                                    deferred.reject();
-                                } else {
-                                    deferred.resolve(encryptedImageDataInUint8Array);
-                                }
-                            });
-                        }
-                    });
-                };
-                */
-
-
-                preS3Upload(function(err) {
-                    if (err) {
-                        fn(err);
-                    } else {
-                        totalUploadedSize += data.byteLength;
-                        $.ajax({
-                                type: 'PUT',
-                                url: signedURL,
-                                // Content type must much with the parameter you signed your URL with
-                                contentType: 'binary/octet-stream',
-                                // this flag is important, if not set, it will try to send data as a form
-                                processData: false,
-                                // the actual data is sent raw
-                                data: data,
-                                xhr: function() {
-                                    originalXhr = $.ajaxSettings.xhr();
-                                    var myXhr = $.ajaxSettings.xhr();
-                                    originalXhr = myXhr;
-                                    if (myXhr.upload) {
-                                        myXhr.upload.addEventListener('progress', _uploadProgress, false);
-                                    }
-                                    return myXhr;
-                                }
-                            })
-                            .success(function() {
-                                //var id = s3Key + "&" + imageWidth + "x" + imageHeight;
-                                //$img.attr('id', id);
-                                //id = $img.attr('id');
-                                console.log("Original content was uploaded successfully");
-                                uploadOriginalContentDeferred.resolve();
-                                originalXhr = null;
-                            })
-                            .error(function(jqXHR, textStatus, errorThrown) {
-                                uploadOriginalContentDeferred.reject();
-                                originalXhr.abort();
-                                console.log(errorThrown);
-                            });
-                    }
-                });
-
-                //$.when(uploadOriginalImgPromise, uploadGalleryImgPromise, uploadThumbnailImgPromise).done(function() {
-                $.when(uploadOriginalConentPromise).done(function() {
-                	console.log('uploadOriginalConentPromise');
-                    fn(null);
-                }).fail(function() {
-                    fn('Uploading Original,  Gallery or Thumbnail failed');
-                    if (originalXhr) originalXhr.abort();
-                    // if (galleryXhr) galleryXhr.abort();
-                    // if (thumbnailXhr) thumbnailXhr.abort();
-                });
-            };
-
-            function postS3Upload(fn) {
-                var expandedKey;
-
-                bSafesPreflight(function(err, key) {
-                    if (err) {
-                        alert(err);
-                    } else {
-                        expandedKey = key;
-                        var envelopeIV = forge.random.getBytesSync(16);
-                        var ivEnvelopeIV = forge.random.getBytesSync(16);
-                        var keyEnvelope = encryptBinaryString(itemKey, expandedKey, envelopeIV);
-                        var ivEnvelope = encryptBinaryString(itemIV, expandedKey, ivEnvelopeIV);
-
-                        $.ajax({
-                            type: 'POST',
-                            timeout: 7000,
-                            url: "/memberAPI/postS3Upload",
-                            dataType: "json",
-                            data: {
-                                "id": s3Key,
-                                "itemId": itemId,
-                                "keyEnvelope": keyEnvelope,
-                                "ivEnvelope": ivEnvelope,
-                                "envelopeIV": envelopeIV,
-                                "ivEnvelopeIV": ivEnvelopeIV,
-                                "size": s3ObjectSize
-                            },
-                            success: function(data) {
-                                if (data.status === 'ok') {
-                                	console.log('postS3Upload_ok');
-                                    fn(null);
-                                } else {
-                                    fn("postS3Upload failed");
-                                }
-                            },
-                            error: function(data, textStatus, errorThrown) {
-                                fn("postS3Upload failed");
-                            }
-                        });
-                    }
-                });
-            };
-
-            function encryptDataInBinaryString(data, fn) {
-                var binaryStr = data;
-                console.log('encrypting', binaryStr.length);
-                var encryptedStr = encryptLargeBinaryString(binaryStr, itemKey, itemIV);
-                //console.log('decrypting', encryptedStr.length);
-                //var decryptedStr = decryptLargeBinaryString(encryptedStr, itemKey, itemIV);
-                var uint8Array = convertBinaryStringToUint8Array(encryptedStr);
-                fn(null, uint8Array);
-            };
-
-            // https://gist.github.com/skratchdot/e095036fad80597f1c1a
-		    function str2ab(str) { // ab = arraybuffer
-				//var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-				var buf = new ArrayBuffer(str.length); // 2 bytes for each char
-				//var bufView = new Uint16Array(buf);
-				var bufView = new Uint8Array(buf);
-				for (var i = 0, strLen = str.length; i < strLen; i++) {
-					bufView[i] = str.charCodeAt(i);
-				}
-				return buf;
-			}
-
-			var arraybufferContent = str2ab(content);
-			//var encryptedData = encryptArrayBuffer(arraybufferContent, itemKey, itemIV);
-			encryptArrayBufferAsync(arraybufferContent, itemKey, itemIV, function(encryptedData) {
-				encrypted_buffer = Utf8ArrayToStr(encryptedData, 1000);
-				console.log('encryptedData = ', encryptedData);
-
-				uploadToS3(encryptedData, function(err) {
-                    if (err) {
-                    	console.log('err_uploadToS3');
-                        doneUploadingOtherTypesContent('uploadToS3:' + err);
-                    } else {
-                        console.log("Done uploading uploadToS3");
-                        s3ObjectSize = encryptedData.byteLength;
-                        postS3Upload(function(err) {
-                            if (err) {
-                            	console.log('err_postS3Upload');
-                                doneUploadingOtherTypesContent(err);
-                            } else {
-                                // var id = $uploadImage.attr('id');
-                                // var index = id.split('-')[1];
-
-                                // var id = $uploadImage.attr('id');
-                                // var $imagePanel = $('.imagePanelTemplate').clone().removeClass('imagePanelTemplate hidden').addClass('imagePanel');
-                                // $imagePanel.find('.deleteImageBtn').attr('data-key', s3Key).on('click', pageControlFunctions.deleteImageOnPage);
-                                // $imagePanel.attr('id', id);
-                                // $img.data('width', $img[0].width);
-                                // $img.data('height', $img[0].height);
-                                // $img.on('click', function(e) {
-                                //     $thisImg = $(e.target);
-                                //     $thisImagePanel = $thisImg.closest('.imagePanel');
-                                //     var index = $thisImagePanel.attr('id');
-                                //     var startingIndex = parseInt(index.split('-')[1]);
-                                //     showGallery(startingIndex);
-                                // });
-                                // $imagePanel.find('.image').append($img);
-                                // $imagePanel.find('.btnWrite').on('click', handleBtnWriteClicked);
-                                // $imagePanel.find('.insertImages').on('change', insertImages);
-                                // $uploadImage.before($imagePanel);
-                                // $uploadImage.remove();
-                                doneUploadingOtherTypesContent(null);
-                            }
-                        });
-                    }
-                });
-			});
-
-			/*
-            encryptDataInBinaryString(imageDataInBinaryString, function(err, encryptedImageDataInUint8Array) {
-                if (err) {
-                    console.log("encryptDataInBinaryString failed");
-                    doneUploadingOtherTypesContent("encryptDataInBinaryString failed");
-                } else {
-                	//encrypted_buffer = encryptedImageDataInUint8Array;
-                	encrypted_buffer = Utf8ArrayToStr(encryptedImageDataInUint8Array, 1000);
-                    $uploadImage.find('.uploadText').text("Uploading");
-                    uploadToS3(encryptedImageDataInUint8Array, function(err) {
-                        if (err) {
-                            doneUploadingOtherTypesContent('uploadToS3:' + err);
-                        } else {
-                            console.log("Done uploading an image");
-                            s3ObjectSize = encryptedImageDataInUint8Array.byteLength;
-                            postS3Upload(function(err) {
-                                if (err) {
-                                    doneUploadingOtherTypesContent(err);
-                                } else {
-                                    var id = $uploadImage.attr('id');
-                                    var index = id.split('-')[1];
-
-                                    var id = $uploadImage.attr('id');
-                                    var $imagePanel = $('.imagePanelTemplate').clone().removeClass('imagePanelTemplate hidden').addClass('imagePanel');
-                                    $imagePanel.find('.deleteImageBtn').attr('data-key', s3Key).on('click', pageControlFunctions.deleteImageOnPage);
-                                    $imagePanel.attr('id', id);
-                                    $img.data('width', $img[0].width);
-                                    $img.data('height', $img[0].height);
-                                    $img.on('click', function(e) {
-                                        $thisImg = $(e.target);
-                                        $thisImagePanel = $thisImg.closest('.imagePanel');
-                                        var index = $thisImagePanel.attr('id');
-                                        var startingIndex = parseInt(index.split('-')[1]);
-                                        showGallery(startingIndex);
-                                    });
-                                    $imagePanel.find('.image').append($img);
-                                    $imagePanel.find('.btnWrite').on('click', handleBtnWriteClicked);
-                                    $imagePanel.find('.insertImages').on('change', insertImages);
-                                    $uploadImage.before($imagePanel);
-                                    $uploadImage.remove();
-                                    doneUploadingOtherTypesContent(null);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-            */
-        };
-
-        function doneUploadingOtherTypesContent(err) {
-        	$('.btnContentSave').LoadingOverlay('hide');
-            if (err) {
-                alert("Ooh, please retry!");
-                //$progressBar.css('width', '0%');
-                //uploadAnImage($uploadImage);
-            } else {
-                // var image = { s3Key: s3Key, size: totalUploadedSize };
-                // uploadedImages.push(image);
-                // index++;
-                // if (index < numberOfUploads) {
-                //     uploadAnImage($($uploadImagesList[index]));
-                // } else {
-                //     doneUploadingImages(null);
-                // }
-
-                //var s3ObjectsInContent = result.s3ObjectsInContent;
-                content = s3Key;
-                console.log('s3Key = ', s3Key);
-                var s3ObjectsInContent = { s3Key: s3Key, size: totalUploadedSize };
-				//var s3ObjectsSize = result.s3ObjectsSize;
-				var s3ObjectsSize = totalUploadedSize;
-
-				var encodedContent = forge.util.encodeUtf8(content);
-				var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
-				//encrypted_buffer = encryptedContent;
-
-				// insert pageContentType tag
-				var tags = $('#tagsInput').tokenfield('getTokens');
-				//tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
-				tags.push({'value': pageContentType, 'label': pageContentType});
-				var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
-				//encrypted_buffer = encryptedTags;
-				encryptedTags.push('null');
-				var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
-				var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
-				itemCopy.tags = encryptedTags;
-				itemCopy.tagsTokens = tagsTokens;
-
-				// set content
-				itemCopy.content = encryptedContent;
-				itemCopy.s3ObjectsInContent = s3ObjectsInContent;
-				itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
-				itemCopy.update = "content";
-
-				createNewItemVersionForPage();
-
-				localStorage.removeItem(pageLocalStorageKey);				
-				console.log('edi_ok');
-            }
-        };
-		///
-		startUploadingOtherTypesContent();
-		
-		
-	}
-
-	function saveFroalaEditorContent() {
+	//function saveOtherTypeContent() {
+	function saveContent() {
 		window.onbeforeunload = null;
 		$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
 		
@@ -2583,7 +2116,7 @@
 	                        var uploadGalleryImgDeferred = $.Deferred();
 	                        var uploadGalleryImgPromise = uploadGalleryImgDeferred.promise();
 	                        var uploadThumbnailImgDeferred = $.Deferred();
-	                        var uploadThumbnailImgPromise = uploadThumbnailImgDeferred.promise();	                        
+	                        var uploadThumbnailImgPromise = uploadThumbnailImgDeferred.promise();
 	                        var originalXhr = null;
 	                        var galleryXhr = null;
 	                        var thumbnailXhr = null;
@@ -2976,7 +2509,7 @@
 	                itemCopy.update = "images";
 	                createNewItemVersionForPage();
 	            };
-
+	            
 	            if (err) {
 	                console.log(err);
 	            } else {
@@ -3404,8 +2937,7 @@
 	}
 
 	function getPageItem(thisItemId, thisExpandedKey, thisPrivateKey, thisSearchKey, done, thisVersion) {
-		pageContentType = null;
-	    oldVersion = "undefined";
+	    oldVersion = "undefined"
 	    if (!thisVersion) {
 	        expandedKey = thisExpandedKey;
 	        privateKey = thisPrivateKey;
@@ -3533,12 +3065,11 @@
 	                                }
 	                            }
 	                            $('#tagsInput').tokenfield('setTokens', itemTags);
-	                            
 	                        };
 
-	                        // if (pageContentType == null) {
-	                        // 	pageContentType = constContentTypeWrite;
-	                        // }
+	                        if (pageContentType == null) {
+	                        	pageContentType = constContentTypeWrite;
+	                        }
 	                        //pageLocalStorageKey = itemId + pageContentType;
 	                        //console.log('pageLocalStorageKey', pageLocalStorageKey);
 
@@ -3586,24 +3117,19 @@
 	                                        node.setAttribute('xlink:show', 'new');
 	                                    }
 	                                });
-	                                content = DOMPurify.sanitize(content);
-	                                // if (pageContentType != constContentTypeMxGraph) {
-	                                // 	content = DOMPurify.sanitize(content);	
-	                                // }	                                
-	                                if ( content && (pageContentType == null) ) { // old case...
-			                        	pageContentType = constContentTypeWrite;
-			                        }
-			                        console.log('load_pageContentType = ', pageContentType);
-			                        console.log('load_content = ', content);
-
+	                                //content = DOMPurify.sanitize(content);
+	                                if (pageContentType != constContentTypeMxGraph) {
+	                                	content = DOMPurify.sanitize(content);	
+	                                }	                                
 	                                $('.froala-editor#content').removeClass('loading');
 
 	                                
 	                            } catch (err) {
 	                                alert(err);
 	                            }
-	                            // downloadContentImageObjects();
-	                            // handleVideoObjects();   	                            
+	                            downloadContentImageObjects();
+	                            handleVideoObjects();	                            
+	                            
 	                        } 
 
 	                        if (item.images && item.images.length) {
@@ -3768,12 +3294,46 @@
 	                            disableEditControls();
 	                        }
 
-	                        
-                            if ($('.contentContainer').length > 0) {
-                            	//$('.contentContainer').remove();
-                            	$('.contentContainer').addClass('hidden');
+		                	if (localStorage.getItem(itemId + constContentTypeWrite)) {
+                            	pageLocalStorageKey = itemId + constContentTypeWrite;
+                            } else if (localStorage.getItem(itemId + constContentTypeDraw)) {
+                            	pageLocalStorageKey = itemId + constContentTypeDraw;
+                            } else if (localStorage.getItem(itemId + constContentTypeSpreadsheet)) {
+                            	pageLocalStorageKey = itemId + constContentTypeSpreadsheet;
+                            } else if (localStorage.getItem(itemId + constContentTypeDoc)) {
+                            	pageLocalStorageKey = itemId + constContentTypeDoc;
+                            } else if (localStorage.getItem(itemId + constContentTypeMxGraph)) {
+                            	pageLocalStorageKey = itemId + constContentTypeMxGraph;
+                            } else {
+                            	pageLocalStorageKey = null;
                             }
-                            initContentView(content);
+
+                            var flg = true;
+
+	                        if ( (pageLocalStorageKey) && (content != localStorage.getItem(pageLocalStorageKey)) ) {
+                            	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
+                            		flg = false;
+							    	pageContentType = pageLocalStorageKey.replace(itemId, '');
+							    	flgIsLoadingFromLocalStorage = true;
+
+							    	contentsFromServer = content;
+							    	
+								    console.log('load from localstorage', localStorage.getItem(pageLocalStorageKey));
+								    console.log('pageContentType', pageContentType);
+							    	initContentView(pageContentType, localStorage.getItem(pageLocalStorageKey));
+								} else {
+								    localStorage.removeItem(pageLocalStorageKey);								    
+								}
+                            }
+
+                            if (flg) {
+                            	if (!content || content == null) {
+	                            	console.log('empty contents');	
+	                            	addSelectContentTypeView();
+	                            } else {
+	                            	initContentView(pageContentType, content);
+	                            }
+                            }	
 
 	                    }
 	                    if (itemSpace.substring(0, 1) === 'u') {
@@ -3926,10 +3486,10 @@
 	}
 
 	var backupContentsInLocalStorage = function() {
-		window.onbeforeunload = null;
 		//console.log('backupContentsInLocalStorage, pageContentType', pageContentType);
-		if (isOldVersion()) {
-		} else if (pageContentType) {
+
+	    if (pageContentType)
+	    {
 	    	var flg = true;
 	    	if ( (pageContentType == constContentTypeWrite) && !editorContentsStatus ) {
 	    		flg = false;
@@ -3938,9 +3498,8 @@
 	    		//var current_contents = currentEditor.froalaEditor('html.get');
 		    	var current_contents = getCurrentContent();
 		    	if ( (current_contents != null) && (lastContent != current_contents) ) {
-		    		//console.log('lastContent', lastContent);
-		    		//console.log('current_contents', current_contents);	
-		    		console.log('save chagned contents');
+		    		console.log('lastContent', lastContent);
+		    		console.log('current_contents', current_contents);	
 		    		pageLocalStorageKey = itemId + pageContentType;
 		    		localStorage.setItem(pageLocalStorageKey, current_contents);
 		    		lastContent = current_contents;	
@@ -3953,11 +3512,7 @@
 	}; 
 
 	function addSelectContentTypeView()
-	{
-		if (isOldVersion())	{
-			return;
-		}
-
+	{		
 		$('.btnWrite.editControl#content').after( html_selectContentType );
 		
 		$('.selectContentType').click(function(e) {
@@ -3966,19 +3521,7 @@
 		});
 	}
 
-	function showCanvasLoadingPage(){			
-		$(".froala-editor").LoadingOverlay("show", {
-	        image: "",
-	        fontawesome: "fa fa-circle-o-notch fa-spin",
-	        maxSize: "38px",
-	        minSize: "36px",
-	        background: "rgba(255, 255, 255, 0.0)"
-	    });
-	}
-
-	function hideCanvasLoadingPage() {
-	    $(".froala-editor").LoadingOverlay("hide");
-	};
+	
 
 	function addSelectContentTypeModal()
 	{
@@ -4019,17 +3562,16 @@
 
 		$(htmlSelectContentTypeModal).appendTo('body');
 
-		$('.contentTypeItem').click(function(e) {	
-			e.preventDefault();	
+		$('.contentTypeItem').click(function(e) {
+			$('#selectContentTypeModal').modal('hide');
+			$('.selectContentType').addClass('hidden');
 
 			var $contentTypeItem = $(e.target);
-			if (e.target.tagName == 'EM') {
-				$contentTypeItem = $(e.target.parentNode);
-			}
 
 		    if ($contentTypeItem.hasClass('contentTypeWrite')) {
 		    	pageContentType = constContentTypeWrite;
-		    	//$('.btnWrite.editControl#content').trigger("click");
+		    	$('.btnWrite.editControl#content').trigger("click");
+		    	return;
 		    } else if ($contentTypeItem.hasClass('contentTypeDraw')) {
 		    	pageContentType = constContentTypeDraw;
 		    } else if ($contentTypeItem.hasClass('contentTypeSpreadsheet')) {
@@ -4038,57 +3580,38 @@
 		    	pageContentType = constContentTypeDoc;
 		    } else if ($contentTypeItem.hasClass('contentTypeMxGraph')) {
 		    	pageContentType = constContentTypeMxGraph;
-		    } else {
-		    	alert('Select the correct type.');
-		    	return;
 		    }
-
-		    $('#selectContentTypeModal').modal('hide');
-			$('.selectContentType').addClass('hidden');
-
-		    console.log('clicked the type: ' + pageContentType);
-			showCanvasLoadingPage();
-			//initContentView(pageContentType, null);	
-			loadLibrayJsCss(pageContentType, function() {
-				if ($.inArray(pageContentType, [constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph]) > 0) {
-					$('.widgetIcon').trigger('click');
-				}
-				hideCanvasLoadingPage();
-				console.log('loaded library.');
-			});
+			
+			initContentView(pageContentType, null);	
 		})
 		
 	}
 
 	addSelectContentTypeModal();
 
-	function addTemplateOtherTypesStatusAndProgress()
+	function initContentView(type, contentJSON)
 	{
-		var html_tmp = `<div class="templateOtherTypesStatusAndProgress">
-							<div class="uploadText downloadText"></div>
-							<div class="progress progress-striped active marginTop20Px marginBottom0Px">
-			                	<div class="sceneControl progress-bar width0Percent"></div>
-			                </div>
-		                </div>
-        `;
+		function addContentSaveButton()
+		{
+			if ($('.btnContentSave').length) {
+				return;
+			}
+			
+			var htmlButton = `
+				<div class="btnEditor btn btnFloatingCanvasSave btnFloating btnContentSave" style="">
+					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
+				</div>
+			`;
+			$(".contentContainer").after( htmlButton );	
+			$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
 
-        $('.btnWrite.editControl#content').parent().after(html_tmp);
-        $tmp = $('.templateOtherTypesStatusAndProgress');
-
-        return($tmp);
-	}
-
-	function loadLibrayJsCss(content_type, done)
-	{
-		if ($('.contentContainer').length > 0) {
-			done(null);
-			return;
-		}
-
-		if ((content_type == null) || (content_type == constContentTypeWrite)) {
-			done(null);
-			return;
-		}
+			$('.btnContentSave').click(function(e) {
+				e.preventDefault();
+				
+				saveContent();
+				
+			});
+		}	
 
 		function loadCSS(href) 
 		{
@@ -4118,168 +3641,92 @@
 			}(document, 'script', 'forge'));	
 		}
 
-		$('.btnWrite.editControl#content').addClass('hidden');
-		$('.btnWrite.btnEditor#content').addClass('hidden');			
+		showLoadingPage();
 
-		//addContentSaveButton();
+		if (pageContentType == constContentTypeWrite) {
+			$('.froala-editor#content').html(contentJSON);	
 
-		function addContentWidget()
-		{
-			// content widget
-			if (content_type == constContentTypeDraw) {
-				$('.pageRow.editorRow').append('<div class="contentContainer" style="margin-left:10px; margin-right:10px;"></div>');
-				return;
-			} else { // fullscreen
-				$('body').append('<div class="contentsWrapper"><div class="contentContainer"></div></div>');
-			}			
-		}
-
-		addContentWidget();
-
-		function addIconAndButtons()
-		{
-			// content icon
-			var icon_src = null;
-			if (content_type == constContentTypeSpreadsheet) {
-				icon_src = iconSpreadsheet;
-			} else if (content_type == constContentTypeDoc) {
-				icon_src = iconDoc;
-			} else if (content_type == constContentTypeMxGraph) {
-				icon_src = iconDiagram;
-			}
-
-			if (icon_src) {
-				$('.pageRow.editorRow').append('<div class="widgetIcon text-center"></div>');
-				$('<img />', {
-				    src: icon_src,
-				    width:'200px'
-				}).appendTo($('.widgetIcon').empty());			
-
-				$('.widgetIcon').click(function(e) {
-					e.preventDefault();	
-
-					$('.contentContainer').removeClass('hidden');
-					$('.btnMinimize').removeClass('hidden');
-					$('.btnContentSave').removeClass('hidden');
-
-					$('.contentContainer').css({
-				        'display': 'block',
-						'z-index': '9999',
-						'position': 'fixed',
-						'width': '100%',
-						'height': '100%',
-						'top': '0',
-						'right': '0',
-						'left': '0',
-						'bottom': '0',
-						'overflow': 'auto',
-						'margin-left': '10px'
-				    });
-
-				    if (content_type == constContentTypeSpreadsheet) {
-				    	$("#spreadsheet").data("kendoSpreadsheet").resize();
-				    }
-				});
-			}
-
-			// content minimize button
-			if (icon_src) {
-				var htmlButton = `
-					<div class="btnEditor btn btnFloatingMinimize btnFloating btnMinimize" style="">
-						<i class="fa fa-times fa-2x" aria-hidden="true"></i>
-					</div>
-				`;
-				$('body').after( htmlButton );
-				$('.btnMinimize').click(function(e) {
-					e.preventDefault();	
-					$('.btnMinimize').addClass('hidden');
-					$('.btnContentSave').addClass('hidden');
-					$('.contentContainer').addClass('hidden');
-
-				});
-			}
-
-			// conent save button
-			var htmlButton = `
-				<div class="btnEditor btn btnFloatingCanvasSave btnFloating btnContentSave" style="">
-					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
-				</div>
-			`;
-			$('body').after( htmlButton );	
-			//$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
-			if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > 0) {
-				$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
-			} else {
-				$('.btnFloatingCanvasSave').css('right', "20px");
-			}
-
-			$('.btnContentSave').click(function(e) {
-				e.preventDefault();				
-				saveOtherTypesContent();				
-			});
+			if (flgIsLoadingFromLocalStorage) {
+        		$('.btnWrite.editControl#content').trigger( "click" );	
+        	}			
+		} else {
+			$('.btnWrite.editControl#content').addClass('hidden');
+			$('.btnWrite.btnEditor#content').addClass('hidden');		
 			
-		}
+			// $('.pageRow.editorRow').append('<button class="expandWidget">click me</button>');
 
-		if (content_type == constContentTypeDraw) {
-			
-			loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
+			// $('.expandWidget').click(function(e) {
+			// 	$('#contentsWrapper').toggleClass('fullscreen'); 
+			// });
 
-			loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
-				loadJS("/javascripts/literallycanvas/js/react-dom.js", function() {
-					loadJS("/javascripts/literallycanvas/js/literallycanvas.js", function() {
-						//console.log('literallycanvas library is loaded...');
-						$( ".contentContainer" ).attr('id', 'literallycanvas');
-						lc = LC.init(
-				            document.getElementsByClassName('contentContainer')[0], 
-				            	{imageURLPrefix: '/javascripts/literallycanvas/img',
-				            	backgroundColor: 'whitesmoke'}
-				        );
-				        //lc.loadSnapshotJSON('{"shapes":[],"colors":{"primary":"#000","secondary":"#fff","background":"black"}}');
-				        addIconAndButtons();
-						done(null);
+			//$('.pageRow.editorRow').append('<div class="wrapper"><div class="contentContainer"></div></div>');		
+			$('.pageRow.editorRow').append('<div id="contentsWrapper"><div class="contentContainer"></div></div>');		
+
+			addContentSaveButton();
+
+			if (type == constContentTypeDraw) {
+				loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
+
+				loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
+					loadJS("/javascripts/literallycanvas/js/react-dom.js", function() {
+						loadJS("/javascripts/literallycanvas/js/literallycanvas.js", function() {
+							//console.log('literallycanvas library is loaded...');
+							$( ".contentContainer" ).attr('id', 'literallycanvas');
+							lc = LC.init(
+					            document.getElementsByClassName('contentContainer')[0], 
+					            	{imageURLPrefix: '/javascripts/literallycanvas/img',
+					            	backgroundColor: 'whitesmoke'}
+					        );
+					        //lc.loadSnapshotJSON('{"shapes":[],"colors":{"primary":"#000","secondary":"#fff","background":"black"}}');
+
+					        if (contentJSON != null)
+					        {
+					        	lc.loadSnapshot(JSON.parse(contentJSON))
+					        }
+					        hideLoadingPage();
+						});
 					});
 				});
-			});
-		} else if (content_type == constContentTypeSpreadsheet) {
-			
-    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.common-material.min.css');
-    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.rtl.min.css');
-    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
-    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.mobile.min.css');
-    		loadCSS('/javascripts/kendo/css/kendo.examples.css');
+			} else if (type == constContentTypeSpreadsheet) {
+				
+	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.common-material.min.css');
+	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.rtl.min.css');
+	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
+	    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.mobile.min.css');
+	    		loadCSS('/javascripts/kendo/css/kendo.examples.css');
 
-			loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
-				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
-					//$( ".spreadsheet" ).attr('id', 'spreadsheet');
-					
-					$('.contentContainer').append('<div id="spreadsheet"></div>');
-					$('#spreadsheet').css('width', '100%');
-					$('#spreadsheet').css('height', '100%');
-					$("#spreadsheet").kendoSpreadsheet();
-					spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
-					spreadsheet.resize();					
+				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
+					loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
+						$( ".contentContainer" ).attr('id', 'spreadsheet');
+						$('#spreadsheet').css('width', '100%');
+						$("#spreadsheet").kendoSpreadsheet();
+						spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
 
-					addIconAndButtons();
-					done(null);
-				});
-			});				
-		} else if (content_type == constContentTypeDoc) {
-			
-			syncfusionKey = itemId + 'SyncfusionWordContent';
+						if (contentJSON != null) {
+							spreadsheet.fromJSON(JSON.parse(contentJSON));
+						} 
 
-			var template = `
-				<div class="sample-browser" style="height', '100%">
-					<div class='content e-view'>
-						<div class='sample-content'>
-							<div class="control-content">
-								<div class="container-fluid">
-									<div class="control-section">
+						hideLoadingPage();
+					});
+				});				
+
+			} else if (type == constContentTypeDoc) {
+				syncfusionKey = itemId + 'SyncfusionWordContent';
+
+				var template = `
+					<div class="sample-browser" style="">
+						<div class='content e-view'>
+							<div class='sample-content'>
+								<div class="control-content">
+									<div class="container-fluid">
 										<div class="control-section">
-											<title>Essential JS 2 - DocumentEditor</title>
-											<div id="panel">
-												<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
-												<div id="documenteditor_container_body" style="display: flex;position:relative; height:100%">
-													<div id="container" style="width: 100%;height: 100%;"></div>
+											<div class="control-section">
+												<title>Essential JS 2 - DocumentEditor</title>
+												<div id="panel">
+													<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
+													<div id="documenteditor_container_body" style="display: flex;position:relative; height:650px">
+														<div id="container" style="width: 100%;height: 100%;"></div>
+													</div>
 												</div>
 											</div>
 										</div>
@@ -4288,368 +3735,81 @@
 							</div>
 						</div>
 					</div>
-				</div>
-			`;
+				`;
 
-			$(".contentContainer").css("border", "1px solid red;");
-			$(".contentContainer").append(template);
+				$(".contentContainer").css("border", "1px solid red;");
+				$(".contentContainer").append(template);
 
-			loadCSS('/javascripts/syncfusion/css/material.css');				
-			loadCSS('/javascripts/syncfusion/css/docEditor.css');
+				loadCSS('/javascripts/syncfusion/css/material.css');				
+				loadCSS('/javascripts/syncfusion/css/docEditor.css');
 
-			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
-				loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
-					addIconAndButtons();
-					done(null);					
+				loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
+					loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
+						$('.sample-browser').css('height', '690px')
+						loadSyncfusionWordContent(contentJSON);
+						hideLoadingPage();
+					});
+
 				});
-			});
-		} else if (content_type == constContentTypeMxGraph) {
-			
-			
-			$('.contentContainer').addClass('geEditor');
-			$('.contentContainer').attr('id', 'editor-ui-container');
+			} else if (type == constContentTypeMxGraph) {
+				$('.contentContainer').addClass('geEditor');
+				$('.contentContainer').attr('id', 'editor-ui-container');
+				loadCSS('/javascripts/grapheditor/styles/grapheditor.css');
 
-			loadCSS('/javascripts/grapheditor/styles/grapheditor.css');
+				loadJS('/javascripts/grapheditor/grapheditorOptions.js', function() {
+				loadJS('/javascripts/grapheditor/js/Init.js', function() {
+				loadJS('/javascripts/grapheditor/deflate/pako.min.js', function() {
+				loadJS('/javascripts/grapheditor/deflate/base64.js', function() {
+				loadJS('/javascripts/grapheditor/jscolor/jscolor.js', function() {
+				loadJS('/javascripts/grapheditor/sanitizer/sanitizer.min.js', function() {
+				loadJS('/javascripts/grapheditor/mxClient/mxClient.js', function() {
+				loadJS('/javascripts/grapheditor/js/EditorUi.js', function() {
+				loadJS('/javascripts/grapheditor/js/Editor.js', function() {
+				loadJS('/javascripts/grapheditor/js/Sidebar.js', function() {
+				loadJS('/javascripts/grapheditor/js/Graph.js', function() {
+				loadJS('/javascripts/grapheditor/js/Format.js', function() {
+				loadJS('/javascripts/grapheditor/js/Shapes.js', function() {
+				loadJS('/javascripts/grapheditor/js/Actions.js', function() {
+				loadJS('/javascripts/grapheditor/js/Menus.js', function() {
+				loadJS('/javascripts/grapheditor/js/Toolbar.js', function() {
+					loadJS('/javascripts/grapheditor/js/Dialogs.js', function() {
+						loadJS('/javascripts/grapheditor/index.js', function() {
+							if (contentJSON != null) {
+								function loadMxGraphContent() {
+									if (mxGraphUI == null) {
+										setTimeout(loadMxGraphContent, 500);
+									} else {
+										window.onbeforeunload = null;
+										//var doc = mxUtils.parseXml($.parseXML(contentJSON));
+										var doc = mxUtils.parseXml(contentJSON);
+										mxGraphUI.editor.setGraphXml(doc.documentElement);
+									}
+								}
 
-			loadJS('/javascripts/grapheditor/grapheditorOptions.js', function() {
-			loadJS('/javascripts/grapheditor/js/Init.js', function() {
-			loadJS('/javascripts/grapheditor/deflate/pako.min.js', function() {
-			loadJS('/javascripts/grapheditor/deflate/base64.js', function() {
-			loadJS('/javascripts/grapheditor/jscolor/jscolor.js', function() {
-			loadJS('/javascripts/grapheditor/sanitizer/sanitizer.min.js', function() {
-			loadJS('/javascripts/grapheditor/mxClient/mxClient.js', function() {
-			loadJS('/javascripts/grapheditor/js/EditorUi.js', function() {
-			loadJS('/javascripts/grapheditor/js/Editor.js', function() {
-			loadJS('/javascripts/grapheditor/js/Sidebar.js', function() {
-			loadJS('/javascripts/grapheditor/js/Graph.js', function() {
-			loadJS('/javascripts/grapheditor/js/Format.js', function() {
-			loadJS('/javascripts/grapheditor/js/Shapes.js', function() {
-			loadJS('/javascripts/grapheditor/js/Actions.js', function() {
-			loadJS('/javascripts/grapheditor/js/Menus.js', function() {
-			loadJS('/javascripts/grapheditor/js/Toolbar.js', function() {
-				loadJS('/javascripts/grapheditor/js/Dialogs.js', function() {
-					loadJS('/javascripts/grapheditor/index.js', function() {
-						addIconAndButtons();
-						done(null);
+								loadMxGraphContent();
+							} 
+							hideLoadingPage();
+						});
 					});
 				});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-		}
-	}
-
-	function isOldVersion()
-	{
-		var isOld = false;
-
-		if ((oldVersion != undefined) && (oldVersion < currentVersion)) {
-			isOld = true;
-		}
-
-		return isOld;
-	}
-
-	function initContentView(contentFromeServer)
-	{
-		var pageLocalStorageContent = null;
-
-		var content = null;
-		$downloadContent = null;
-
-		console.log('starting_initContentView');
-
-		showCanvasLoadingPage();
-
-		// check localstorage content
-		function getKeyContentFromLocalStorage() {
-			if (localStorage.getItem(itemId + constContentTypeWrite)) {
-				pageLocalStorageKey = itemId + constContentTypeWrite;
-			} else if (localStorage.getItem(itemId + constContentTypeDraw)) {
-				pageLocalStorageKey = itemId + constContentTypeDraw;
-			} else if (localStorage.getItem(itemId + constContentTypeSpreadsheet)) {
-				pageLocalStorageKey = itemId + constContentTypeSpreadsheet;
-			} else if (localStorage.getItem(itemId + constContentTypeDoc)) {
-				pageLocalStorageKey = itemId + constContentTypeDoc;
-			} else if (localStorage.getItem(itemId + constContentTypeMxGraph)) {
-				pageLocalStorageKey = itemId + constContentTypeMxGraph;
-			} 
-
-			if (pageLocalStorageKey != null) {
-				// found LocalStorage item...
-				pageLocalStorageContent = localStorage.getItem(pageLocalStorageKey);
-				//console.log('pageLocalStorageContent = ', pageLocalStorageContent);
+				});
+				});
+				});
+				});
+				});
+				});
+				});
+				});
+				});
+				});
+				});
+				});
+				});
+				});
+				});
 			}
 		}
-
-		getKeyContentFromLocalStorage();
 		
-		// next get contents		
-		if ( (pageContentType == null) && (pageLocalStorageContent == null) )  {
-			addSelectContentTypeView();	
-			hideCanvasLoadingPage();
-		} else {
-			//s3Key = contentFromeServer;
-
-			startGettingContent(function(err) {	
-				if ($downloadContent) $downloadContent.remove();
-				console.log('finish_startGettingContent');
-
-				if (err) {
-					hideCanvasLoadingPage();
-                    console.log(err);
-                    alert(err);
-                } else {                    
-                    var content_data = content;
-                    var isLocalStorage;
-                    console.log('currentVersion = ', currentVersion);
-                    console.log('oldVersion = ', oldVersion);
-
-                    
-                	if (isOldVersion()) {
-                		isLocalStorage = false;
-                	} else {
-                		isLocalStorage = isLoadFromLocalStorage();
-                	}
-                	                    
-
-                	if (isLocalStorage) {
-                		content_data = pageLocalStorageContent;
-                		if (pageContentType == constContentTypeWrite) {
-                			flgIsLoadingFromLocalStorageForWrite = true;
-                		}
-                	} 
-
-                    loadLibrayJsCss(pageContentType, function(err) {                    	
-
-                    	if (pageContentType == null) {
-                    		addSelectContentTypeView();
-                    	} else if (content_data != null) {
-                    		loadDataInContentView(content_data);
-                    		$('.contentContainer').removeClass('hidden');	
-                    	}
-                    	
-                    	hideCanvasLoadingPage();
-                    }); 
-	                
-                }
-			});
-		}
-
-		function startGettingContent(doneGetting) {
-
-            function getWriteTypesContent(done) {
-            	content = contentFromeServer;
-            	done(null);
-            }
-
-            function downloadOtherTypesContent(done) {
-                $downloadContent = addTemplateOtherTypesStatusAndProgress();
-                $downloadContent.find('.downloadText').text("Downloading");
-				$downloadContent.find('.progress-bar').css('width', '0%');				
-                // var id = $downloadImage.attr('id');
-                // var s3CommonKey = $downloadImage.data('s3Key');
-                //var s3Key = s3CommonKey + "_gallery";
-                var s3Key = contentFromeServer;
-                console.log('download_s3Key = ', s3Key);
-
-                if (s3Key == null) {
-                	done(null); // this is version 1...
-                	return;
-                }
-
-                $.post('/memberAPI/preS3Download', {
-                    itemId: itemId,
-                    s3Key: s3Key
-                }, function(data, textStatus, jQxhr) {
-                	console.log('call_preS3Download = ', data.status);
-                    if (data.status === 'ok') {
-                        var signedURL = data.signedURL;
-                        console.log('signedURL = ', signedURL);
-
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('GET', signedURL, true);
-                        xhr.responseType = 'arraybuffer';
-
-                        xhr.addEventListener("progress", function(evt) {
-                            if (evt.lengthComputable) {
-                                var percentComplete = evt.loaded / evt.total * 100;
-                                //$downloadImage.find('.progress-bar').css('width', percentComplete + '%');
-                                $downloadContent.find('.progress-bar').css('width', percentComplete + '%');
-                                console.log('xhr_download progress = ', percentComplete + '%');
-                            }
-                        }, false);
-
-                        xhr.onload = function(e) {
-                            $downloadContent.find('.downloadText').text("Decrypting");
-                            // $downloadImage.find('.downloadText').text("Decrypting");
-                            // currentImageDownloadXhr = null;
-                            var encryptedContentDataInArrayBuffer = this.response;
-                            $.post('/memberAPI/postS3Download', {
-                                itemId: itemId,
-                                s3Key: s3Key
-                            }, function(data, textStatus, jQxhr) {
-                            	console.log('call_postS3Download = ', data.status);
-                                if (data.status === 'ok') {
-                                    var item = data.item;
-                                    var size = item.size;
-
-                                    var decryptedContentDataInUint8Array = decryptArrayBuffer(encryptedContentDataInArrayBuffer, itemKey, itemIV);
-                                    function ab2str(buf) {
-										return String.fromCharCode.apply(null, new Uint8Array(buf));
-									}
-									var arraybufferContent = decryptedContentDataInUint8Array;
-									arraybufferContent = ab2str(arraybufferContent);
-									content = arraybufferContent;
-                                    //console.log('decryptedContentDataInUint8Array = ', decryptedContentDataInUint8Array);
-                                    //console.log('arraybufferContent=', arraybufferContent);
-                                    done(null);
-                                }
-                            }, 'json');
-
-                        };
-
-                        xhr.onerror = function (e) {
-							alert('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
-							console.log('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
-						};
-
-                        xhr.send();
-                        //currentImageDownloadXhr = xhr;
-
-                    }
-                }, 'json');
-
-            };
-
-            // var doneDownloadingOtherTypesContent = function(err) {
-            //     if (err) {
-            //         console.log(err);
-            //         done(err);
-            //     } else {                    
-            //         done(null);                    
-            //     }
-            // };
-            if (pageContentType == null) {
-            	doneGetting(null);
-            } else if (pageContentType == constContentTypeWrite) {
-				getWriteTypesContent(doneGetting);
-			} else {
-            	//downloadOtherTypesContent(doneDownloadingOtherTypesContent);
-            	downloadOtherTypesContent(doneGetting);
-			}
-        }
-
-        function isLoadFromLocalStorage() {
-        	if (pageLocalStorageContent == null) {
-        		return false;
-        	}
-        	if ( (pageContentType == null) || (pageLocalStorageKey == itemId + pageContentType) ) {
-        		if (content != pageLocalStorageContent) {
-        			if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
-        				pageContentType = pageLocalStorageKey.replace(itemId, '');
-        				console.log('pageContentType from localstorage', pageContentType);
-        				return true;
-        			} else {
-        				localStorage.removeItem(pageLocalStorageKey);
-        			}
-        		}			
-        	}
-        	return false;
-        }
-
-        function loadDataInContentView(contentJSON) {
-        	if (pageContentType == constContentTypeWrite) {
-				$('.froala-editor#content').html(contentJSON);	
-				downloadContentImageObjects();
-	            handleVideoObjects();	
-
-				if (flgIsLoadingFromLocalStorageForWrite) {
-	        		$('.btnWrite.editControl#content').trigger( "click" );	
-	        	}			
-			} else if (pageContentType == constContentTypeDraw) {
-				
-		        if (contentJSON != null)
-		        {
-		        	lc.loadSnapshot(JSON.parse(contentJSON))
-		        	//lc.loadSnapshot(contentJSON)
-		        }
-		        //hideLoadingPage();
-			} else if (pageContentType == constContentTypeSpreadsheet) {	
-				$('#spreadsheet').remove();
-				$('.contentContainer').append('<div id="spreadsheet"></div>');
-				$('#spreadsheet').css('width', '99%');
-				$('#spreadsheet').css('height', '99%');
-				$("#spreadsheet").kendoSpreadsheet();
-				spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
-				spreadsheet.resize();								
-
-				if (contentJSON != null) {
-					spreadsheet.fromJSON(JSON.parse(contentJSON));					
-					spreadsheet.resize();
-				} 
-				// trigger fullscreen...
-				$('.widgetIcon').trigger('click');
-				//hideLoadingPage();
-			} else if (pageContentType == constContentTypeDoc) {
-				
-				loadSyncfusionWordContent(contentJSON);
-				$('.widgetIcon').trigger('click');
-				//hideLoadingPage();
-			} else if (pageContentType == constContentTypeMxGraph) {
-				if (contentJSON != null) {
-					function loadMxGraphContent() {
-						if (mxGraphUI == null) {
-							setTimeout(loadMxGraphContent, 500);
-						} else {
-							window.onbeforeunload = null;
-							//var doc = mxUtils.parseXml($.parseXML(contentJSON));
-							var doc = mxUtils.parseXml(contentJSON);
-							mxGraphUI.editor.setGraphXml(doc.documentElement);
-
-						}
-					}
-					mxGraphUI = null;
-					
-					mxResources.loadDefaultBundle = false;
-				    var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
-				        mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);
-					mxUtils.getAll([bundle, STYLE_PATH + '/default.xml'], function(xhr)
-				      {
-				        // Adds bundle text to resources
-				        mxResources.parse(xhr[0].getText());
-
-				        // Configures the default graph theme
-				        var themes = new Object();
-				        themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement();
-
-				        // Main
-				        mxGraphUI = new EditorUi(new Editor(urlParams['chrome'] == '0', themes), document.getElementById("editor-ui-container"));
-				      }, function()
-				      {
-				        document.body.innerHTML = '<center style="margin-top:10%;">Error loading resource files. Please check browser console.</center>';
-				      });
-
-					loadMxGraphContent();					
-				} 
-				$('.widgetIcon').trigger('click');
-				//hideLoadingPage();
-			}
-        }
-
 		backupContentsInLocalStorage();				
 	}
 
