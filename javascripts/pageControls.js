@@ -39,6 +39,7 @@
 	var currentImageDownloadXhr = null;
 
 	var addr_images = 'http://localhost:8000/stylesheets/images/';
+	addr_images = '/images/';
 	var svgLock = addr_images + 'lock.svg';
 	var svgLen = addr_images + 'len.svg';
 	var pngLen = addr_images + 'pngLen.png';
@@ -312,7 +313,7 @@
 	function addButtonLock() {
 		if ($('.btnLock').length == 0) {
 		
-			$('.btnFloatingWrite').after( "<div class='btnLock hidden' style='bottom:-5px; position:fixed; z-index:1000;'></div>" );
+			$('.btnFloatingWrite').after( "<div class='btnLock hidden' style='bottom:-5px; position:fixed; z-index:15000;'></div>" );
 			$('.btnLock').append("<img src='' style='width:80px; height:80px;'></img>");
 			
 			var margin = $('.btnFloatingWrite').css('right');
@@ -322,6 +323,7 @@
 			$('.btnLock').click(function(e) {
 				if (statusIsLockOrLen == 'len') {
 					$(e.target).trigger('blur');
+					$('#modalSnippet').css('z-index', '15000');
 					var isModalVisible = $('#modalSnippet').is(':visible');
 					if (!isModalVisible) {
 						//showDownloadItemsModal(currentSpace);
@@ -885,141 +887,7 @@
 	    return { content: tempElement.html(), s3ObjectsInContent: s3ObjectsInContent, s3ObjectsSize: totalS3ObjectsSize };
 	};
 
-	/*
-	function saveWriteTypeContent() {
-	    if (isBlankPageItem) {}
-	    var content = currentEditor.froalaEditor('html.get');
-		localStorage.removeItem(pageLocalStorageKey);
-
-	    var result = preProcessEditorContentBeforeSaving(content);
-	    if (pageContentType != constContentTypeMxGraph) {
-	    	content = result.content;	
-	    }	    
-	    var s3ObjectsInContent = result.s3ObjectsInContent;
-	    var s3ObjectsSize = result.s3ObjectsSize;
-
-	    var encodedContent = forge.util.encodeUtf8(content);
-	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
-	    encrypted_buffer = encryptedContent;
-
-	    if (isBlankPageItem) {
-	        if (itemContainer.substring(0, 1) === 'f') {
-	            var addActionOptions = {
-	                "targetContainer": itemContainer,
-	                "targetItem": itemId,
-	                "targetPosition": itemPosition,
-	                "type": 'Page',
-	                "keyEnvelope": keyEnvelope,
-	                "ivEnvelope": ivEnvelope,
-	                "envelopeIV": envelopeIV,
-	                "ivEnvelopeIV": ivEnvelopeIV,
-	                "content": encryptedContent,
-	                "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-	                "s3ObjectsSizeInContent": s3ObjectsSize
-	            }
-
-	            $.ajax({
-	                url: '/memberAPI/addAnItemAfter',
-	                type: 'POST',
-	                dataType: 'json',
-	                data: addActionOptions,
-	                error: function(jqXHR, textStatus, errorThrown) {
-	                    $('.btnSave').LoadingOverlay('hide');
-	                    $('.btnCancel').removeClass('hidden');
-	                    alert(textStatus);
-	                },
-	                success: function(data) {
-	                    if (data.status === 'ok') {
-	                        itemCopy = data.item;
-	                        setCurrentVersion(itemCopy.version);
-	                        var item = data.item;
-	                        itemId = item.id;
-	                        itemPosition = item.position;
-	                        setupContainerPageKeyValue('itemId', itemId);
-	                        setupContainerPageKeyValue('itemPosition', itemPosition);
-	                        isBlankPageItem = false;
-	                        doneEditing();
-	                    } else {
-	                        $('.btnSave').LoadingOverlay('hide');
-	                        $('.btnCancel').removeClass('hidden');
-	                        alert(data.err);
-	                    }
-	                },
-	                timeout: 30000
-	            });
-	        } else if (itemContainer.substring(0, 1) === 'n') {
-	            $.ajax({
-	                url: '/memberAPI/createANotebookPage',
-	                type: 'POST',
-	                dataType: 'json',
-	                data: {
-	                    "itemId": itemId,
-	                    "keyEnvelope": keyEnvelope,
-	                    "ivEnvelope": ivEnvelope,
-	                    "envelopeIV": envelopeIV,
-	                    "ivEnvelopeIV": ivEnvelopeIV,
-	                    "content": encryptedContent,
-	                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-	                    "s3ObjectsSizeInContent": s3ObjectsSize
-	                },
-	                error: function(jqXHR, textStatus, errorThrown) {
-	                    $('.btnSave').LoadingOverlay('hide');
-	                    $('.btnCancel').removeClass('hidden');
-	                    alert(textStatus);
-	                },
-	                success: function(data) {
-	                    if (data.status === 'ok') {
-	                        itemCopy = data.item;
-	                        setCurrentVersion(itemCopy.version);
-	                        isBlankPageItem = false;
-	                        doneEditing();
-	                    }
-	                },
-	                timeout: 30000
-	            });
-	        } else if (itemContainer.substring(0, 1) === 'd') {
-	            $.ajax({
-	                url: '/memberAPI/createADiaryPage',
-	                type: 'POST',
-	                dataType: 'json',
-	                data: {
-	                    "itemId": itemId,
-	                    "keyEnvelope": keyEnvelope,
-	                    "ivEnvelope": ivEnvelope,
-	                    "envelopeIV": envelopeIV,
-	                    "ivEnvelopeIV": ivEnvelopeIV,
-	                    "content": encryptedContent,
-	                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-	                    "s3ObjectsSizeInContent": s3ObjectsSize
-	                },
-	                error: function(jqXHR, textStatus, errorThrown) {
-	                    $('.btnSave').LoadingOverlay('hide');
-	                    $('.btnCancel').removeClass('hidden');
-	                    alert(textStatus);
-	                },
-	                success: function(data) {
-	                    if (data.status === 'ok') {
-	                        itemCopy = data.item;
-	                        setCurrentVersion(itemCopy.version);
-	                        isBlankPageItem = false;
-	                        doneEditing();
-	                    }
-	                },
-	                timeout: 30000
-	            });
-	        }
-	    } else {
-	        itemCopy.content = encryptedContent;
-	        itemCopy.s3ObjectsInContent = s3ObjectsInContent;
-	        itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
-	        itemCopy.update = "content";
-
-	        createNewItemVersionForPage();
-
-	    }
-	};
-	*/
-
+	
 	function saveNewComment() {
 	    if (isBlankPageItem) {
 	        return;
@@ -1150,6 +1018,7 @@
 	    	return;
 	    }
 	    //console.log('content = ', content);
+	    setStatusLock();
 		
 		///
 		// var $img;
@@ -1221,109 +1090,10 @@
                         //$progressBar.css('width', complete + '%');
                         console.log('Uploading Original', complete);
                     }
-                    /*
-                    if (!prepareGalleryImgPromise) {
-                        prepareGalleryImgPromise = prepareGalleryImgDeferred.promise();
-                        _downscaleImgAndEncryptInUint8Array(720, prepareGalleryImgDeferred);
-
-                        prepareGalleryImgPromise.done(function(data) {
-                            totalUploadedSize += data.byteLength;
-                            $.ajax({
-                                    type: 'PUT',
-                                    url: signedGalleryURL,
-                                    // Content type must much with the parameter you signed your URL with
-                                    contentType: 'binary/octet-stream',
-                                    // this flag is important, if not set, it will try to send data as a form
-                                    processData: false,
-                                    // the actual data is sent raw
-                                    data: data,
-                                    xhr: function() {
-                                        var myXhr = $.ajaxSettings.xhr();
-                                        galleryXhr = myXhr;
-                                        if (myXhr.upload) {
-                                            myXhr.upload.addEventListener('progress', function(e) {
-                                                if (e.lengthComputable) {
-                                                    var complete = (e.loaded / e.total * 100 | 0);
-                                                    console.log('Uploading Gallery', complete);
-                                                }
-                                            }, false);
-                                        }
-                                        return myXhr;
-                                    }
-                                })
-                                .success(function() {
-                                    console.log('Gallery uploading succeeded');
-                                    uploadGalleryImgDeferred.resolve();
-                                    galleryXhr = null;
-                                })
-                                .error(function(jqXHR, textStatus, errorThrown) {
-                                    console.log('Gallery uploading failed');
-                                    uploadGalleryImgDeferred.reject();
-                                    galleryXhr.abort();
-                                });
-
-                            prepareThumbnailImgPromise = prepareThumbnailImgDeferred.promise();
-                            _downscaleImgAndEncryptInUint8Array(120, prepareThumbnailImgDeferred);
-                            prepareThumbnailImgPromise.done(function(data) {
-                                totalUploadedSize += data.byteLength;
-                                $.ajax({
-                                        type: 'PUT',
-                                        url: signedThumbnailURL,
-                                        // Content type must much with the parameter you signed your URL with
-                                        contentType: 'binary/octet-stream',
-                                        // this flag is important, if not set, it will try to send data as a form
-                                        processData: false,
-                                        // the actual data is sent raw
-                                        data: data,
-                                        xhr: function() {
-                                            var myXhr;
-                                            myXhr = $.ajaxSettings.xhr();
-                                            thumbnailXhr = myXhr;
-                                            if (myXhr.upload) {
-                                                myXhr.upload.addEventListener('progress', function(e) {
-                                                    if (e.lengthComputable) {
-                                                        var complete = (e.loaded / e.total * 100 | 0);
-                                                        console.log('Uploading Thumbnail', complete);
-                                                    }
-                                                }, false);
-                                            }
-                                            return myXhr;
-                                        }
-                                    })
-                                    .success(function() {
-                                        console.log('Thumbnail uploading succeeded');
-                                        uploadThumbnailImgDeferred.resolve();
-                                        thumbnailXhr = null;
-                                    })
-                                    .error(function(jqXHR, textStatus, errorThrown) {
-                                        console.log('Thumbnail uploading failed');
-                                        uploadThumbnailImgDeferred.reject();
-                                        thumbnailXhr.abort();
-                                    });
-                            });
-                        });
-                    }
-                    */
+                   
                 };
 
-                /*
-                function _downscaleImgAndEncryptInUint8Array(size, deferred) {
-                    _downScaleImage(imgDOM, exifOrientation, size, function(err, binaryString) {
-                        if (err) {
-                            console.log(err);
-                            deferred.reject();
-                        } else {
-                            encryptDataInBinaryString(binaryString, function(err, encryptedImageDataInUint8Array) {
-                                if (err) {
-                                    deferred.reject();
-                                } else {
-                                    deferred.resolve(encryptedImageDataInUint8Array);
-                                }
-                            });
-                        }
-                    });
-                };
-                */
+                
 
 
                 preS3Upload(function(err) {
@@ -1489,58 +1259,11 @@
                 });
 			});
 
-			/*
-            encryptDataInBinaryString(imageDataInBinaryString, function(err, encryptedImageDataInUint8Array) {
-                if (err) {
-                    console.log("encryptDataInBinaryString failed");
-                    doneUploadingOtherTypesContent("encryptDataInBinaryString failed");
-                } else {
-                	//encrypted_buffer = encryptedImageDataInUint8Array;
-                	encrypted_buffer = Utf8ArrayToStr(encryptedImageDataInUint8Array, 1000);
-                    $uploadImage.find('.uploadText').text("Uploading");
-                    uploadToS3(encryptedImageDataInUint8Array, function(err) {
-                        if (err) {
-                            doneUploadingOtherTypesContent('uploadToS3:' + err);
-                        } else {
-                            console.log("Done uploading an image");
-                            s3ObjectSize = encryptedImageDataInUint8Array.byteLength;
-                            postS3Upload(function(err) {
-                                if (err) {
-                                    doneUploadingOtherTypesContent(err);
-                                } else {
-                                    var id = $uploadImage.attr('id');
-                                    var index = id.split('-')[1];
-
-                                    var id = $uploadImage.attr('id');
-                                    var $imagePanel = $('.imagePanelTemplate').clone().removeClass('imagePanelTemplate hidden').addClass('imagePanel');
-                                    $imagePanel.find('.deleteImageBtn').attr('data-key', s3Key).on('click', pageControlFunctions.deleteImageOnPage);
-                                    $imagePanel.attr('id', id);
-                                    $img.data('width', $img[0].width);
-                                    $img.data('height', $img[0].height);
-                                    $img.on('click', function(e) {
-                                        $thisImg = $(e.target);
-                                        $thisImagePanel = $thisImg.closest('.imagePanel');
-                                        var index = $thisImagePanel.attr('id');
-                                        var startingIndex = parseInt(index.split('-')[1]);
-                                        showGallery(startingIndex);
-                                    });
-                                    $imagePanel.find('.image').append($img);
-                                    $imagePanel.find('.btnWrite').on('click', handleBtnWriteClicked);
-                                    $imagePanel.find('.insertImages').on('change', insertImages);
-                                    $uploadImage.before($imagePanel);
-                                    $uploadImage.remove();
-                                    doneUploadingOtherTypesContent(null);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-            */
         };
 
         function doneUploadingOtherTypesContent(err) {
         	$('.btnContentSave').LoadingOverlay('hide');
+        	setStatusLen();
             if (err) {
                 alert("Ooh, please retry!");
                 //$progressBar.css('width', '0%');
@@ -1605,6 +1328,7 @@
 	    var content = getCurrentContent();
 	    if (content == null) {
 	    	alert('Can not get contents');
+	    	$('.btnContentSave').LoadingOverlay('hide');
 	    	return;
 	    }
 	    
@@ -4050,7 +3774,7 @@
 			showCanvasLoadingPage();
 			//initContentView(pageContentType, null);	
 			loadLibrayJsCss(pageContentType, function() {
-				if ($.inArray(pageContentType, [constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph]) > 0) {
+				if ($.inArray(pageContentType, [constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph]) > -1) {
 					$('.widgetIcon').trigger('click');
 				}
 				hideCanvasLoadingPage();
@@ -4207,14 +3931,15 @@
 			`;
 			$('body').after( htmlButton );	
 			//$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
-			if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > 0) {
+			if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > -1) {
 				$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
 			} else {
 				$('.btnFloatingCanvasSave').css('right', "20px");
 			}
 
 			$('.btnContentSave').click(function(e) {
-				e.preventDefault();				
+				e.preventDefault();	
+							
 				saveOtherTypesContent();				
 			});
 			
@@ -4267,28 +3992,17 @@
 			
 			syncfusionKey = itemId + 'SyncfusionWordContent';
 
-			var template = `
-				<div class="sample-browser" style="height', '100%">
-					<div class='content e-view'>
-						<div class='sample-content'>
-							<div class="control-content">
-								<div class="container-fluid">
-									<div class="control-section">
-										<div class="control-section">
-											<title>Essential JS 2 - DocumentEditor</title>
-											<div id="panel">
-												<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
-												<div id="documenteditor_container_body" style="display: flex;position:relative; height:100%">
-													<div id="container" style="width: 100%;height: 100%;"></div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
+			var template = `				
+				<div id="waiting-popup"></div>
+				<div class="control-section">
+					<title>Essential JS 2 - DocumentEditor</title>
+					<div id="panel" style="height: 100%;">
+						<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
+						<div id="documenteditor_container_body" style="display: flex;position:relative; height:100%">
+							<div id="container" style="width: 100%; height: 100%;"></div>
 						</div>
 					</div>
-				</div>
+				</div>	
 			`;
 
 			$(".contentContainer").css("border", "1px solid red;");
@@ -4299,6 +4013,11 @@
 
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
 				loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
+					//$('#e-documenteditorcontainer').css('height', '100%');
+					$('#container').css('height', $(window).height() - 40);
+					//$('#container_editor_viewerContainer').css('height', '100%');
+					$('#documenteditor_titlebar').css('padding-right', '100px');
+					loadSyncfusionWordContent(null);
 					addIconAndButtons();
 					done(null);					
 				});
@@ -4415,8 +4134,8 @@
                 } else {                    
                     var content_data = content;
                     var isLocalStorage;
-                    console.log('currentVersion = ', currentVersion);
-                    console.log('oldVersion = ', oldVersion);
+                    //console.log('currentVersion = ', currentVersion);
+                    //console.log('oldVersion = ', oldVersion);
 
                     
                 	if (isOldVersion()) {
@@ -4453,6 +4172,7 @@
 
             function getWriteTypesContent(done) {
             	content = contentFromeServer;
+            	contentsFromServer = contentFromeServer;
             	done(null);
             }
 
@@ -4595,11 +4315,11 @@
 				$('#spreadsheet').css('height', '99%');
 				$("#spreadsheet").kendoSpreadsheet();
 				spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
-				spreadsheet.resize();								
+				//spreadsheet.resize();								
 
 				if (contentJSON != null) {
 					spreadsheet.fromJSON(JSON.parse(contentJSON));					
-					spreadsheet.resize();
+					//spreadsheet.resize();
 				} 
 				// trigger fullscreen...
 				$('.widgetIcon').trigger('click');
@@ -4623,7 +4343,7 @@
 						}
 					}
 					mxGraphUI = null;
-					
+
 					mxResources.loadDefaultBundle = false;
 				    var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
 				        mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);

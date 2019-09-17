@@ -1502,7 +1502,7 @@ function positionItemNavigationControls() {
             
             //if ((pageContentType == null) || (pageContentType == constContentTypeWrite) || (pageContentType == constContentTypeDraw)) {
             if (typeof pageContentType !== "undefined") {
-                if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > 0) {
+                if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > -1) {
                     $(".btnFloatingCanvasSave").css("right", rightMargin + "px");
                 } else {
                     $(".btnFloatingCanvasSave").css("right", "20px");
