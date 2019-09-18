@@ -3,6 +3,14 @@ body {
 //  padding-top: 60px;
 }
 
+.marginLeft10Px {
+  margin-left: 10px;
+}
+
+.marginRight10Px {
+  margin-right: 10px;
+}
+
 .margin0Px {
 	margin:0px;
 }

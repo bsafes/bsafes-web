@@ -1010,11 +1010,19 @@
 			return;
 		}
 
+		// checking title...
+		var title = $('.froala-editor#title').html();
+		if (!title) {
+			alert('Sorry, Can not save content without setting the title.\nPlease first set the page title.');
+			return;
+		}
+
 		$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
 
 		var content = getCurrentContent();
 		if (content == null) {
 	    	alert('Can not get contents');
+	    	$('.btnContentSave').LoadingOverlay('hide');
 	    	return;
 	    }
 	    //console.log('content = ', content);
@@ -1028,7 +1036,8 @@
         var s3Key;
         var s3ObjectSize;
         var totalUploadedSize = 0;
-        //var $progressBar = $uploadImage.find('.progress-bar');
+        var $progressBar = $('.templateOtherTypesUploadProgress').find('.progress-bar');
+        $('.templateOtherTypesUploadProgress').removeClass('hidden');
 
         function startUploadingOtherTypesContent() {
             // var imgDOM = $img[0];
@@ -1087,14 +1096,11 @@
                 function _uploadProgress(e) {
                     if (e.lengthComputable) {
                         var complete = (e.loaded / e.total * 100 | 0);
-                        //$progressBar.css('width', complete + '%');
+                        $progressBar.css('width', complete + '%');
                         console.log('Uploading Original', complete);
                     }
                    
                 };
-
-                
-
 
                 preS3Upload(function(err) {
                     if (err) {
@@ -1153,7 +1159,7 @@
 
                 bSafesPreflight(function(err, key) {
                     if (err) {
-                        alert(err);
+                        alert('bSafesPreflight - ' + err);
                     } else {
                         expandedKey = key;
                         var envelopeIV = forge.random.getBytesSync(16);
@@ -1263,10 +1269,12 @@
 
         function doneUploadingOtherTypesContent(err) {
         	$('.btnContentSave').LoadingOverlay('hide');
+        	$('.templateOtherTypesUploadProgress').addClass('hidden');
+        	$progressBar.css('width', '0%');
         	setStatusLen();
             if (err) {
                 alert("Ooh, please retry!");
-                //$progressBar.css('width', '0%');
+                
                 //uploadAnImage($uploadImage);
             } else {
                 // var image = { s3Key: s3Key, size: totalUploadedSize };
@@ -3124,12 +3132,21 @@
 	    $('.imagePanel').remove();
 	    $('.attachment').remove();
 	    $('.comment').remove();
-	    $('.imageBtnRow').removeClass('hidden')
+	    $('.imageBtnRow').removeClass('hidden');
+
+	    // edi_start
+	    $('.contentsWrapper').remove();
+	    $('.contentContainer').remove();
+	    $('.btnFloatingCanvasSave').remove();
+	    $('.templateOtherTypesStatusAndProgress').remove();
+	    $('.templateOtherTypesUploadProgress').remove();
+	    $('.widgetIcon').remove();
 	}
 
 	function getPageItem(thisItemId, thisExpandedKey, thisPrivateKey, thisSearchKey, done, thisVersion) {
 		pageContentType = null;
 	    oldVersion = "undefined";
+
 	    if (!thisVersion) {
 	        expandedKey = thisExpandedKey;
 	        privateKey = thisPrivateKey;
@@ -3681,7 +3698,7 @@
 		if (isOldVersion())	{
 			return;
 		}
-
+		$('.selectContentType').remove();
 		$('.btnWrite.editControl#content').after( html_selectContentType );
 		
 		$('.selectContentType').click(function(e) {
@@ -3802,6 +3819,23 @@
         return($tmp);
 	}
 
+	function addTemplateOtherTypesUploadProgress()
+	{
+		var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" style="position: fixed;
+					    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;">
+							<div class="progress progress-striped active marginTop20Px marginBottom0Px">
+			                	<div class="sceneControl progress-bar width0Percent"></div>
+			                </div>
+		                </div>
+        `;
+
+        $('.contentsWrapper').append(html_tmp);
+        
+        $tmp = $('.templateOtherTypesUploadProgress');
+
+        return($tmp);
+	}
+
 	function loadLibrayJsCss(content_type, done)
 	{
 		if ($('.contentContainer').length > 0) {
@@ -3852,9 +3886,27 @@
 			// content widget
 			if (content_type == constContentTypeDraw) {
 				$('.pageRow.editorRow').append('<div class="contentContainer" style="margin-left:10px; margin-right:10px;"></div>');
+				var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" >
+									<div class="progress progress-striped active marginLeft10Px marginRight10Px">
+					                	<div class="sceneControl progress-bar width0Percent"></div>
+					                </div>
+				                </div>
+		        `;
+
+		        $('.contentContainer').after(html_tmp);
 				return;
 			} else { // fullscreen
 				$('body').append('<div class="contentsWrapper"><div class="contentContainer"></div></div>');
+				var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" style="position: fixed;
+							    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;">
+									<div class="progress progress-striped active marginTop20Px marginBottom0Px">
+					                	<div class="sceneControl progress-bar width0Percent"></div>
+					                </div>
+				                </div>
+		        `;
+
+		        $('.contentsWrapper').append(html_tmp);
+				//addTemplateOtherTypesUploadProgress();
 			}			
 		}
 
@@ -4013,12 +4065,7 @@
 
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
 				loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
-					//$('#e-documenteditorcontainer').css('height', '100%');
-					//$('#container_editor_viewerContainer').css('height', '100%');
-					$('#container').css('height', $(window).height() - 40);
-					$('#documenteditor_titlebar').css('padding-right', '100px');
-					$('.e-de-status-bar').css('padding-right', '100px');
-					$('.e-dlg-container').css('z-index', '15000');
+					
 					loadSyncfusionWordContent(null);
 					addIconAndButtons();
 					done(null);					
@@ -4136,16 +4183,20 @@
                 } else {                    
                     var content_data = content;
                     var isLocalStorage;
-                    //console.log('currentVersion = ', currentVersion);
-                    //console.log('oldVersion = ', oldVersion);
+                    console.log('currentVersion = ', currentVersion);
+                    console.log('oldVersion = ', oldVersion);
 
+                    if (oldVersion == '1') {
+                    	$('.widgetIcon').addClass('hidden');
+                    } else {
+                    	$('.widgetIcon').removeClass('hidden');
+                    }
                     
                 	if (isOldVersion()) {
                 		isLocalStorage = false;
                 	} else {
                 		isLocalStorage = isLoadFromLocalStorage();
                 	}
-                	                    
 
                 	if (isLocalStorage) {
                 		content_data = pageLocalStorageContent;
@@ -4328,7 +4379,7 @@
 				// trigger fullscreen...
 				$('.widgetIcon').trigger('click');
 				//hideLoadingPage();
-			} else if (pageContentType == constContentTypeDoc) {
+			} else if (pageContentType == constContentTypeDoc) {	
 				
 				loadSyncfusionWordContent(contentJSON);
 				$('.widgetIcon').trigger('click');

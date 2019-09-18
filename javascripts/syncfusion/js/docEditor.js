@@ -142,9 +142,17 @@
 
     function loadSyncfusionWordContent(jsonData)
     {
+        $('#container').empty();
+        container.appendTo('#container');
+        $('#container').css('height', $(window).height() - 40);
+        $('#documenteditor_titlebar').css('padding-right', '100px');
+        $('.e-de-status-bar').css('padding-right', '100px');
+        $('.e-dlg-container').css('z-index', '15000');
+                    
     	if (jsonData != null) {
     		container.documentEditor.open(jsonData);
 		}
+        //container.resize();
 
 		getSyncfusionWordContent();
     }
