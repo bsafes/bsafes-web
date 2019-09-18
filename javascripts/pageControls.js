@@ -69,7 +69,7 @@
 	var mxGraphUI = null;
 
 	var iconSpreadsheet = addr_images + 'spreadSheet.jpg';
-	var iconDoc = addr_images + 'doc.jpg';
+	var iconDoc = addr_images + 'docIcon.jpg';
 	var iconDiagram = addr_images + 'diagram.jpg';
 
 	// Page for skeleton screen
@@ -4014,9 +4014,11 @@
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
 				loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
 					//$('#e-documenteditorcontainer').css('height', '100%');
-					$('#container').css('height', $(window).height() - 40);
 					//$('#container_editor_viewerContainer').css('height', '100%');
+					$('#container').css('height', $(window).height() - 40);
 					$('#documenteditor_titlebar').css('padding-right', '100px');
+					$('.e-de-status-bar').css('padding-right', '100px');
+					$('.e-dlg-container').css('z-index', '15000');
 					loadSyncfusionWordContent(null);
 					addIconAndButtons();
 					done(null);					
@@ -4229,7 +4231,9 @@
 
                                     var decryptedContentDataInUint8Array = decryptArrayBuffer(encryptedContentDataInArrayBuffer, itemKey, itemIV);
                                     function ab2str(buf) {
-										return String.fromCharCode.apply(null, new Uint8Array(buf));
+										//return String.fromCharCode.apply(null, new Uint8Array(buf));
+										var str = new TextDecoder("utf-8").decode(buf);
+										return str;
 									}
 									var arraybufferContent = decryptedContentDataInUint8Array;
 									arraybufferContent = ab2str(arraybufferContent);
