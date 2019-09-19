@@ -62,7 +62,6 @@
 	var constContentTypeMxGraph = 'contentType#MxGraph';
 
 	var syncfusionKey;
-	var spreedsheetKey;
 
 	// library object.
 	var lc; // literallycanvas
@@ -992,8 +991,7 @@
 	    } else if ( (pageContentType == constContentTypeDraw) && lc ) {
 			content = JSON.stringify(lc.getSnapshot());	
 	    } else if ( (pageContentType == constContentTypeSpreadsheet) && spreadsheet) {
-	    	// content = JSON.stringify(spreadsheet.toJSON(), null, 2);
-	    	content = localStorage.getItem(spreedsheetKey);
+	    	content = JSON.stringify(spreadsheet.toJSON(), null, 2);
 	    } else if (pageContentType == constContentTypeDoc) {	
 	    	content = localStorage.getItem(syncfusionKey);
 	    } else if ( (pageContentType == constContentTypeMxGraph) && (mxGraphUI) ) {	    		
@@ -1190,7 +1188,7 @@
 			var arraybufferContent = str2ab(content);
 			//var encryptedData = encryptArrayBuffer(arraybufferContent, itemKey, itemIV);
 			encryptArrayBufferAsync(arraybufferContent, itemKey, itemIV, function(encryptedData) {
-				encrypted_buffer = Utf8ArrayToStr(encryptedData, 2000);
+				encrypted_buffer = Utf8ArrayToStr(encryptedData, 1000);
 				console.log('encryptedData = ', encryptedData);
 
 				uploadToS3(encryptedData, function(err) {
@@ -1223,7 +1221,7 @@
             if (err) {
                 alert("Ooh, please retry!");
             } else {
-                localStorage.removeItem(pageLocalStorageKey);
+                
                 content = s3Key;
                 console.log('s3Key = ', s3Key);
                 var s3ObjectsInContent = { s3Key: s3Key, size: totalUploadedSize };
@@ -1243,134 +1241,19 @@
 				encryptedTags.push('null');
 				var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
 				var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
+				itemCopy.tags = encryptedTags;
+				itemCopy.tagsTokens = tagsTokens;
 
-				if (isBlankPageItem) {
-			        if (itemContainer.substring(0, 1) === 'f') {
-			            var addActionOptions = {
-			                "targetContainer": itemContainer,
-			                "targetItem": itemId,
-			                "targetPosition": itemPosition,
-			                "type": 'Page',
-			                "keyEnvelope": keyEnvelope,
-			                "ivEnvelope": ivEnvelope,
-			                "envelopeIV": envelopeIV,
-			                "ivEnvelopeIV": ivEnvelopeIV,
-			                "content": encryptedContent,
-			                "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-			                "s3ObjectsSizeInContent": s3ObjectsSize,
-			                tags: JSON.stringify(encryptedTags),
-	                    	tagsTokens: JSON.stringify(tagsTokens)
-			            }
+				// set content
+				itemCopy.content = encryptedContent;
+				itemCopy.s3ObjectsInContent = s3ObjectsInContent;
+				itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
+				itemCopy.update = "content";
 
-			            $.ajax({
-			                url: '/memberAPI/addAnItemAfter',
-			                type: 'POST',
-			                dataType: 'json',
-			                data: addActionOptions,
-			                error: function(jqXHR, textStatus, errorThrown) {
-			                    $('.btnSave').LoadingOverlay('hide');
-			                    $('.btnCancel').removeClass('hidden');
-			                    alert(textStatus);
-			                },
-			                success: function(data) {
-			                    if (data.status === 'ok') {
-			                        itemCopy = data.item;
-			                        setCurrentVersion(itemCopy.version);
-			                        var item = data.item;
-			                        itemId = item.id;
-			                        itemPosition = item.position;
-			                        setupContainerPageKeyValue('itemId', itemId);
-			                        setupContainerPageKeyValue('itemPosition', itemPosition);
-			                        isBlankPageItem = false;
-			                        //doneEditing();
-			                    } else {
-			                        $('.btnSave').LoadingOverlay('hide');
-			                        $('.btnCancel').removeClass('hidden');
-			                        alert(data.err);
-			                    }
-			                },
-			                timeout: 30000
-			            });
-			        } else if (itemContainer.substring(0, 1) === 'n') {
-			            $.ajax({
-			                url: '/memberAPI/createANotebookPage',
-			                type: 'POST',
-			                dataType: 'json',
-			                data: {
-			                    "itemId": itemId,
-			                    "keyEnvelope": keyEnvelope,
-			                    "ivEnvelope": ivEnvelope,
-			                    "envelopeIV": envelopeIV,
-			                    "ivEnvelopeIV": ivEnvelopeIV,
-			                    "content": encryptedContent,
-			                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-			                    "s3ObjectsSizeInContent": s3ObjectsSize,
-			                    tags: JSON.stringify(encryptedTags),
-	                    		tagsTokens: JSON.stringify(tagsTokens)
-			                },
-			                error: function(jqXHR, textStatus, errorThrown) {
-			                    $('.btnSave').LoadingOverlay('hide');
-			                    $('.btnCancel').removeClass('hidden');
-			                    alert(textStatus);
-			                },
-			                success: function(data) {
-			                    if (data.status === 'ok') {
-			                        itemCopy = data.item;
-			                        setCurrentVersion(itemCopy.version);
-			                        isBlankPageItem = false;
-			                        //doneEditing();
-			                    }
-			                },
-			                timeout: 30000
-			            });
-			        } else if (itemContainer.substring(0, 1) === 'd') {
-			            $.ajax({
-			                url: '/memberAPI/createADiaryPage',
-			                type: 'POST',
-			                dataType: 'json',
-			                data: {
-			                    "itemId": itemId,
-			                    "keyEnvelope": keyEnvelope,
-			                    "ivEnvelope": ivEnvelope,
-			                    "envelopeIV": envelopeIV,
-			                    "ivEnvelopeIV": ivEnvelopeIV,
-			                    "content": encryptedContent,
-			                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-			                    "s3ObjectsSizeInContent": s3ObjectsSize,
-			                    tags: JSON.stringify(encryptedTags),
-	                    		tagsTokens: JSON.stringify(tagsTokens)
-			                },
-			                error: function(jqXHR, textStatus, errorThrown) {
-			                    $('.btnSave').LoadingOverlay('hide');
-			                    $('.btnCancel').removeClass('hidden');
-			                    alert(textStatus);
-			                },
-			                success: function(data) {
-			                    if (data.status === 'ok') {
-			                        itemCopy = data.item;
-			                        setCurrentVersion(itemCopy.version);
-			                        isBlankPageItem = false;
-			                        //doneEditing();
-			                    }
-			                },
-			                timeout: 30000
-			            });
-			        }
-			    } else {
+				createNewItemVersionForPage();
 
-					itemCopy.tags = encryptedTags;
-					itemCopy.tagsTokens = tagsTokens;
-
-					// set content
-					itemCopy.content = encryptedContent;
-					itemCopy.s3ObjectsInContent = s3ObjectsInContent;
-					itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
-					itemCopy.update = "content";
-
-					createNewItemVersionForPage();
-				}
-
-					
+				localStorage.removeItem(pageLocalStorageKey);				
+				console.log('edi_ok');
             }
         };
 		///
@@ -3190,11 +3073,9 @@
 	    $('.contentsWrapper').remove();
 	    $('.contentContainer').remove();
 	    $('.btnFloatingCanvasSave').remove();
-	    $('.btnFloatingMinimize').remove();
 	    $('.templateOtherTypesStatusAndProgress').remove();
 	    $('.templateOtherTypesUploadProgress').remove();
 	    $('.widgetIcon').remove();
-	    $('.selectContentType').remove();
 	}
 
 	function getPageItem(thisItemId, thisExpandedKey, thisPrivateKey, thisSearchKey, done, thisVersion) {
@@ -3729,16 +3610,12 @@
 	    	if ( (pageContentType == constContentTypeWrite) && !editorContentsStatus ) {
 	    		flg = false;
 	    	}
-	    	if (lastContent == undefined) {
-	    		lastContent = current_contents;
-	    		flg = false;
-	    	}
 	    	if (flg) {
 	    		//var current_contents = currentEditor.froalaEditor('html.get');
 		    	var current_contents = getCurrentContent();
 		    	if ( (current_contents != null) && (lastContent != current_contents) ) {
-		    		console.log('lastContent', lastContent);
-		    		console.log('current_contents', current_contents);	
+		    		//console.log('lastContent', lastContent);
+		    		//console.log('current_contents', current_contents);	
 		    		console.log('save chagned contents');
 		    		pageLocalStorageKey = itemId + pageContentType;
 		    		localStorage.setItem(pageLocalStorageKey, current_contents);
@@ -3756,7 +3633,7 @@
 		if (isOldVersion())	{
 			return;
 		}
-		
+		$('.selectContentType').remove();
 		$('.btnWrite.editControl#content').after( html_selectContentType );
 		
 		$('.selectContentType').click(function(e) {
@@ -3991,10 +3868,6 @@
 
 				$('.widgetIcon').click(function(e) {
 					e.preventDefault();	
-					
-					
-					noScroll();
-					window.addEventListener('scroll', noScroll);
 
 					$('.contentContainer').removeClass('hidden');
 					$('.btnMinimize').removeClass('hidden');
@@ -4033,7 +3906,6 @@
 					$('.btnMinimize').addClass('hidden');
 					$('.btnContentSave').addClass('hidden');
 					$('.contentContainer').addClass('hidden');
-					window.removeEventListener('scroll', noScroll);
 
 				});
 			}
@@ -4052,14 +3924,11 @@
 				$('.btnFloatingCanvasSave').css('right', "20px");
 			}
 
-			if (isOldVersion()) {
-				$( ".btnContentSave" ).attr( "disabled", "disabled" );
-			} else {
-				$('.btnContentSave').click(function(e) {
-					e.preventDefault();									
-					saveOtherTypesContent();				
-				});
-			}
+			$('.btnContentSave').click(function(e) {
+				e.preventDefault();	
+							
+				saveOtherTypesContent();				
+			});
 			
 		}
 
@@ -4084,8 +3953,7 @@
 				});
 			});
 		} else if (content_type == constContentTypeSpreadsheet) {
-			spreedsheetKey = itemId + 'SpreedsheetContent';
-
+			
     		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.common-material.min.css');
     		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.rtl.min.css');
     		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
@@ -4101,8 +3969,7 @@
 					$('#spreadsheet').css('height', '100%');
 					$("#spreadsheet").kendoSpreadsheet();
 					spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
-					spreadsheet.resize();
-					timerSaveSpreedsheet();					
+					spreadsheet.resize();					
 
 					addIconAndButtons();
 					done(null);
@@ -4132,7 +3999,7 @@
 			loadCSS('/javascripts/syncfusion/css/docEditor.css');
 
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
-				loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
+				loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
 					
 					loadSyncfusionWordContent(null);
 					addIconAndButtons();
@@ -4197,21 +4064,6 @@
 		}
 
 		return isOld;
-	}
-
-	function noScroll() {
-		$(window).scrollTop(0);
-	}
-
-	function timerSaveSpreedsheet()
-	{
-		spreadsheet
-        .saveJSON()
-        .then(function(data){
-            var json = JSON.stringify(data, null, 2);
-            localStorage.setItem(spreedsheetKey, json);
-            setTimeout(timerSaveSpreedsheet, 500);
-        });
 	}
 
 	function initContentView(contentFromeServer)

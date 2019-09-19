@@ -999,17 +999,9 @@ body {
   margin-left:10px; 
   margin-right:10px;
 }
-/*.panel-fullscreen {
-    display: block;
-    z-index: 9999;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    overflow: auto;
-    padding: 20px;
-}*/
+
+.stop-scrolling {
+  
+  overflow: hidden;
+}
 /* End of page *******/

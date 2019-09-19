@@ -814,7 +814,8 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var div = editorUi.createDiv(transparent? 'geTransDialog' : 'geDialog');
 	var pos = this.getPosition(left, top, w, h);
 	left = pos.x;
-	top = pos.y;
+	//top = pos.y;
+	top = '50';
 	
 	div.style.width = w + 'px';
 	div.style.height = h + 'px';
