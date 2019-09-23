@@ -6,7 +6,7 @@
     var container = new ej.documenteditor.DocumentEditorContainer();
     ej.documenteditor.DocumentEditorContainer.Inject(ej.documenteditor.Toolbar);
     container.serviceUrl = hostUrl + 'api/documenteditor/';
-    container.appendTo('#container');
+    container.appendTo('#syncfusion-container');
 
     var waitingPopUp = document.getElementById('waiting-popup');
     // TitleBar sample starts
@@ -142,9 +142,9 @@
 
     function loadSyncfusionWordContent(jsonData)
     {
-        $('#container').empty();
-        container.appendTo('#container');
-        $('#container').css('height', $(window).height() - 40);
+        $('#syncfusion-container').empty();
+        container.appendTo('#syncfusion-container');
+        $('#syncfusion-container').css('height', $(window).height() - 40);
         $('#documenteditor_titlebar').css('padding-right', '100px');
         $('.e-de-status-bar').css('padding-right', '100px');
         $('.e-dlg-container').css('z-index', '15000');

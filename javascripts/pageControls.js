@@ -1980,7 +1980,7 @@
 	                            }
 	                            console.log('s3Key:', s3Key);
 	                            signedURL = data.signedURL;
-	                            console.log('signedURL:', signedURL);
+	                            //console.log('signedURL:', signedURL);
 	                            fn(null, s3Key, signedURL);
 	                        } else {
 	                            fn(data.error);
@@ -3699,7 +3699,7 @@
 	    addButtonLock();
 	    addSnippet();
 	    modifyPrevnextButton();
-	    //backupContentsInLocalStorage();
+	    backupContentsInLocalStorage();
 	}
 
 	function handleMoveAnItem(e) {
@@ -3729,18 +3729,17 @@
 	    	if ( (pageContentType == constContentTypeWrite) && !editorContentsStatus ) {
 	    		flg = false;
 	    	}
-	    	if (lastContent == undefined) {
-	    		lastContent = current_contents;
-	    		flg = false;
-	    	}
+
 	    	if (flg) {
 	    		//var current_contents = currentEditor.froalaEditor('html.get');
 		    	var current_contents = getCurrentContent();
-		    	if ( (current_contents != null) && (lastContent != current_contents) ) {
+		    	if (lastContent == undefined) {
+		    		lastContent = current_contents;
+		    	} else if ( (current_contents != null) && (lastContent != current_contents) ) {
 		    		console.log('lastContent', lastContent);
 		    		console.log('current_contents', current_contents);	
-		    		console.log('save chagned contents');
 		    		pageLocalStorageKey = itemId + pageContentType;
+		    		console.log('save chagned contents(pageLocalStorageKey)', pageLocalStorageKey);
 		    		localStorage.setItem(pageLocalStorageKey, current_contents);
 		    		lastContent = current_contents;	
 		    	}
@@ -4119,7 +4118,7 @@
 					<div id="panel" style="height: 100%;">
 						<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
 						<div id="documenteditor_container_body" style="display: flex;position:relative; height:100%">
-							<div id="container" style="width: 100%; height: 100%;"></div>
+							<div id="syncfusion-container" style="width: 100%; height: 100%;"></div>
 						</div>
 					</div>
 				</div>	
@@ -4133,7 +4132,8 @@
 
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
 				loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
-					
+				//loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
+					$('.contentContainer').attr('id', 'syncfusion-documenteditor');
 					loadSyncfusionWordContent(null);
 					addIconAndButtons();
 					done(null);					
@@ -4155,6 +4155,7 @@
 			loadJS('/javascripts/grapheditor/sanitizer/sanitizer.min.js', function() {
 			loadJS('/javascripts/grapheditor/mxClient/mxClient.js', function() {
 			loadJS('/javascripts/grapheditor/js/EditorUi.js', function() {
+			//loadJS('http://localhost:8000/javascripts/grapheditor/js/Editor.js', function() {
 			loadJS('/javascripts/grapheditor/js/Editor.js', function() {
 			loadJS('/javascripts/grapheditor/js/Sidebar.js', function() {
 			loadJS('/javascripts/grapheditor/js/Graph.js', function() {
@@ -4162,6 +4163,7 @@
 			loadJS('/javascripts/grapheditor/js/Shapes.js', function() {
 			loadJS('/javascripts/grapheditor/js/Actions.js', function() {
 			loadJS('/javascripts/grapheditor/js/Menus.js', function() {
+			//loadJS('http://localhost:8000/javascripts/grapheditor/js/Toolbar.js', function() {
 			loadJS('/javascripts/grapheditor/js/Toolbar.js', function() {
 				loadJS('/javascripts/grapheditor/js/Dialogs.js', function() {
 					loadJS('/javascripts/grapheditor/index.js', function() {
@@ -4266,8 +4268,8 @@
                 } else {                    
                     var content_data = content;
                     var isLocalStorage;
-                    console.log('currentVersion = ', currentVersion);
-                    console.log('oldVersion = ', oldVersion);
+                    //console.log('currentVersion = ', currentVersion);
+                    //console.log('oldVersion = ', oldVersion);
 
                     if (oldVersion == '1') {
                     	$('.widgetIcon').addClass('hidden');
@@ -4345,7 +4347,7 @@
                                 var percentComplete = evt.loaded / evt.total * 100;
                                 //$downloadImage.find('.progress-bar').css('width', percentComplete + '%');
                                 $downloadContent.find('.progress-bar').css('width', percentComplete + '%');
-                                console.log('xhr_download progress = ', percentComplete + '%');
+                                //console.log('xhr_download progress = ', percentComplete + '%');
                             }
                         }, false);
 
@@ -4382,7 +4384,7 @@
 
                         xhr.onerror = function (e) {
 							alert('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
-							console.log('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
+							//console.log('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
 						};
 
                         xhr.send();
@@ -4415,6 +4417,8 @@
         	if (pageLocalStorageContent == null) {
         		return false;
         	}
+        	console.log('isLoadFromLocalStorage(pageLocalStorageKey)',pageLocalStorageKey);
+        	console.log('isLoadFromLocalStorage(itemId)',itemId);
         	if ( (pageContentType == null) || (pageLocalStorageKey == itemId + pageContentType) ) {
         		if (content != pageLocalStorageContent) {
         			if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
@@ -4508,6 +4512,6 @@
 			}
         }
 
-		backupContentsInLocalStorage();				
+		//backupContentsInLocalStorage();				
 	}
 

@@ -984,6 +984,7 @@ body {
 
 .mxPopupMenu , .geToolbarMenu {
   box-sizing:initial;
+  padding: 1px;
 }
 
 #contentsWrapper.fullscreen{
@@ -1004,4 +1005,21 @@ body {
   
   overflow: hidden;
 }
+
+#editor-ui-container * {
+  box-sizing:initial;
+}
+table.mxPopupMenu hr {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+.geDialog * {
+  -webkit-box-sizing:initial;
+  box-sizing:initial;
+  font-size:12px;
+}
+.mxPopupMenu *, .geToolbarMenu * {
+  box-sizing:initial;  
+}
+
 /* End of page *******/

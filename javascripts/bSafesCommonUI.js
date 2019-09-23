@@ -1525,6 +1525,7 @@ function positionItemNavigationControls() {
                   var leftMargin = margin - 24 ;
                   $previousPageBtn.css("left", leftMargin + "px"); 
             */
+            $('#syncfusion-container').css('height', $(window).height() - 40);
         }
     }
 

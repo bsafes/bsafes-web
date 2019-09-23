@@ -905,7 +905,7 @@ Toolbar.prototype.addMenuHandler = function(elt, showLabels, funct, showAll)
 				// Workaround for scrollbar hiding menu items
 				if (!showLabels && menu.div.scrollHeight > menu.div.clientHeight)
 				{
-					menu.div.style.width = '40px';
+					//menu.div.style.width = '40px';
 				}
 				
 				menu.hideMenu = mxUtils.bind(this, function()
