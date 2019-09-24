@@ -78,7 +78,7 @@ nav.TK-Nav {
   color: #00B312;
 }
 
-body,h1,h2,h3,h4,p,ul,li,a,button,.main-nav,.kendo-nav,#banner p,.browsers,#nav-pager,#examples-list
+#spreadsheet,h1,h2,h3,h4,p,ul,li,a,button,.main-nav,.kendo-nav,#banner p,.browsers,#nav-pager,#examples-list
 {
     margin:0;
     padding:0;
@@ -92,7 +92,7 @@ body,h1,h2,h3,h4,p,ul,li,a,button,.main-nav,.kendo-nav,#banner p,.browsers,#nav-
     position: relative;
 }
 
-body,
+#spreadsheet,
 html {
    min-height: 100%;
 }
@@ -102,11 +102,11 @@ img
     border:0;
 }
 
-a,
-li>a,
-h2>a,
-h3>a,
-a
+#spreadsheet a,
+#spreadsheet li>a,
+#spreadsheet h2>a,
+#spreadsheet h3>a,
+#spreadsheet a
 {
     text-decoration:none;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
