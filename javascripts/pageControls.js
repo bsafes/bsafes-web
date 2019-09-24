@@ -608,7 +608,8 @@
 	    $('.othersComment').addClass('hidden');
 	    $('.navbar-fixed-top, .btnWrite, .pathRow').removeClass('hidden');
 
-	    if (pageContentType != constContentTypeWrite) {
+	    //if (pageContentType != constContentTypeWrite) {
+	    if ($.inArray(pageContentType, [constContentTypeDraw, constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph]) > -1) {
 	    	$('.btnWrite.editControl#content').addClass('hidden');
 			$('.btnWrite.btnEditor#content').addClass('hidden');
 			$('.btnContentSave').removeClass('hidden');
@@ -992,7 +993,6 @@
 	    } else if ( (pageContentType == constContentTypeDraw) && lc ) {
 			content = JSON.stringify(lc.getSnapshot());	
 	    } else if ( (pageContentType == constContentTypeSpreadsheet) && spreadsheet) {
-	    	// content = JSON.stringify(spreadsheet.toJSON(), null, 2);
 	    	content = localStorage.getItem(spreedsheetKey);
 	    } else if (pageContentType == constContentTypeDoc) {	
 	    	content = localStorage.getItem(syncfusionKey);
@@ -1381,14 +1381,19 @@
 
 	function saveFroalaEditorContent() {
 		window.onbeforeunload = null;
-		$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
+		//$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
 		
 		// get drawing snapshot...
 		//var content = currentEditor.froalaEditor('html.get');
+		if (pageContentType == null) {
+			pageContentType = constContentTypeWrite;
+			$('.selectContentType').remove();
+		}
+
 	    var content = getCurrentContent();
 	    if (content == null) {
 	    	alert('Can not get contents');
-	    	$('.btnContentSave').LoadingOverlay('hide');
+	    	$('.btnSave').LoadingOverlay('hide');
 	    	return;
 	    }
 	    
@@ -3195,6 +3200,8 @@
 	    $('.templateOtherTypesUploadProgress').remove();
 	    $('.widgetIcon').remove();
 	    $('.selectContentType').remove();
+	    $('.btnWrite.editControl#content').removeClass('hidden');
+		$('.btnWrite.btnEditor#content').removeClass('hidden');
 	}
 
 	function getPageItem(thisItemId, thisExpandedKey, thisPrivateKey, thisSearchKey, done, thisVersion) {
@@ -3932,10 +3939,6 @@
 
 			}(document, 'script', 'forge'));	
 		}
-
-		$('.btnWrite.editControl#content').addClass('hidden');
-		$('.btnWrite.btnEditor#content').addClass('hidden');			
-
 		//addContentSaveButton();
 
 		function addContentWidget()
@@ -3971,6 +3974,13 @@
 
 		function addIconAndButtons()
 		{
+			// process edit button...
+			if (content_type == constContentTypeWrite) {				
+			} else {
+				$('.btnWrite.editControl#content').addClass('hidden');
+				$('.btnWrite.btnEditor#content').addClass('hidden');
+			}
+
 			// content icon
 			var icon_src = null;
 			if (content_type == constContentTypeSpreadsheet) {
@@ -3990,8 +4000,6 @@
 
 				$('.widgetIcon').click(function(e) {
 					e.preventDefault();	
-					
-					
 					noScroll();
 					window.addEventListener('scroll', noScroll);
 
@@ -4090,6 +4098,7 @@
     		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
     		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.mobile.min.css');
     		loadCSS('/javascripts/kendo/css/kendo.examples.css');
+    		//loadCSS('http://localhost:8000/javascripts/kendo/css/kendo.examples.css');
 
 			loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
 				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
@@ -4140,14 +4149,14 @@
 				});
 			});
 		} else if (content_type == constContentTypeMxGraph) {
-			
-			
 			$('.contentContainer').addClass('geEditor');
 			$('.contentContainer').attr('id', 'editor-ui-container');
+			mxRoot = '/javascripts/';
 
 			loadCSS('/javascripts/grapheditor/styles/grapheditor.css');
 
 			loadJS('/javascripts/grapheditor/grapheditorOptions.js', function() {
+			//loadJS('http://localhost:8000/javascripts/grapheditor/grapheditorOptions.js', function() {
 			loadJS('/javascripts/grapheditor/js/Init.js', function() {
 			loadJS('/javascripts/grapheditor/deflate/pako.min.js', function() {
 			loadJS('/javascripts/grapheditor/deflate/base64.js', function() {

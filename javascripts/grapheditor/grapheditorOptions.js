@@ -28,9 +28,9 @@
 
     // Default resources are included in grapheditor resources
     mxLoadResources = false;
-		mxBasePath = '/javascripts/grapheditor/src'
-window.RESOURCES_PATH = '/javascripts/grapheditor/resources';
-window.STENCIL_PATH = '/javascripts/grapheditor/stencils';
-window.IMAGE_PATH = '/javascripts/grapheditor/images';
-window.STYLE_PATH = '/javascripts/grapheditor/styles';
-window.CSS_PATH = '/javascripts/grapheditor/styles';
+		mxBasePath = mxRoot + 'grapheditor/src';
+    window.RESOURCES_PATH = mxRoot + 'grapheditor/resources';
+    window.STENCIL_PATH = mxRoot + 'grapheditor/stencils';
+    window.IMAGE_PATH = mxRoot + 'grapheditor/images';
+    window.STYLE_PATH = mxRoot + 'grapheditor/styles';
+    window.CSS_PATH = mxRoot + 'grapheditor/styles';

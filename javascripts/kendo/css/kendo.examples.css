@@ -85,7 +85,7 @@ body,h1,h2,h3,h4,p,ul,li,a,button,.main-nav,.kendo-nav,#banner p,.browsers,#nav-
     list-style:none;
 }
 
-body {
+#spreadsheet {
     background-color: #fff;
     color: #555;
     font: 400 12px Arial, Helvetica, sans-serif;
