@@ -123,12 +123,12 @@ html
     height: 100%;
 }
 
-a
+#spreadsheet a
 {
     color: #0487c4;
 }
 
-a:hover
+#spreadsheet a:hover
 {
     text-decoration: underline;
 }
