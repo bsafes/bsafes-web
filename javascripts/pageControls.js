@@ -4221,7 +4221,7 @@
         .then(function(data){
             var json = JSON.stringify(data, null, 2);
             localStorage.setItem(spreedsheetKey, json);
-            setTimeout(timerSaveSpreedsheet, 500);
+            setTimeout(timerSaveSpreedsheet, 3000);
         });
 	}
 
