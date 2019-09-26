@@ -4162,8 +4162,8 @@
 			loadCSS('/javascripts/syncfusion/css/docEditor.css');
 
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
-				//loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
-				loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
+				loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
+				//loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
 					$('.contentContainer').attr('id', 'syncfusion-documenteditor');
 					// suncfusion_container = loadSyncfusionWordContent(null);
 					// getSyncfusionWordContent();
