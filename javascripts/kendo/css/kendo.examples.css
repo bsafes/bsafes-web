@@ -3203,23 +3203,23 @@ html.k-materialblack .demo-section.k-content {
 
 /* Homepage */
 
-  .btn {
+#spreadsheet  .btn {
     border: 0;
     line-height: 2em;
     /*border-radius: 0;*/
     margin: 0;
   }
 
-  .btn-primary {
+#spreadsheet  .btn-primary {
     margin-right: 0;
   }
 
-  #logo-bar {
+#spreadsheet  #logo-bar {
     margin-top: 0;
     margin-bottom: 0;
   }
 
-  #logo-bar a {
+#spreadsheet  #logo-bar a {
     display: block;
     text-align: center;
     padding-top: 1em;
@@ -3233,7 +3233,7 @@ html.k-materialblack .demo-section.k-content {
   #overview {
     padding-bottom: 260px;
   }
-  .btn {
+#spreadsheet  .btn {
     padding-left: 10px;
     padding-right: 10px;
   }
