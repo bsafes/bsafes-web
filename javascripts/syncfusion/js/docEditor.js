@@ -134,7 +134,7 @@
                 var sfdtText = fileReader.result; 
                 // This string can send to server for saving it in database 
                 localStorage.setItem(syncfusionKey, sfdtText);
-                setTimeout(getSyncfusionWordContent, 500);                
+                //setTimeout(getSyncfusionWordContent, 500);                
             } 
             fileReader.readAsText(sfdtBlob); 
         }); 
@@ -149,12 +149,13 @@
         $('.e-de-status-bar').css('padding-right', '100px');
         $('.e-dlg-container').css('z-index', '15000');
                     
-    	if (jsonData != null) {
-    		container.documentEditor.open(jsonData);
-		}
+        if (jsonData != null) {
+            container.documentEditor.open(jsonData);
+        }
+        return container;
         //container.resize();
 
-		getSyncfusionWordContent();
+        //getSyncfusionWordContent();
     }
 
 

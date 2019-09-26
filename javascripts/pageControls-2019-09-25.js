@@ -530,10 +530,6 @@
 
 	function handleBtnWriteClicked(e) {
 	    e.preventDefault();
-	    $('.froala-editor#content').on('froalaEditor.contentChanged', function (e, editor) {
-			console.log('change_event_froala');
-			saveContentInLocalStorage();
-		});	
 	    var downloadingImageContainers = $('.downloadingImageContainer');
 	    downloadingImageContainers.each(function() {
 	        var imageElement = $(this).find('img');
@@ -592,7 +588,6 @@
 
 	function doneEditing() {
 		setStatusLen();
-		$('.froala-editor#content').off('froalaEditor.contentChanged');
 
 		editorContentsStatus = false;
 		flgIsLoadingFromLocalStorageForWrite = false;
@@ -994,9 +989,7 @@
 	function getCurrentContent()
 	{
 		var content = null;
-		if (pageContentType == null) {
-	    	content = currentEditor.froalaEditor('html.get');
-	    } else if (pageContentType == constContentTypeWrite) {
+		if (pageContentType == constContentTypeWrite) {
 	    	content = currentEditor.froalaEditor('html.get');
 	    } else if ( (pageContentType == constContentTypeDraw) && lc ) {
 			content = JSON.stringify(lc.getSnapshot());	
@@ -3346,7 +3339,12 @@
 	                            
 	                        };
 
-	                        
+	                        // if (pageContentType == null) {
+	                        // 	pageContentType = constContentTypeWrite;
+	                        // }
+	                        //pageLocalStorageKey = itemId + pageContentType;
+	                        //console.log('pageLocalStorageKey', pageLocalStorageKey);
+
 	                        if (!thisVersion) {
 	                            initializeTagsInput();
 	                        } else {
@@ -3731,16 +3729,10 @@
 	}
 
 	function saveContentInLocalStorage() {
-		if (pageContentType == null) {
-			pageLocalStorageKey = itemId + constContentTypeWrite;
-		} else {
-			pageLocalStorageKey = itemId + pageContentType;	
-		}
-		
+		pageLocalStorageKey = itemId + pageContentType;
 		var current_contents = getCurrentContent();
 		localStorage.setItem(pageLocalStorageKey, current_contents);
 		console.log('pageLocalStorageKey, current_contents', pageLocalStorageKey, current_contents);
-		$( ".btnContentSave" ).removeAttr( "disabled" );
 	}
 
 	var backupContentsInLocalStorage = function() {
@@ -3868,14 +3860,12 @@
 			$('.selectContentType').addClass('hidden');
 
 		    console.log('clicked the type: ' + pageContentType);
-			initContentView(null);	
-			return;
 			showCanvasLoadingPage();
+			//initContentView(pageContentType, null);	
 			loadLibrayJsCss(pageContentType, function() {
-				// if ($.inArray(pageContentType, [constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph]) > -1) {
-				// 	$('.widgetIcon').trigger('click');
-				// }
-				loadDataInContentView(null);
+				if ($.inArray(pageContentType, [constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph]) > -1) {
+					$('.widgetIcon').trigger('click');
+				}
 				hideCanvasLoadingPage();
 				console.log('loaded library.');
 			});
@@ -4076,9 +4066,8 @@
 				$('.btnFloatingCanvasSave').css('right', "20px");
 			}
 
-			$( ".btnContentSave" ).attr( "disabled", "disabled" );
 			if (isOldVersion()) {
-				//$( ".btnContentSave" ).attr( "disabled", "disabled" );
+				$( ".btnContentSave" ).attr( "disabled", "disabled" );
 			} else {
 				$('.btnContentSave').click(function(e) {
 					e.preventDefault();									
@@ -4102,6 +4091,7 @@
 				            	{imageURLPrefix: '/javascripts/literallycanvas/img',
 				            	backgroundColor: 'whitesmoke'}
 				        );
+				        
 				        //lc.loadSnapshotJSON('{"shapes":[],"colors":{"primary":"#000","secondary":"#fff","background":"black"}}');
 				        addIconAndButtons();
 						done(null);
@@ -4120,19 +4110,20 @@
 
 			loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
 				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
+					//$( ".spreadsheet" ).attr('id', 'spreadsheet');
 					
-					// $('.contentContainer').append('<div id="spreadsheet"></div>');
-					// $('#spreadsheet').css('width', '100%');
-					// $('#spreadsheet').css('height', '100%');
-					// $("#spreadsheet").kendoSpreadsheet({change: onSpreadsheetChange});
-					// spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
-					// spreadsheet.resize();
+					$('.contentContainer').append('<div id="spreadsheet"></div>');
+					$('#spreadsheet').css('width', '100%');
+					$('#spreadsheet').css('height', '100%');
+					$("#spreadsheet").kendoSpreadsheet({change: onSpreadsheetChange});
+					spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+					spreadsheet.resize();
 
-					// timerSaveSpreedsheet();
-					// function onSpreadsheetChange(arg) {
-					// 	console.log('change_event(spreedsheet)', arg);
-					// 	timerSaveSpreedsheet();				
-					// }
+					timerSaveSpreedsheet();
+					function onSpreadsheetChange(arg) {
+						console.log('change_event(spreedsheet)', arg);
+						timerSaveSpreedsheet();				
+					}
 
 					addIconAndButtons();
 					done(null);
@@ -4165,13 +4156,13 @@
 				//loadJS("/javascripts/syncfusion/js/docEditor.js", function() {
 				loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
 					$('.contentContainer').attr('id', 'syncfusion-documenteditor');
-					// suncfusion_container = loadSyncfusionWordContent(null);
-					// getSyncfusionWordContent();
+					suncfusion_container = loadSyncfusionWordContent(null);
+					getSyncfusionWordContent();
 
-					// suncfusion_container.contentChange = function () { 
-					// 	console.log('change_event_syncfusion');
-					// 	getSyncfusionWordContent();
-					// }
+					suncfusion_container.contentChange = function () { 
+						console.log('change_event_syncfusion');
+						getSyncfusionWordContent();
+					}
 
 					addIconAndButtons();
 					done(null);					
@@ -4204,10 +4195,11 @@
 			//loadJS('http://localhost:8000/javascripts/grapheditor/js/Toolbar.js', function() {
 			loadJS('/javascripts/grapheditor/js/Toolbar.js', function() {
 				loadJS('/javascripts/grapheditor/js/Dialogs.js', function() {
-					//loadJS('/javascripts/grapheditor/index.js', function() {
+					loadJS('/javascripts/grapheditor/index.js', function() {
+						//var s = mxGraphUI.editor;
 						addIconAndButtons();						
 						done(null);
-					//});
+					});
 				});
 			});
 			});
@@ -4253,127 +4245,6 @@
             //setTimeout(timerSaveSpreedsheet, 3000); 
         });
 	}
-
-	function loadDataInContentView(contentJSON) {
-    	if (pageContentType == constContentTypeWrite) {
-    		if (contentJSON != null) {
-    			$('.froala-editor#content').html(contentJSON);	
-				downloadContentImageObjects();
-	            handleVideoObjects();	
-
-				if (flgIsLoadingFromLocalStorageForWrite) {
-	        		$('.btnWrite.editControl#content').trigger( "click" );	
-	        	}	
-    		}	
-
-		} else if (pageContentType == constContentTypeDraw) {			
-	        if (contentJSON != null)
-	        {
-	        	lc.loadSnapshot(JSON.parse(contentJSON));
-	        }
-	        var unsubscribe = lc.on('drawingChange', function(arguments) {
-				saveContentInLocalStorage();
-			});
-		} else if (pageContentType == constContentTypeSpreadsheet) {	
-			$('#spreadsheet').remove();
-			$('.contentContainer').append('<div id="spreadsheet"></div>');
-			$('#spreadsheet').css('width', '99%');
-			$('#spreadsheet').css('height', '99%');
-			$("#spreadsheet").kendoSpreadsheet({change: onSpreadsheetChange});
-			spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
-			//spreadsheet.resize();								
-
-			if (contentJSON != null) {
-				spreadsheet.fromJSON(JSON.parse(contentJSON));					
-				//spreadsheet.resize();
-			} 
-
-			function onSpreadsheetChange(arg) {
-				spreadsheet
-		        .saveJSON()
-		        .then(function(data){
-		            var json = JSON.stringify(data, null, 2);
-		            localStorage.setItem(spreedsheetKey, json);
-		            saveContentInLocalStorage();
-		        });
-			}
-
-			// trigger fullscreen...
-			$('.widgetIcon').trigger('click');
-			//hideLoadingPage();
-		} else if (pageContentType == constContentTypeDoc) {	
-			
-			suncfusion_container = loadSyncfusionWordContent(contentJSON);
-			suncfusion_container.contentChange = function () { 
-				console.log('change_event_syncfusion');
-				suncfusion_container.documentEditor.saveAsBlob('Sfdt').then(function (sfdtBlob) { 
-		            var fileReader = new FileReader(); 
-		            fileReader.onload = function (e) { 
-		                // Get Json string here 
-		                var sfdtText = fileReader.result; 
-		                // This string can send to server for saving it in database 
-		                localStorage.setItem(syncfusionKey, sfdtText);
-		                saveContentInLocalStorage();                
-		            } 
-		            fileReader.readAsText(sfdtBlob); 
-		        }); 
-			}
-
-			$('.widgetIcon').trigger('click');
-			//hideLoadingPage();
-		} else if (pageContentType == constContentTypeMxGraph) {
-			
-			function loadMxGraphContent() {
-				if (mxGraphUI == null) {
-					setTimeout(loadMxGraphContent, 500);
-				} else {
-					window.onbeforeunload = null;
-					//var doc = mxUtils.parseXml($.parseXML(contentJSON));
-					if (contentJSON != null) {
-						var doc = mxUtils.parseXml(contentJSON);
-						mxGraphUI.editor.setGraphXml(doc.documentElement);
-					}
-
-					mxGraphUI.editor.graph.getModel().addListener(mxEvent.CHANGE, function() {
-						console.log('change_event_mxGraph');
-						saveContentInLocalStorage();
-					});
-
-				}
-			}
-			mxGraphUI = null;
-			var editorUiInit = EditorUi.prototype.init;
-
-			EditorUi.prototype.init = function()
-			{
-				editorUiInit.apply(this, arguments);
-			};
-
-			mxResources.loadDefaultBundle = false;
-		    var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
-		        mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);
-			mxUtils.getAll([bundle, STYLE_PATH + '/default.xml'], function(xhr)
-		      {
-		        // Adds bundle text to resources
-		        mxResources.parse(xhr[0].getText());
-
-		        // Configures the default graph theme
-		        var themes = new Object();
-		        themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement();
-
-		        // Main
-		        mxGraphUI = new EditorUi(new Editor(urlParams['chrome'] == '0', themes), document.getElementById("editor-ui-container"));
-		      }, function()
-		      {
-		        document.body.innerHTML = '<center style="margin-top:10%;">Error loading resource files. Please check browser console.</center>';
-		      });
-
-			loadMxGraphContent();					
-			 
-			$('.widgetIcon').trigger('click');
-			//hideLoadingPage();
-		}
-    }
 
 	function initContentView(contentFromeServer)
 	{
@@ -4452,7 +4323,7 @@
                     loadLibrayJsCss(pageContentType, function(err) {      
                     	if (pageContentType == null) {
                     		addSelectContentTypeView();
-                    	} else {
+                    	} else if (content_data != null) {
                     		loadDataInContentView(content_data);
                     		$('.contentContainer').removeClass('hidden');	
                     	}
@@ -4561,8 +4432,7 @@
             //         done(null);                    
             //     }
             // };
-            
-            if ( (contentFromeServer == null) || (pageContentType == null) ){
+            if (pageContentType == null) {
             	doneGetting(null);
             } else if (pageContentType == constContentTypeWrite) {
 				getWriteTypesContent(doneGetting);
@@ -4592,7 +4462,89 @@
         	return false;
         }
 
+        function loadDataInContentView(contentJSON) {
+        	if (pageContentType == constContentTypeWrite) {
+				$('.froala-editor#content').html(contentJSON);	
+				downloadContentImageObjects();
+	            handleVideoObjects();	
 
+				if (flgIsLoadingFromLocalStorageForWrite) {
+	        		$('.btnWrite.editControl#content').trigger( "click" );	
+	        	}			
+			} else if (pageContentType == constContentTypeDraw) {
+				
+		        if (contentJSON != null)
+		        {
+		        	lc.loadSnapshot(JSON.parse(contentJSON))
+		        	//lc.loadSnapshot(contentJSON)
+		        }
+		        //hideLoadingPage();
+			} else if (pageContentType == constContentTypeSpreadsheet) {	
+				$('#spreadsheet').remove();
+				$('.contentContainer').append('<div id="spreadsheet"></div>');
+				$('#spreadsheet').css('width', '99%');
+				$('#spreadsheet').css('height', '99%');
+				$("#spreadsheet").kendoSpreadsheet();
+				spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+				//spreadsheet.resize();								
+
+				if (contentJSON != null) {
+					spreadsheet.fromJSON(JSON.parse(contentJSON));					
+					//spreadsheet.resize();
+				} 
+				// trigger fullscreen...
+				$('.widgetIcon').trigger('click');
+				//hideLoadingPage();
+			} else if (pageContentType == constContentTypeDoc) {	
+				
+				loadSyncfusionWordContent(contentJSON);
+				$('.widgetIcon').trigger('click');
+				//hideLoadingPage();
+			} else if (pageContentType == constContentTypeMxGraph) {
+				if (contentJSON != null) {
+					function loadMxGraphContent() {
+						if (mxGraphUI == null) {
+							setTimeout(loadMxGraphContent, 500);
+						} else {
+							window.onbeforeunload = null;
+							//var doc = mxUtils.parseXml($.parseXML(contentJSON));
+							var doc = mxUtils.parseXml(contentJSON);
+							mxGraphUI.editor.setGraphXml(doc.documentElement);
+
+							mxGraphUI.editor.graph.getModel().addListener(mxEvent.CHANGE, function() {
+								console.log('change_event_mxGraph');
+								saveContentInLocalStorage();
+							});
+
+						}
+					}
+					mxGraphUI = null;
+
+					mxResources.loadDefaultBundle = false;
+				    var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+				        mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);
+					mxUtils.getAll([bundle, STYLE_PATH + '/default.xml'], function(xhr)
+				      {
+				        // Adds bundle text to resources
+				        mxResources.parse(xhr[0].getText());
+
+				        // Configures the default graph theme
+				        var themes = new Object();
+				        themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement();
+
+				        // Main
+				        mxGraphUI = new EditorUi(new Editor(urlParams['chrome'] == '0', themes), document.getElementById("editor-ui-container"));
+				      }, function()
+				      {
+				        document.body.innerHTML = '<center style="margin-top:10%;">Error loading resource files. Please check browser console.</center>';
+				      });
+
+					loadMxGraphContent();					
+				} 
+				$('.widgetIcon').trigger('click');
+				//hideLoadingPage();
+			}
+        }
 
 		//backupContentsInLocalStorage();				
 	}
