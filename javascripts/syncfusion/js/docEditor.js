@@ -145,7 +145,13 @@
         $('#syncfusion-container').empty();
         container.appendTo('#syncfusion-container');
         $('#syncfusion-container').css('height', $(window).height() - 40);
-        $('#documenteditor_titlebar').css('padding-right', '100px');
+        var right_space = screen.width - $('#documenteditor_title_contentEditor').width()
+                            - $('#de-print').width() - $('#documenteditor-share').width();
+        if (right_space < 200) right_space = 0;
+        else right_space = 100;
+
+        $('#documenteditor_titlebar').css('padding-right', right_space + 'px');
+
         $('.e-de-status-bar').css('padding-right', '100px');
         $('.e-dlg-container').css('z-index', '15000');
                     

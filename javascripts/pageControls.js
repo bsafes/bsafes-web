@@ -52,7 +52,7 @@
 	var contentsFromServer = null;
 	var pageLocalStorageKey = null;
 
-	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, etc </a>';
+	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, Recording Audio, Recording Video, etc </a>';
 	
 	var pageContentType = null;
 	var constContentTypeWrite = 'contentType#Write';
@@ -60,6 +60,8 @@
 	var constContentTypeSpreadsheet = 'contentType#Spreadsheet';
 	var constContentTypeDoc = 'contentType#Doc';
 	var constContentTypeMxGraph = 'contentType#MxGraph';
+	var constContentTypeRecordAudio = 'contentType#RecordAudio';
+	var constContentTypeRecordVideo = 'contentType#RecordVideo';
 
 	var syncfusionKey;
 	var spreedsheetKey;
@@ -68,7 +70,9 @@
 	var lc; // literallycanvas
 	var spreadsheet; // spreedsheet
 	var suncfusion_container; // doc
-	var mxGraphUI = null;
+	var mxGraphUI = null; // diagram
+	var objRecordAudio = null; // recording audio
+	var objRecordVideo = null; // recording video
 
 	var iconSpreadsheet = addr_images + 'spreadSheet.jpg';
 	var iconDoc = addr_images + 'docIcon.jpg';
@@ -615,7 +619,7 @@
 	    $('.navbar-fixed-top, .btnWrite, .pathRow').removeClass('hidden');
 
 	    //if (pageContentType != constContentTypeWrite) {
-	    if ($.inArray(pageContentType, [constContentTypeDraw, constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph]) > -1) {
+	    if ($.inArray(pageContentType, [constContentTypeDraw, constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph, constContentTypeRecordAudio, constContentTypeRecordVideo]) > -1) {
 	    	$('.btnWrite.editControl#content').addClass('hidden');
 			$('.btnWrite.btnEditor#content').addClass('hidden');
 			$('.btnContentSave').removeClass('hidden');
@@ -1006,6 +1010,10 @@
 	    	content = localStorage.getItem(syncfusionKey);
 	    } else if ( (pageContentType == constContentTypeMxGraph) && (mxGraphUI) ) {	    		
 	    	content = mxUtils.getXml(mxGraphUI.editor.getGraphXml());
+	    } else if (pageContentType == constContentTypeRecordAudio) {
+	    	content = '';
+	    } else if (pageContentType == constContentTypeRecordVideo) {
+	    	content = '';
 	    }
 
 	    //console.log('mxGraphUI=', mxGraphUI);
@@ -3324,20 +3332,30 @@
 	                                    var encryptedTag = encryptedTags[i];
 	                                    var encodedTag = decryptBinaryString(encryptedTag, itemKey, itemIV);
 	                                    var tag = forge.util.decodeUtf8(encodedTag);
+
+	                                    if ($.inArray(tag, [constContentTypeWrite, constContentTypeDraw, constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph, constContentTypeRecordAudio, constContentTypeRecordVideo]) > -1) {
+											pageContentType = tag;
+										} else {
+											itemTags.push(tag);
+										}
 	                                    
-	                                    if (tag == constContentTypeWrite) {
-	                                    	pageContentType = tag;
-	                                    } else if (tag == constContentTypeDraw) {
-	                                    	pageContentType = tag;
-	                                    } else if (tag == constContentTypeSpreadsheet) {
-	                                    	pageContentType = tag;
-	                                    } else if (tag == constContentTypeDoc) {
-	                                    	pageContentType = tag;
-	                                    } else if (tag == constContentTypeMxGraph) {
-	                                    	pageContentType = tag;
-	                                    } else {
-	                                    	itemTags.push(tag);
-	                                    }
+	                                    // if (tag == constContentTypeWrite) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeDraw) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeSpreadsheet) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeDoc) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeMxGraph) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeRecordAudio) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeRecordVideo) {
+	                                    // 	pageContentType = tag;
+	                                    // } else {
+	                                    // 	itemTags.push(tag);
+	                                    // }
 	                                } catch (err) {
 	                                    alert(err);
 	                                }
@@ -3829,6 +3847,12 @@
 								<a href="#" class="list-group-item contentTypeItem contentTypeMxGraph">
 									<em class="fontSize18Px">Diagram</em>
 								</a>
+								<a href="#" class="list-group-item contentTypeItem contentTypeRecordAudio">
+									<em class="fontSize18Px">Recording Audio</em>
+								</a>
+								<a href="#" class="list-group-item contentTypeItem contentTypeRecordVideo">
+									<em class="fontSize18Px">Recording Video</em>
+								</a>
 							</div>
 						</div>
 					</div>
@@ -3859,6 +3883,10 @@
 		    	pageContentType = constContentTypeDoc;
 		    } else if ($contentTypeItem.hasClass('contentTypeMxGraph')) {
 		    	pageContentType = constContentTypeMxGraph;
+		    } else if ($contentTypeItem.hasClass('contentTypeRecordAudio')) {
+		    	pageContentType = constContentTypeRecordAudio;
+		    } else if ($contentTypeItem.hasClass('contentTypeRecordVideo')) {
+		    	pageContentType = constContentTypeRecordVideo;
 		    } else {
 		    	alert('Select the correct type.');
 		    	return;
@@ -4059,6 +4087,10 @@
 					$('.btnContentSave').addClass('hidden');
 					$('.contentContainer').addClass('hidden');
 					window.removeEventListener('scroll', noScroll);
+
+					if (pageContentType == constContentTypeMxGraph) {
+						mxEvent.removeListener(window, 'scroll', mxGraphUI.scrollHandler);	
+					}
 				});
 			}
 
@@ -4069,8 +4101,9 @@
 				</div>
 			`;
 			$('body').after( htmlButton );	
-			//$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
-			if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > -1) {
+
+			//if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > -1) {
+			if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw, constContentTypeRecordAudio, constContentTypeRecordVideo]) > -1) {
 				$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
 			} else {
 				$('.btnFloatingCanvasSave').css('right', "20px");
@@ -4139,7 +4172,9 @@
 				});
 			});				
 		} else if (content_type == constContentTypeDoc) {
-			
+		
+			//$('head').append('<meta http-equiv="Content-Security-Policy" content="unsafe-inline" />');
+			//$('meta[http-equiv="Content-Security-Policy"]').remove();
 			syncfusionKey = itemId + 'SyncfusionWordContent';
 
 			var template = `				
@@ -4192,6 +4227,7 @@
 			loadJS('/javascripts/grapheditor/jscolor/jscolor.js', function() {
 			loadJS('/javascripts/grapheditor/sanitizer/sanitizer.min.js', function() {
 			loadJS('/javascripts/grapheditor/mxClient/mxClient.js', function() {
+			//loadJS('http://localhost:8000/javascripts/grapheditor/mxClient/mxClient.js', function() {
 			loadJS('/javascripts/grapheditor/js/EditorUi.js', function() {
 			//loadJS('http://localhost:8000/javascripts/grapheditor/js/Editor.js', function() {
 			loadJS('/javascripts/grapheditor/js/Editor.js', function() {
@@ -4225,7 +4261,100 @@
 			});
 			});
 			});
+		} else if (content_type == constContentTypeRecordAudio) {
+			$('head').append('<meta http-equiv="Content-Security-Policy" content="worker-src blob:" />');
+			var server_addr = 'http://localhost:8000';
+			loadCSS(server_addr + '/javascripts/videojsRecord/css/video-js.min.css');
+			loadCSS(server_addr + '/javascripts/videojsRecord/css/videojs.wavesurfer.min.css');
+			loadCSS(server_addr + '/javascripts/videojsRecord/css/videojs.record.min.css');
+
+			loadJS(server_addr + '/javascripts/videojsRecord/js/video.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/RecordRTC.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/adapter.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/wavesurfer.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/wavesurfer.microphone.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/videojs.wavesurfer.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/videojs.record.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/browser-workarounds.js', function() {
+			//loadJS(server_addr + '/javascripts/videojsRecord/js/index.js', function() {
+
+				$('.contentContainer').attr('id', 'myRecordAudio');
+				$('.contentContainer').addClass('video-js vjs-default-skin');
+
+				var options = {
+				    controls: true,
+				    width: 600,
+				    height: 300,
+				    fluid: false,
+				    plugins: {
+				        wavesurfer: {
+				            src: 'live',
+				            waveColor: '#36393b',
+				            progressColor: 'black',
+				            debug: true,
+				            cursorWidth: 1,
+				            msDisplayMax: 20,
+				            hideScrollbar: true
+				        },
+				        record: {
+				            audio: true,
+				            video: false,
+				            maxLength: 20,
+				            debug: true
+				        }
+				    }
+				};
+
+				// apply audio workarounds for certain browsers
+				applyAudioWorkaround();
+
+				// create player
+				objRecordAudio = videojs('myRecordAudio', options, function() {
+				    // print version information at startup
+				    var msg = 'Using video.js ' + videojs.VERSION +
+				        ' with videojs-record ' + videojs.getPluginVersion('record') +
+				        ', videojs-wavesurfer ' + videojs.getPluginVersion('wavesurfer') +
+				        ', wavesurfer.js ' + WaveSurfer.VERSION + ' and recordrtc ' +
+				        RecordRTC.version;
+				    videojs.log(msg);
+				});
+
+				// error handling
+				objRecordAudio.on('deviceError', function() {
+				    console.log('device error:', objRecordAudio.deviceErrorCode);
+				    alert('device error: ' + objRecordAudio.deviceErrorCode);
+				});
+
+				objRecordAudio.on('error', function(element, error) {
+				    console.error(error);
+				    alert(error);
+				});
+
+				// user clicked the record button and started recording
+				objRecordAudio.on('startRecord', function() {
+				    console.log('started recording!');
+				});
+				// user completed recording and stream is available
+				objRecordAudio.on('finishRecord', function() {
+				    // the blob object contains the recorded data that
+				    // can be downloaded by the user, stored on server etc.
+				    console.log('finished recording: ', objRecordAudio.recordedData);
+				});
+
+				addIconAndButtons();						
+				done(null);
+			//});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+		} else if (content_type == constContentTypeRecordVideo) {
 		}
+
 	}
 
 	function isOldVersion()
@@ -4338,6 +4467,7 @@
 						console.log('change_event_mxGraph');
 						saveContentInLocalStorage();
 					});
+					//mxClient.IS_IOS = false;
 
 				}
 			}
