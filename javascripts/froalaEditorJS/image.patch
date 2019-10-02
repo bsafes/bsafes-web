@@ -1,0 +1,601 @@
+--- image.js	2019-05-14 14:37:47.000000000 +0800
++++ froalaEncryptImage.js	2019-05-14 14:38:03.000000000 +0800
+@@ -43,7 +43,7 @@
+ 
+   $.extend($.FE.DEFAULTS, {
+     imageInsertButtons: ['imageBack', '|', 'imageUpload', 'imageByURL'],
+-    imageEditButtons: ['imageReplace', 'imageAlign', 'imageRemove', '|', 'imageLink', 'linkOpen', 'linkEdit', 'linkRemove', '-', 'imageDisplay', 'imageStyle', 'imageAlt', 'imageSize'],
++    imageEditButtons: ['imageAlign', 'imageRemove', 'imageLink', 'linkOpen', 'linkEdit', 'linkRemove', 'imageDisplay', 'imageStyle', 'imageAlt', 'imageSize'],
+     imageAltButtons: ['imageBack', '|'],
+     imageSizeButtons: ['imageBack', '|'],
+     imageUploadURL: 'https://i.froala.com/upload',
+@@ -688,15 +688,13 @@
+      * Insert image into the editor.
+      */
+ 
+-    function insert (link, sanitize, data, $existing_img, response) {
++    function insert ($existing_img, response) {
+       editor.edit.off();
+       _setProgressMessage(editor.language.translate('Loading image'));
+ 
+-      if (sanitize) link = editor.helpers.sanitizeURL(link);
+-
+       var image = new Image();
+ 
+-      image.onload = function () {
++      function imageOnload() {
+         var $img;
+         var attr;
+ 
+@@ -704,6 +702,7 @@
+           if (!editor.undo.canDo() && !$existing_img.hasClass('fr-uploading')) editor.undo.saveStep();
+ 
+           var old_src = $existing_img.data('fr-old-src');
++					var existingSrc = $existing_img.attr('src');
+ 
+           if ($existing_img.data('fr-image-pasted')) {
+             old_src = null;
+@@ -742,19 +741,8 @@
+             }
+           }
+ 
+-          // Set new data.
+-          if (typeof data != 'undefined') {
+-            for (attr in data) {
+-              if (data.hasOwnProperty(attr)) {
+-                if (attr != 'link') {
+-                  $img.attr('data-' + attr, data[attr]);
+-                }
+-              }
+-            }
+-          }
+-
+           $img.on('load', _loadedCallback);
+-          $img.attr('src', link);
++					$img.attr('src', existingSrc);
+           editor.edit.on();
+           _syncImages(false);
+           editor.undo.saveStep();
+@@ -763,24 +751,11 @@
+           editor.$el.blur();
+           editor.events.trigger(old_src ? 'image.replaced' : 'image.inserted', [$img, response]);
+         }
+-        else {
+-          $img = _addImage(link, data, _loadedCallback);
+-          _syncImages(false);
+-          editor.undo.saveStep();
+-
+-          // Cursor will not appear if we don't make blur.
+-          editor.$el.blur();
+-          editor.events.trigger('image.inserted', [$img, response]);
+-        }
+-      }
+-
+-      image.onerror = function () {
+-        _throwError(BAD_LINK);
+       }
+ 
+       showProgressBar(editor.language.translate('Loading image'));
+ 
+-      image.src = link;
++			imageOnload();
+     }
+ 
+     /**
+@@ -849,42 +824,7 @@
+ 
+     function _imageUploaded ($img) {
+       _setProgressMessage(editor.language.translate('Loading image'));
+-      var status = this.status;
+-      var response = this.response;
+-      var responseXML = this.responseXML;
+-      var responseText = this.responseText;
+-
+-      try {
+-        if (editor.opts.imageUploadToS3) {
+-          if (status == 201) {
+-            var link = _parseXMLResponse(responseXML);
+-
+-            if (link) {
+-              insert(link, false, [], $img, response || responseXML);
+-            }
+-          }
+-          else {
+-            _throwError(BAD_RESPONSE, response || responseXML, $img);
+-          }
+-        }
+-        else {
+-          if (status >= 200 && status < 300) {
+-            var resp = _parseResponse(responseText);
+-
+-            if (resp) {
+-              insert(resp.link, false, resp, $img, response || responseText);
+-            }
+-          }
+-          else {
+-            _throwError(ERROR_DURING_UPLOAD, response || responseText, $img);
+-          }
+-        }
+-      }
+-      catch (ex) {
+-
+-        // Bad response.
+-        _throwError(BAD_RESPONSE, response || responseText, $img);
+-      }
++			insert($img);
+     }
+ 
+     /**
+@@ -990,12 +930,241 @@
+     /**
+      * Start the uploading process.
+      */
+-    function _startUpload (xhr, form_data, image, $image_placeholder) {
++    function _startUpload (image, $image_placeholder) {
++			var imageDataInBinaryString;
++      var s3ObjectSize;
++			var exifOrientation;
++
+       function _sendRequest () {
+-        var $img = $(this);
++				var imageWidth = this.width;
++        var imageHeight = this.height;
++				var imgDOM = this;
++	
++				var $img = $(this);
++
+         $img.off('load');
+         $img.addClass('fr-uploading');
+ 
++				var itemId = $('.container').data('itemId');	
++        var itemKey = $('.container').data('itemKey');
++        var itemIV = $('.container').data('itemIV');
++        var s3Key;
++
++        function uploadToS3(data, fn) {
++					var signedURL;
++					var signedGalleryURL;
++					var signedThumbnailURL;
++
++					var prepareGalleryImgDeferred = $.Deferred();
++					var prepareGalleryImgPromise;
++					var prepareThumbnailImgDeferred = $.Deferred();
++					var prepareThumbnailImgPromise = prepareThumbnailImgDeferred.promise();
++					var uploadGalleryImgDeferred = $.Deferred();
++					var uploadGalleryImgPromise = uploadGalleryImgDeferred.promise();
++					var uploadThumbnailImgDeferred = $.Deferred();
++					var uploadThumbnailImgPromise = uploadThumbnailImgDeferred.promise();
++
++					var totalUploadedSize = 0;
++				
++ 		      function preS3Upload(fn) {
++          	$.post('/memberAPI/preS3Upload', {
++          	}, function(data, textStatus, jQxhr) {
++            	if(data.status === 'ok') {
++              	s3Key = data.s3Key;
++              	signedURL = data.signedURL;
++								signedGalleryURL = data.signedGalleryURL;
++								signedThumbnailURL = data.signedThumbnailURL;
++              	fn(null);
++            	} else {
++              	fn(data.error);
++            	}
++          	}, 'json');
++        	};
++	
++			  	function _uploadProgress (e) {
++      			if (e.lengthComputable) {
++        			var complete = (e.loaded / e.total * 100 | 0);
++        			_setProgressMessage(editor.language.translate('Uploading'), complete);
++      			}
++
++						if(!prepareGalleryImgPromise) {
++							prepareGalleryImgPromise = prepareGalleryImgDeferred.promise();
++							_downscaleImgAndEncryptInUint8Array(480, prepareGalleryImgDeferred);
++								
++							prepareGalleryImgPromise.done(function(data){
++              	$.ajax({
++                	type: 'PUT',
++                	url: signedGalleryURL,
++                	// Content type must much with the parameter you signed your URL with
++                	contentType: 'binary/octet-stream',
++                	// this flag is important, if not set, it will try to send data as a form
++                	processData: false,
++                	// the actual data is sent raw
++                	data: data,
++                	xhr: function() {
++                  	var myXhr = $.ajaxSettings.xhr();
++                  	if(myXhr.upload){
++                    	myXhr.upload.addEventListener('progress', function(e){
++												if (e.lengthComputable) {
++					              	var complete = (e.loaded / e.total * 100 | 0);
++													console.log('Uploading Chunk', complete);
++            						}
++											}, false);
++                  	}
++                  	return myXhr;
++                	}
++              	})
++              	.success(function() {
++									console.log('Gallery uploading succeeded');
++									uploadGalleryImgDeferred.resolve();
++              	})
++              	.error(function(jqXHR, textStatus, errorThrown) {
++									console.log('Gallery uploading failed');
++									uploadGalleryImgDeferred.reject();
++              	});
++
++								prepareThumbnailImgPromise = prepareThumbnailImgDeferred.promise();
++								_downscaleImgAndEncryptInUint8Array(84, prepareThumbnailImgDeferred);
++								prepareThumbnailImgPromise.done(function(data){
++									$.ajax({
++                  	type: 'PUT',
++                  	url: signedThumbnailURL,
++                  	// Content type must much with the parameter you signed your URL with
++                  	contentType: 'binary/octet-stream',
++                  	// this flag is important, if not set, it will try to send data as a form
++                  	processData: false,
++                  	// the actual data is sent raw
++                  	data: data,
++                  	xhr: function() {
++                    	var myXhr = $.ajaxSettings.xhr();
++                    	if(myXhr.upload){
++                      	myXhr.upload.addEventListener('progress', function(e){
++                        	if (e.lengthComputable) {
++                          	var complete = (e.loaded / e.total * 100 | 0);
++                          	console.log('Uploading Thumbnail', complete);
++                        	}
++                      	}, false);
++                    	}
++                    	return myXhr;
++                  	}
++                	})
++                	.success(function() {
++                  	console.log('Thumbnail uploading succeeded');
++                  	uploadThumbnailImgDeferred.resolve();
++                	})
++                	.error(function(jqXHR, textStatus, errorThrown) {
++                  	console.log('Thumbnail uploading failed');
++                  	uploadThumbnailImgDeferred.reject();
++                	});
++								});
++							});
++						}
++    			};
++
++					function _downscaleImgAndEncryptInUint8Array(size, deferred) {
++						_downScaleImage(imgDOM, exifOrientation, size, function(err, binaryString){
++							if(err) {
++								console.log(err);
++								deferred.reject();
++							} else {
++								encryptDataInBinaryString(binaryString, function(err, encryptedImageDataInUint8Array){
++									if(err) {
++                   	deferred.reject();
++									} else {
++                    deferred.resolve(encryptedImageDataInUint8Array);
++                  }
++								});
++							}
++						});
++					};
++
++          preS3Upload(function(err) {
++            if(err) {
++              fn(err);
++            } else {
++							totalUploadedSize += data.byteLength;
++              $.ajax({
++                type: 'PUT',
++                url: signedURL,
++                // Content type must much with the parameter you signed your URL with
++                contentType: 'binary/octet-stream',
++                // this flag is important, if not set, it will try to send data as a form
++                processData: false,
++                // the actual data is sent raw
++                data: data,
++                xhr: function() {
++                  var myXhr = $.ajaxSettings.xhr();
++                  if(myXhr.upload){
++                    myXhr.upload.addEventListener('progress', _uploadProgress, false);
++                  }
++                  return myXhr;
++                }
++              })
++              .success(function() {
++                $img.addClass('bSafesImage');
++                var id = s3Key + "&" + imageWidth + "x" + imageHeight + "&"+ totalUploadedSize;
++                $img.attr('id', id);
++                id = $img.attr('id');
++								_setProgressMessage(editor.language.translate('Processing'));
++								$.when(uploadGalleryImgPromise, uploadThumbnailImgPromise).done(function(){
++									fn(null);
++								}).fail(function(){
++									fn('Uploading Gallery or Thumbnail failed');
++								});
++              })
++              .error(function(jqXHR, textStatus, errorThrown) {
++                alert(errorThrown);
++                console.log(errorThrown);
++                fn(errorThrown);
++              });
++            }
++          });
++        };
++
++        function postS3Upload(fn) {
++          var expandedKey;
++
++          bSafesPreflight(function(err, key) {
++            if(err) {
++              alert(err);
++            } else {
++              expandedKey = key;
++              var envelopeIV = forge.random.getBytesSync(16);
++							var ivEnvelopeIV = forge.random.getBytesSync(16);
++              var keyEnvelope = encryptBinaryString(itemKey, expandedKey, envelopeIV);
++              var ivEnvelope = encryptBinaryString(itemIV, expandedKey, ivEnvelopeIV);
++
++              $.post('/memberAPI/postS3Upload', {
++                "id": s3Key,
++								"itemId": itemId,
++                "keyEnvelope": keyEnvelope,
++                "ivEnvelope": ivEnvelope,
++                "envelopeIV": envelopeIV,
++								"ivEnvelopeIV": ivEnvelopeIV, 
++                "size": s3ObjectSize
++              }, function(data, textStatus, jQxhr) {
++                if(data.status === 'ok') {
++                  fn(null);
++                } else {
++                  fn(data.error);
++                }
++              }, 'json');
++            }
++          });
++        };
++
++        function encryptDataInBinaryString(data, fn) {
++          var time1 = Date.now();
++          var binaryStr = data;
++          console.log('encrypting', binaryStr.length);
++          var encryptedStr = encryptLargeBinaryString(binaryStr, itemKey, itemIV);
++          //console.log('decrypting', encryptedStr.length);
++          //var decryptedStr = decryptLargeBinaryString(encryptedStr, itemKey, itemIV);
++          var uint8Array = convertBinaryStringToUint8Array(encryptedStr);
++          var time2 = Date.now();
++          fn(null, uint8Array);
++        };
++
+         if ($img.next().is('br')) {
+           $img.next().remove();
+         }
+@@ -1006,68 +1175,104 @@
+         _editImg($img);
+         _repositionResizer();
+         showProgressBar();
++				_setProgressMessage(editor.language.translate('Encrypting'));
+         editor.edit.off();
+-
+-        // Set upload events.
+-        xhr.onload = function () {
+-          _imageUploaded.call(xhr, $img);
+-        };
+-        xhr.onerror = _imageUploadError;
+-        xhr.upload.onprogress = _imageUploadProgress;
+-        xhr.onabort = _imageUploadAborted;
+-
+-        // Set abort event.
+-        $img.off('abortUpload').on('abortUpload', function () {
+-          if (xhr.readyState != 4) {
+-            xhr.abort();
+-          }
+-        });
+-
+-        // Send data.
+-        xhr.send(form_data);
++	
++	      setTimeout(function() {
++          encryptDataInBinaryString(imageDataInBinaryString, function(err, encryptedImageDataInUint8Array) {
++            if(err) {
++            } else {
++              uploadToS3(encryptedImageDataInUint8Array, function(err) {
++                if(err) {
++                  alert('uploadToS3:' + err);
++                } else {
++                  s3ObjectSize = encryptedImageDataInUint8Array.byteLength;
++                  postS3Upload(function(err) {
++                    if(err) {
++                      alert(err);
++                    } else {
++                      _imageUploaded.call(null, $img);
++                    }
++                  });
++                }
++              });
++            }
++          });
++        }, 300);
+       }
+ 
+       var reader = new FileReader();
+       var $img;
+ 
+       reader.addEventListener('load', function () {
+-        var link = reader.result;
++				var imageData = reader.result;
++				
++				function getOrientation(data) {
++    			var view = new DataView(imageData);
++    			
++					if (view.getUint16(0, false) != 0xFFD8) return -2;
++    			
++					var length = view.byteLength, offset = 2;
++    			while (offset < length) {
++      			var marker = view.getUint16(offset, false);
++     				offset += 2;
++      			if (marker == 0xFFE1) {
++        	
++							if (view.getUint32(offset += 2, false) != 0x45786966) return -1;
++        			
++							var little = view.getUint16(offset += 6, false) == 0x4949;
++        			offset += view.getUint32(offset + 4, little);
++        			var tags = view.getUint16(offset, little);
++        			offset += 2;
++        			for (var i = 0; i < tags; i++)
++          			if (view.getUint16(offset + (i * 12), little) == 0x0112)
++            			return view.getUint16(offset + (i * 12) + 8, little);
++      			} else if ((marker & 0xFF00) != 0xFF00) break;
++      			else offset += view.getUint16(offset, false);
++    			}
++    			return -1;
++  			};				
++	
++				exifOrientation = getOrientation(imageData);
++
++				var imageDataInUint8Array = new Uint8Array(imageData);
++				var blob = new Blob([imageDataInUint8Array], {
++          type: 'image/jpeg'});
++				console.log('blob', blob.size);
++				// Get local image link.
++        link = window.URL.createObjectURL(blob);
++
++				rotateImage(link, exifOrientation, function(err, blob, binaryString){
++					if(err) {
++						console.log('Rotation Error');
++						alert(err);
++					}
++					console.log('Rotation done');
++					imageDataInBinaryString = binaryString;
++					link = window.URL.createObjectURL(blob);
++
++	          if (!$image_placeholder) {
++  	          $img = _addImage(link, null, _sendRequest);
++    	      }
++      	    else {
++        	    $image_placeholder.on('load', _sendRequest);
++          	  $image_placeholder.one('error', function () {
++            	  $image_placeholder.off('load');
++             		$image_placeholder.attr('src', $image_placeholder.data('fr-old-src'));
++              	_throwError(CORRUPTED_IMAGE);
++            	})
++            	editor.edit.on();
++            	editor.undo.saveStep();
++            	$image_placeholder.data('fr-old-src', $image_placeholder.attr('src'));
++            	$image_placeholder.attr('src', link);
++          	}
+ 
+-        if (reader.result.indexOf('svg+xml') < 0) {
+-
+-          // Convert image to local blob.
+-          var binary = atob(reader.result.split(',')[1]);
+-          var array = [];
+-
+-          for (var i = 0; i < binary.length; i++) {
+-            array.push(binary.charCodeAt(i));
+-          }
+-
+-          // Get local image link.
+-          link = window.URL.createObjectURL(new Blob([new Uint8Array(array)], {
+-            type: 'image/jpeg'
+-          }));
+-        }
+-
+-        // No image.
+-        if (!$image_placeholder) {
+-          $img = _addImage(link, null, _sendRequest);
+-        }
+-        else {
+-          $image_placeholder.on('load', _sendRequest);
+-          $image_placeholder.one('error', function () {
+-            $image_placeholder.off('load');
+-            $image_placeholder.attr('src', $image_placeholder.data('fr-old-src'));
+-            _throwError(CORRUPTED_IMAGE);
+-          })
+-          editor.edit.on();
+-          editor.undo.saveStep();
+-          $image_placeholder.data('fr-old-src', $image_placeholder.attr('src'));
+-          $image_placeholder.attr('src', link);
+-        }
++				});
++				return;
+       }, false);
+ 
+-      reader.readAsDataURL(image);
++			reader.readAsArrayBuffer(image);
++			editor.popups.hide('image.insert');
+     }
+ 
+     /**
+@@ -1080,8 +1285,7 @@
+       if (typeof images != 'undefined' && images.length > 0) {
+ 
+         // Check if we should cancel the image upload.
+-        if (editor.events.trigger('image.beforeUpload', [images, $image_placeholder]) === false) {
+-
++        if (editor.events.trigger('image.beforeUpload', [images]) === false) {
+           return false;
+         }
+         var image = images[0];
+@@ -1105,55 +1309,13 @@
+           return false;
+         }
+ 
+-        // Create form Data.
+-        var form_data;
+-
+-        if (editor.drag_support.formdata) {
+-          form_data = editor.drag_support.formdata ? new FormData() : null;
+-        }
+-
+-        // Prepare form data for request.
+-        if (form_data) {
+-          var key;
+-
+-          // Upload to S3.
+-          if (editor.opts.imageUploadToS3 !== false) {
+-            form_data.append('key', editor.opts.imageUploadToS3.keyStart + (new Date()).getTime() + '-' + (image.name || 'untitled'));
+-            form_data.append('success_action_status', '201');
+-            form_data.append('X-Requested-With', 'xhr');
+-            form_data.append('Content-Type', image.type);
+-
+-            for (key in editor.opts.imageUploadToS3.params) {
+-              if (editor.opts.imageUploadToS3.params.hasOwnProperty(key)) {
+-                form_data.append(key, editor.opts.imageUploadToS3.params[key]);
+-              }
+-            }
+-          }
+-
+-          // Add upload params.
+-          for (key in editor.opts.imageUploadParams) {
+-            if (editor.opts.imageUploadParams.hasOwnProperty(key)) {
+-              form_data.append(key, editor.opts.imageUploadParams[key]);
+-            }
++        bSafesPreflight(function(err, key) {
++          if (err) {
++            alert(err);
++          } else {
++            _startUpload(image, $image_placeholder || $current_image);
+           }
+-
+-          // Set the image in the request.
+-          form_data.append(editor.opts.imageUploadParam, image, image.name);
+-
+-          // Create XHR request.
+-          var url = editor.opts.imageUploadURL;
+-
+-          if (editor.opts.imageUploadToS3) {
+-            if (editor.opts.imageUploadToS3.uploadURL) {
+-              url = editor.opts.imageUploadToS3.uploadURL;
+-            }
+-            else {
+-              url = 'https://' + editor.opts.imageUploadToS3.region + '.amazonaws.com/' + editor.opts.imageUploadToS3.bucket;
+-            }
+-          }
+-          var xhr = editor.core.getXHR(url, editor.opts.imageUploadMethod);
+-          _startUpload(xhr, form_data, image, $image_placeholder || $current_image);
+-        }
++        });
+       }
+     }
+ 
