@@ -1007,7 +1007,8 @@
 	    } else if ( (pageContentType == constContentTypeSpreadsheet) && spreadsheet) {
 	    	content = localStorage.getItem(spreedsheetKey);
 	    } else if (pageContentType == constContentTypeDoc) {	
-	    	content = localStorage.getItem(syncfusionKey);
+	    	//content = localStorage.getItem(syncfusionKey);
+	    	content = suncfusion_container.documentEditor.serialize();
 	    } else if ( (pageContentType == constContentTypeMxGraph) && (mxGraphUI) ) {	    		
 	    	content = mxUtils.getXml(mxGraphUI.editor.getGraphXml());
 	    } else if (pageContentType == constContentTypeRecordAudio) {
@@ -4046,7 +4047,7 @@
 
 				$('.widgetIcon').click(function(e) {
 					e.preventDefault();	
-					//noScroll();
+					noScroll();
 					window.addEventListener('scroll', noScroll);
 
 					$('.contentContainer').removeClass('hidden');
@@ -4419,20 +4420,23 @@
 		} else if (pageContentType == constContentTypeDoc) {	
 			
 			suncfusion_container = loadSyncfusionWordContent(contentJSON);
+			
 			suncfusion_container.contentChange = function () { 
 				console.log('change_event_syncfusion');
-				suncfusion_container.documentEditor.saveAsBlob('Sfdt').then(function (sfdtBlob) { 
-		            var fileReader = new FileReader(); 
-		            fileReader.onload = function (e) { 
-		                // Get Json string here 
-		                var sfdtText = fileReader.result; 
-		                // This string can send to server for saving it in database 
-		                localStorage.setItem(syncfusionKey, sfdtText);
-		                saveContentInLocalStorage();                
-		            } 
-		            fileReader.readAsText(sfdtBlob); 
-		        }); 
+				saveContentInLocalStorage(); 
+				// suncfusion_container.documentEditor.saveAsBlob('Sfdt').then(function (sfdtBlob) { 
+		  //           var fileReader = new FileReader(); 
+		  //           fileReader.onload = function (e) { 
+		  //               // Get Json string here 
+		  //               var sfdtText = fileReader.result; 
+		  //               // This string can send to server for saving it in database 
+		  //               localStorage.setItem(syncfusionKey, sfdtText);
+		  //               saveContentInLocalStorage();                
+		  //           } 
+		  //           fileReader.readAsText(sfdtBlob); 
+		  //       }); 
 			}
+			
 
 			$('.widgetIcon').trigger('click');
 			//hideLoadingPage();
