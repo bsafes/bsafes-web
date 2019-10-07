@@ -4194,7 +4194,15 @@
 				loadJS("/javascripts/libraryInit/syncfusion.docEditor.js", function() {
 				//loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
 					$('.contentContainer').attr('id', 'syncfusion-documenteditor');
-					
+
+					function removeJumpforIpad() {
+						$arr = $('#syncfusion-container_editor_editableDiv');
+						if ($arr.length > 1) {
+							$arr[0].remove();
+						}
+						setTimeout(removeJumpforIpad, 1000); 
+					}
+					removeJumpforIpad();
 					addIconAndButtons();
 					done(null);					
 				});
