@@ -146,9 +146,14 @@ function loadPage() {
                         title: item.title
                     };
                     itemInfo.push(info);
+                    if (pageContentType == constContentTypeDraw) {
+                        $('.btnWrite.editControl#content').addClass('hidden');
+                    }
                 }
             });
             positionItemNavigationControls();
         }
     });
+
+    
 };

@@ -1497,12 +1497,30 @@ function positionItemNavigationControls() {
             );
             var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
             var rightMargin = (w - panelWidth) / 2;
+            //$(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel, .btnFloatingCanvasSave").css("right", rightMargin + "px");
             $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel").css("right", rightMargin + "px");
+            
+            if (typeof pageContentType !== "undefined") {
+                if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > -1) {
+                    $(".btnFloatingCanvasSave").css("right", rightMargin + "px");
+                } else {
+                    $(".btnFloatingCanvasSave").css("right", "20px");
+                    $(".btnFloatingMinimize").css("right", "20px");
+                }
+            }
 
             // var margin = (w - panelWidth) / 2;
             // var leftMargin = margin - 30;
             // var rightMargin = margin - 30;
-            $('.btnLock').css('left', rightMargin - 30 + 'px');
+            //console.log('rightMargin=', rightMargin);
+            if ($('.pagePanel').is(':hidden')) {
+                $('.btnLock').css('left', '20px');
+            } else {
+                $('.btnLock').css('left', rightMargin - 30 + 'px');    
+            }
+            
+            //var button_left = parseInt($('.drawCanvas').css('width')) - 70;
+            //$('.btnCanvasSave').css('margin-left', button_left + 'px');
             /*
                   $nextPageBtn = $('#nextPageBtn');
                   rightMargin = margin - 24;  
@@ -1512,6 +1530,8 @@ function positionItemNavigationControls() {
                   var leftMargin = margin - 24 ;
                   $previousPageBtn.css("left", leftMargin + "px"); 
             */
+            $('#syncfusion_container').css('height', $(window).height() - 40);
+            console.log('height', $(window).height() - 40);
         }
     }
 

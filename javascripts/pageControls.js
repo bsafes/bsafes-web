@@ -38,7 +38,8 @@
 
 	var currentImageDownloadXhr = null;
 
-	var addr_images = '/images/';
+	var addr_images = 'http://localhost:8000/stylesheets/images/';
+	addr_images = '/images/';
 	var svgLock = addr_images + 'lock.svg';
 	var svgLen = addr_images + 'len.svg';
 	var pngLen = addr_images + 'pngLen.png';
@@ -46,9 +47,38 @@
 	var encrypted_buffer;
 
 	var editorContentsStatus;
-	var lastEditorContent;
-	var flgIsLoadingFromLocalStorage = false;
+	var lastContent;
+	var flgIsLoadingFromLocalStorageForWrite = false;
 	var contentsFromServer = null;
+	var pageLocalStorageKey = null;
+
+	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, Recording Audio, Recording Video, etc </a>';
+	
+	var pageContentType = null;
+	var constContentTypeWrite = 'contentType#Write';
+	var constContentTypeDraw = 'contentType#Draw';
+	var constContentTypeSpreadsheet = 'contentType#Spreadsheet';
+	var constContentTypeDoc = 'contentType#Doc';
+	var constContentTypeMxGraph = 'contentType#MxGraph';
+	var constContentTypeRecordAudio = 'contentType#RecordAudio';
+	var constContentTypeRecordVideo = 'contentType#RecordVideo';
+
+	var syncfusionKey;
+	var spreedsheetKey;
+
+	// library object.
+	var lc; // literallycanvas
+	var spreadsheet; // spreedsheet
+	var suncfusion_container; // doc
+	var mxGraphUI = null; // diagram
+	var objRecordAudio = null; // recording audio
+	var objRecordVideo = null; // recording video
+
+	var iconSpreadsheet = addr_images + 'spreadSheet.jpg';
+	var iconDoc = addr_images + 'docIcon.jpg';
+	var iconDiagram = addr_images + 'diagram.jpg';
+
+	var $body=null;
 
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
@@ -92,7 +122,7 @@
         $('.froala-editor#content').html('');
         $('.commentsSearchResults').html('');
 
-        $('.froala-editor#title').addClass('loading');
+        //$('.froala-editor#title').addClass('loading');
         $('.froala-editor#content').append( "<div class='content-loading' style='width:100%;'></div>" );
         $('.froala-editor#content').append( "<div class='content-loading' style='width:70%;'></div>" );
         $('.froala-editor#content').append( "<div class='content-loading' style='width:80%;'></div>" );
@@ -291,7 +321,7 @@
 	function addButtonLock() {
 		if ($('.btnLock').length == 0) {
 		
-			$('.btnFloatingWrite').after( "<div class='btnLock hidden' style='bottom:-5px; position:fixed; z-index:1000;'></div>" );
+			$('.btnFloatingWrite').after( "<div class='btnLock hidden' style='bottom:-5px; position:fixed; z-index:15000;'></div>" );
 			$('.btnLock').append("<img src='' style='width:80px; height:80px;'></img>");
 			
 			var margin = $('.btnFloatingWrite').css('right');
@@ -301,6 +331,7 @@
 			$('.btnLock').click(function(e) {
 				if (statusIsLockOrLen == 'len') {
 					$(e.target).trigger('blur');
+					$('#modalSnippet').css('z-index', '15000');
 					var isModalVisible = $('#modalSnippet').is(':visible');
 					if (!isModalVisible) {
 						//showDownloadItemsModal(currentSpace);
@@ -340,6 +371,11 @@
 	        console.log('confirmTagsInputBtn');
 	    	setStatusLock();
 	        var tags = $('#tagsInput').tokenfield('getTokens');
+	        // add pageContentType
+	        if (pageContentType == constContentTypeDraw) {
+	        	tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
+	        }
+	        
 	        var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
 	        encrypted_buffer = encryptedTags;
 	        encryptedTags.push('null');
@@ -494,11 +530,16 @@
 
 	function editorInitialized() {
 	    $('.btnSave, .btnCancel').removeClass('hidden');
+	    $('.btnContentSave').addClass('hidden');
 	    editorStateChanged('Editor is initialized');	    
 	}
 
 	function handleBtnWriteClicked(e) {
 	    e.preventDefault();
+	    $('.froala-editor#content').on('froalaEditor.contentChanged', function (e, editor) {
+			console.log('change_event_froala');
+			saveContentInLocalStorage();
+		});	
 	    var downloadingImageContainers = $('.downloadingImageContainer');
 	    downloadingImageContainers.each(function() {
 	        var imageElement = $(this).find('img');
@@ -532,7 +573,7 @@
 	    var $editorRow = currentEditor.closest('.editorRow');
 	    $editorRow.css('overflow-x', 'initial');
 	    originalEditorContent = currentEditor.html();
-	    lastEditorContent = originalEditorContent;
+	    lastContent = originalEditorContent;
 	    switch (id) {
 	        case 'title':
 	            initializeTitleEditor(currentEditor);
@@ -557,9 +598,11 @@
 
 	function doneEditing() {
 		setStatusLen();
+		$('.froala-editor#content').off('froalaEditor.contentChanged');
+
 		editorContentsStatus = false;
-		flgIsLoadingFromLocalStorage = false;
-		localStorage.removeItem(itemId);
+		flgIsLoadingFromLocalStorageForWrite = false;
+		localStorage.removeItem(pageLocalStorageKey);
 	    var $downloadingElements = $('.bSafesDownloading');
 	    handleVideoObjects();
 
@@ -574,8 +617,16 @@
 
 	    currentEditor = null;
 	    $('.btnSave, .btnCancel').addClass('hidden');
-	    $('.navbar-fixed-top, .btnWrite, .pathRow').removeClass('hidden');
 	    $('.othersComment').addClass('hidden');
+	    $('.navbar-fixed-top, .btnWrite, .pathRow').removeClass('hidden');
+
+	    //if (pageContentType != constContentTypeWrite) {
+	    if ($.inArray(pageContentType, [constContentTypeDraw, constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph, constContentTypeRecordAudio, constContentTypeRecordVideo]) > -1) {
+	    	$('.btnWrite.editControl#content').addClass('hidden');
+			$('.btnWrite.btnEditor#content').addClass('hidden');
+			$('.btnContentSave').removeClass('hidden');
+		}
+	    
 	    editorStateChanged('Editor is destroyed');
 	}
 
@@ -600,8 +651,8 @@
 	    e.preventDefault();
 	    var tempOriginalElement = $('<div></div>');
 	    tempOriginalElement.html(originalEditorContent);
-	    if (editorContentsStatus && flgIsLoadingFromLocalStorage) {
-	    	flgIsLoadingFromLocalStorage = false;
+	    if (editorContentsStatus && flgIsLoadingFromLocalStorageForWrite) {
+	    	flgIsLoadingFromLocalStorageForWrite = false;
 	    	tempOriginalElement.html(contentsFromServer);
 	    }
 	    var displayedImages = $('.bSafesDisplayed');
@@ -634,7 +685,8 @@
 	            saveTitle();
 	            break;
 	        case 'content':
-	            saveContent();
+	            //saveWriteTypeContent();
+	            saveFroalaEditorContent();
 	            break;
 	        case 'newComment':
 	            saveNewComment();
@@ -651,6 +703,7 @@
 
 	function createNewItemVersionForPage(addedSize) {
 	    createNewItemVersion(itemId, itemCopy, currentVersion, addedSize, function(err, data) {
+	    	$('.btnContentSave').LoadingOverlay('hide');
 	        if (err) {
 	            if ((itemCopy.update === 'title') || (itemCopy.update === 'content')) {
 	                $('.btnSave').LoadingOverlay('hide');
@@ -848,13 +901,539 @@
 	    return { content: tempElement.html(), s3ObjectsInContent: s3ObjectsInContent, s3ObjectsSize: totalS3ObjectsSize };
 	};
 
-	function saveContent() {
-	    if (isBlankPageItem) {}
+	
+	function saveNewComment() {
+	    if (isBlankPageItem) {
+	        return;
+	    }
 	    var content = currentEditor.froalaEditor('html.get');
-		localStorage.removeItem(itemId);
+	    content = preProcessEditorContentBeforeSaving(content).content;
+
+	    var encodedContent = forge.util.encodeUtf8(content);
+	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
+	    encrypted_buffer = encryptedContent;
+
+	    if (isBlankPageItem) {
+	        return;
+	    } else {
+	        itemCopy.content = encryptedContent;
+	        $.post('/memberAPI/saveNewPageComment', {
+	            itemId: itemId,
+	            content: encryptedContent
+	        }, function(data, textStatus, jQxhr) {
+	            if (data.status === 'ok') {
+
+	                var $comment = $('.commentTemplate').clone().removeClass('commentTemplate hidden').addClass('comment');
+	                var id = data.id;
+	                $comment.data("id", id);
+	                var writerName = "You";
+	                var creationTime = "Created, " + formatTimeDisplay(data.creationTime);
+	                id = "comment-" + data.creationTime;
+	                $comment.attr('id', id);
+	                $comment.find('.btnWrite').attr('id', id);
+	                $comment.find('.btnWrite').on('click', handleBtnWriteClicked);
+	                $comment.find('.fa-pencil').attr('id', id);
+	                $comment.find('.froala-editor').attr('id', id);
+	                $comment.find('.commentWriterName').html(writerName);
+	                $comment.find('.commentCreationTime').html(creationTime);
+	                $comment.find('.froala-editor').html(content);
+	                var $commentsSearchResults = $('.commentsSearchResults');
+	                $commentsSearchResults.append($comment);
+
+	                var $thisEditor = $('.froala-editor#newComment');
+	                $thisEditor.on('froalaEditor.html.set', function(e, editor) {
+	                    doneEditing();
+	                });
+	                $thisEditor.froalaEditor('html.set', "");
+	            }
+	        }, 'json');
+	    }
+	};
+
+	function updateComment() {
+	    var id = currentEditor.closest('.comment').data("id");
+	    var commentId = id.split("-")[1];
+	    if (isBlankPageItem) {
+	        return;
+	    }
+	    var $comment = currentEditor.closest('.comment');
+	    var content = currentEditor.froalaEditor('html.get');
+	    content = preProcessEditorContentBeforeSaving(content).content;
+
+	    var encodedContent = forge.util.encodeUtf8(content);
+	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
+
+	    if (isBlankPageItem) {
+	        return;
+	    } else {
+	        $.post('/memberAPI/updatePageComment', {
+	            itemId: itemId,
+	            commentId: commentId,
+	            content: encryptedContent
+	        }, function(data, textStatus, jQxhr) {
+	            if (data.status === 'ok') {
+	                var lastUpdateTime = "Updated, " + formatTimeDisplay(data.lastUpdateTime);
+	                $comment.find('.commentLastUpdateTime').html(lastUpdateTime);
+	                $comment.find('.commentLastUpdateTimeRow').removeClass('hidden');
+	                doneEditing();
+	            }
+	        }, 'json');
+	    }
+	}
+
+	function saveImageWords() {
+	    var content = currentEditor.froalaEditor('html.get');
+	    var tempElement = $('<div></div>');
+	    tempElement.html(content);
+
+	    content = tempElement.html();
+	    var encodedContent = forge.util.encodeUtf8(content);
+	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
+
+	    var index = currentEditorId.split('-')[1];
+	    itemCopy.images[index].words = encryptedContent;
+	    itemCopy.update = "image words";
+	    createNewItemVersionForPage();
+
+	};
+
+	function getCurrentContent()
+	{
+		var content = null;
+		if (pageContentType == null) {
+	    	content = currentEditor.froalaEditor('html.get');
+	    } else if (pageContentType == constContentTypeWrite) {
+	    	content = currentEditor.froalaEditor('html.get');
+	    } else if ( (pageContentType == constContentTypeDraw) && lc ) {
+			content = JSON.stringify(lc.getSnapshot());	
+	    } else if ( (pageContentType == constContentTypeSpreadsheet) && spreadsheet) {
+	    	content = localStorage.getItem(spreedsheetKey);
+	    } else if (pageContentType == constContentTypeDoc) {	
+	    	//content = localStorage.getItem(syncfusionKey);
+	    	content = suncfusion_container.documentEditor.serialize();
+	    } else if ( (pageContentType == constContentTypeMxGraph) && (mxGraphUI) ) {	    		
+	    	content = mxUtils.getXml(mxGraphUI.editor.getGraphXml());
+	    } else if (pageContentType == constContentTypeRecordAudio) {
+	    	content = '';
+	    } else if (pageContentType == constContentTypeRecordVideo) {
+	    	content = '';
+	    }
+
+	    //console.log('mxGraphUI=', mxGraphUI);
+
+	    return content;
+	}
+
+	function saveOtherTypesContent() {
+		window.onbeforeunload = null;
+		if (isOldVersion()) {
+			alert('Sorry, Can not save content on old version.');
+			return;
+		}
+
+		$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
+
+		var content = getCurrentContent();
+		if (content == null) {
+	    	alert('Can not get contents');
+	    	$('.btnContentSave').LoadingOverlay('hide');
+	    	return;
+	    }
+	    
+	    setStatusLock();
+		
+		
+        var s3Key;
+        var s3ObjectSize;
+        var totalUploadedSize = 0;
+        var $progressBar = $('.templateOtherTypesUploadProgress').find('.progress-bar');
+        $('.templateOtherTypesUploadProgress').removeClass('hidden');
+
+        function startUploadingOtherTypesContent() {
+            
+            function uploadToS3(data, fn) {
+                var signedURL;
+                var signedGalleryURL;
+                var signedThumbnailURL;
+                var uploadOriginalContentDeferred = $.Deferred();
+	            var uploadOriginalConentPromise = uploadOriginalContentDeferred.promise();
+                var originalXhr = null;
+                var galleryXhr = null;
+                var thumbnailXhr = null;
+
+                function preS3Upload(fn) {
+                    $.ajax({
+                        type: 'POST',
+                        timeout: 7000,
+                        url: "/memberAPI/preS3Upload",
+                        dataType: "json",
+                        data: {},
+                        success: function(data) {
+                            if (data.status === 'ok') {
+                            	console.log('preS3Upload_ok', data);
+                                s3Key = data.s3Key;
+                                signedURL = data.signedURL;
+                                signedGalleryURL = data.signedGalleryURL;
+                                signedThumbnailURL = data.signedThumbnailURL;
+                                fn(null);
+                            } else {
+                                fn("preS3Upload failed");
+                            }
+                        },
+                        error: function(data, textStatus, errorThrown) {
+                            fn("preS3Upload failed");
+                        }
+                    });
+                };
+
+                function _uploadProgress(e) {
+                    if (e.lengthComputable) {
+                        var complete = (e.loaded / e.total * 100 | 0);
+                        $progressBar.css('width', complete + '%');
+                        console.log('Uploading Original', complete);
+                    }
+                   
+                };
+
+                preS3Upload(function(err) {
+                    if (err) {
+                        fn(err);
+                    } else {
+                        totalUploadedSize += data.byteLength;
+                        $.ajax({
+                                type: 'PUT',
+                                url: signedURL,
+                                // Content type must much with the parameter you signed your URL with
+                                contentType: 'binary/octet-stream',
+                                // this flag is important, if not set, it will try to send data as a form
+                                processData: false,
+                                // the actual data is sent raw
+                                data: data,
+                                xhr: function() {
+                                    originalXhr = $.ajaxSettings.xhr();
+                                    var myXhr = $.ajaxSettings.xhr();
+                                    originalXhr = myXhr;
+                                    if (myXhr.upload) {
+                                        myXhr.upload.addEventListener('progress', _uploadProgress, false);
+                                    }
+                                    return myXhr;
+                                }
+                            })
+                            .success(function() {
+                                console.log("Original content was uploaded successfully");
+                                uploadOriginalContentDeferred.resolve();
+                                originalXhr = null;
+                            })
+                            .error(function(jqXHR, textStatus, errorThrown) {
+                                uploadOriginalContentDeferred.reject();
+                                originalXhr.abort();
+                                console.log(errorThrown);
+                            });
+                    }
+                });
+
+                $.when(uploadOriginalConentPromise).done(function() {
+                	console.log('uploadOriginalConentPromise');
+                    fn(null);
+                }).fail(function() {
+                    fn('uploadOriginalConentPromise failed');
+                    if (originalXhr) originalXhr.abort();
+                });
+            };
+
+            function postS3Upload(fn) {
+                var expandedKey;
+
+                bSafesPreflight(function(err, key) {
+                    if (err) {
+                        alert('bSafesPreflight - ' + err);
+                    } else {
+                        expandedKey = key;
+                        var envelopeIV = forge.random.getBytesSync(16);
+                        var ivEnvelopeIV = forge.random.getBytesSync(16);
+                        var keyEnvelope = encryptBinaryString(itemKey, expandedKey, envelopeIV);
+                        var ivEnvelope = encryptBinaryString(itemIV, expandedKey, ivEnvelopeIV);
+
+                        $.ajax({
+                            type: 'POST',
+                            timeout: 7000,
+                            url: "/memberAPI/postS3Upload",
+                            dataType: "json",
+                            data: {
+                                "id": s3Key,
+                                "itemId": itemId,
+                                "keyEnvelope": keyEnvelope,
+                                "ivEnvelope": ivEnvelope,
+                                "envelopeIV": envelopeIV,
+                                "ivEnvelopeIV": ivEnvelopeIV,
+                                "size": s3ObjectSize
+                            },
+                            success: function(data) {
+                                if (data.status === 'ok') {
+                                	console.log('postS3Upload_ok');
+                                    fn(null);
+                                } else {
+                                    fn("postS3Upload failed");
+                                }
+                            },
+                            error: function(data, textStatus, errorThrown) {
+                                fn("postS3Upload failed");
+                            }
+                        });
+                    }
+                });
+            };
+
+            function encryptDataInBinaryString(data, fn) {
+                var binaryStr = data;
+                console.log('encrypting', binaryStr.length);
+                var encryptedStr = encryptLargeBinaryString(binaryStr, itemKey, itemIV);
+                //console.log('decrypting', encryptedStr.length);
+                //var decryptedStr = decryptLargeBinaryString(encryptedStr, itemKey, itemIV);
+                var uint8Array = convertBinaryStringToUint8Array(encryptedStr);
+                fn(null, uint8Array);
+            };
+
+            // https://gist.github.com/skratchdot/e095036fad80597f1c1a
+		    function str2ab(str) { // ab = arraybuffer
+				//var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
+				var buf = new ArrayBuffer(str.length); // 2 bytes for each char
+				//var bufView = new Uint16Array(buf);
+				var bufView = new Uint8Array(buf);
+				for (var i = 0, strLen = str.length; i < strLen; i++) {
+					bufView[i] = str.charCodeAt(i);
+				}
+				return buf;
+			}
+
+			//var arraybufferContent = str2ab(content);
+
+			var encodedContent = forge.util.encodeUtf8(content);
+
+			//var encryptedData = encryptArrayBuffer(arraybufferContent, itemKey, itemIV);
+			//encryptArrayBufferAsync(arraybufferContent, itemKey, itemIV, function(encryptedData) {
+			encryptDataInBinaryString(encodedContent, function(err, encryptedContentDataInUint8Array) {
+				if (err) {
+                    console.log("encryptedContentDataInUint8Array failed");
+                    doneUploadingOtherTypesContent("encryptedContentDataInUint8Array failed");
+                } else {
+
+					encrypted_buffer = Utf8ArrayToStr(encryptedContentDataInUint8Array, 2000);
+					console.log('encryptedContentDataInUint8Array = ', encryptedContentDataInUint8Array);
+
+					uploadToS3(encryptedContentDataInUint8Array, function(err) {
+	                    if (err) {
+	                    	console.log('err_uploadToS3');
+	                        doneUploadingOtherTypesContent('uploadToS3:' + err);
+	                    } else {
+	                        console.log("Done uploading uploadToS3");
+	                        s3ObjectSize = encryptedContentDataInUint8Array.byteLength;
+	                        postS3Upload(function(err) {
+	                            if (err) {
+	                            	console.log('err_postS3Upload');
+	                                doneUploadingOtherTypesContent(err);
+	                            } else {
+	                                
+	                                doneUploadingOtherTypesContent(null);
+	                            }
+	                        });
+	                    }
+	                });                
+                }
+			});
+
+        };
+
+        function doneUploadingOtherTypesContent(err) {
+        	$('.btnContentSave').LoadingOverlay('hide');
+        	$( ".btnContentSave" ).attr( "disabled", "disabled" );
+        	$('.templateOtherTypesUploadProgress').addClass('hidden');
+        	$progressBar.css('width', '0%');
+        	setStatusLen();
+            if (err) {
+                alert("Ooh, please retry!\n\n" + err);
+            } else {
+                localStorage.removeItem(pageLocalStorageKey);
+                content = s3Key;
+                console.log('s3Key = ', s3Key);
+                var s3ObjectsInContent = { s3Key: s3Key, size: totalUploadedSize };
+				//var s3ObjectsSize = result.s3ObjectsSize;
+				var s3ObjectsSize = totalUploadedSize;
+
+				var encodedContent = forge.util.encodeUtf8(content);
+				var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
+				//encrypted_buffer = encryptedContent;
+
+				// insert pageContentType tag
+				var tags = $('#tagsInput').tokenfield('getTokens');
+				//tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
+				tags.push({'value': pageContentType, 'label': pageContentType});
+				var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
+				//encrypted_buffer = encryptedTags;
+				encryptedTags.push('null');
+				var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
+				var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
+
+				if (isBlankPageItem) {
+			        if (itemContainer.substring(0, 1) === 'f') {
+			            var addActionOptions = {
+			                "targetContainer": itemContainer,
+			                "targetItem": itemId,
+			                "targetPosition": itemPosition,
+			                "type": 'Page',
+			                "keyEnvelope": keyEnvelope,
+			                "ivEnvelope": ivEnvelope,
+			                "envelopeIV": envelopeIV,
+			                "ivEnvelopeIV": ivEnvelopeIV,
+			                "content": encryptedContent,
+			                "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
+			                "s3ObjectsSizeInContent": s3ObjectsSize,
+			                tags: JSON.stringify(encryptedTags),
+	                    	tagsTokens: JSON.stringify(tagsTokens)
+			            }
+
+			            $.ajax({
+			                url: '/memberAPI/addAnItemAfter',
+			                type: 'POST',
+			                dataType: 'json',
+			                data: addActionOptions,
+			                error: function(jqXHR, textStatus, errorThrown) {
+			                    $('.btnSave').LoadingOverlay('hide');
+			                    $('.btnCancel').removeClass('hidden');
+			                    alert(textStatus);
+			                },
+			                success: function(data) {
+			                    if (data.status === 'ok') {
+			                        itemCopy = data.item;
+			                        setCurrentVersion(itemCopy.version);
+			                        var item = data.item;
+			                        itemId = item.id;
+			                        itemPosition = item.position;
+			                        setupContainerPageKeyValue('itemId', itemId);
+			                        setupContainerPageKeyValue('itemPosition', itemPosition);
+			                        isBlankPageItem = false;
+			                        //doneEditing();
+			                    } else {
+			                        $('.btnSave').LoadingOverlay('hide');
+			                        $('.btnCancel').removeClass('hidden');
+			                        alert(data.err);
+			                    }
+			                },
+			                timeout: 30000
+			            });
+			        } else if (itemContainer.substring(0, 1) === 'n') {
+			            $.ajax({
+			                url: '/memberAPI/createANotebookPage',
+			                type: 'POST',
+			                dataType: 'json',
+			                data: {
+			                    "itemId": itemId,
+			                    "keyEnvelope": keyEnvelope,
+			                    "ivEnvelope": ivEnvelope,
+			                    "envelopeIV": envelopeIV,
+			                    "ivEnvelopeIV": ivEnvelopeIV,
+			                    "content": encryptedContent,
+			                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
+			                    "s3ObjectsSizeInContent": s3ObjectsSize,
+			                    tags: JSON.stringify(encryptedTags),
+	                    		tagsTokens: JSON.stringify(tagsTokens)
+			                },
+			                error: function(jqXHR, textStatus, errorThrown) {
+			                    $('.btnSave').LoadingOverlay('hide');
+			                    $('.btnCancel').removeClass('hidden');
+			                    alert(textStatus);
+			                },
+			                success: function(data) {
+			                    if (data.status === 'ok') {
+			                        itemCopy = data.item;
+			                        setCurrentVersion(itemCopy.version);
+			                        isBlankPageItem = false;
+			                        //doneEditing();
+			                    }
+			                },
+			                timeout: 30000
+			            });
+			        } else if (itemContainer.substring(0, 1) === 'd') {
+			            $.ajax({
+			                url: '/memberAPI/createADiaryPage',
+			                type: 'POST',
+			                dataType: 'json',
+			                data: {
+			                    "itemId": itemId,
+			                    "keyEnvelope": keyEnvelope,
+			                    "ivEnvelope": ivEnvelope,
+			                    "envelopeIV": envelopeIV,
+			                    "ivEnvelopeIV": ivEnvelopeIV,
+			                    "content": encryptedContent,
+			                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
+			                    "s3ObjectsSizeInContent": s3ObjectsSize,
+			                    tags: JSON.stringify(encryptedTags),
+	                    		tagsTokens: JSON.stringify(tagsTokens)
+			                },
+			                error: function(jqXHR, textStatus, errorThrown) {
+			                    $('.btnSave').LoadingOverlay('hide');
+			                    $('.btnCancel').removeClass('hidden');
+			                    alert(textStatus);
+			                },
+			                success: function(data) {
+			                    if (data.status === 'ok') {
+			                        itemCopy = data.item;
+			                        setCurrentVersion(itemCopy.version);
+			                        isBlankPageItem = false;
+			                        //doneEditing();
+			                    }
+			                },
+			                timeout: 30000
+			            });
+			        }
+			    } else {
+
+					itemCopy.tags = encryptedTags;
+					itemCopy.tagsTokens = tagsTokens;
+
+					// set content
+					itemCopy.content = encryptedContent;
+					itemCopy.s3ObjectsInContent = s3ObjectsInContent;
+					itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
+					itemCopy.update = "content";
+
+					createNewItemVersionForPage();
+				}
+
+					
+            }
+        };
+		///
+		startUploadingOtherTypesContent();
+		
+		
+	}
+
+	function saveFroalaEditorContent() {
+		window.onbeforeunload = null;
+		//$('.btnContentSave').LoadingOverlay('show', { background: "rgba(255, 255, 255, 0.0)" });
+		
+		// get drawing snapshot...
+		//var content = currentEditor.froalaEditor('html.get');
+		if (pageContentType == null) {
+			pageContentType = constContentTypeWrite;
+			$('.selectContentType').remove();
+		}
+
+	    var content = getCurrentContent();
+	    if (content == null) {
+	    	alert('Can not get contents');
+	    	$('.btnSave').LoadingOverlay('hide');
+	    	return;
+	    }
+	    
+		localStorage.removeItem(pageLocalStorageKey);
 
 	    var result = preProcessEditorContentBeforeSaving(content);
-	    content = result.content;
+	    //content = result.content;
+	    if (pageContentType != constContentTypeMxGraph) {
+	    	content = result.content;	
+	    }	
 	    var s3ObjectsInContent = result.s3ObjectsInContent;
 	    var s3ObjectsSize = result.s3ObjectsSize;
 
@@ -969,6 +1548,19 @@
 	            });
 	        }
 	    } else {
+	    	// insert pageContentType tag
+	    	var tags = $('#tagsInput').tokenfield('getTokens');
+			//tags.push({'value': constContentTypeDraw, 'label': constContentTypeDraw});
+			tags.push({'value': pageContentType, 'label': pageContentType});
+			var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
+			//encrypted_buffer = encryptedTags;
+			encryptedTags.push('null');
+			var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
+			var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
+	    	itemCopy.tags = encryptedTags;
+			itemCopy.tagsTokens = tagsTokens;
+
+			// set content
 	        itemCopy.content = encryptedContent;
 	        itemCopy.s3ObjectsInContent = s3ObjectsInContent;
 	        itemCopy.s3ObjectsSizeInContent = s3ObjectsSize;
@@ -977,101 +1569,6 @@
 	        createNewItemVersionForPage();
 
 	    }
-	};
-
-	function saveNewComment() {
-	    if (isBlankPageItem) {
-	        return;
-	    }
-	    var content = currentEditor.froalaEditor('html.get');
-	    content = preProcessEditorContentBeforeSaving(content).content;
-
-	    var encodedContent = forge.util.encodeUtf8(content);
-	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
-	    encrypted_buffer = encryptedContent;
-
-	    if (isBlankPageItem) {
-	        return;
-	    } else {
-	        itemCopy.content = encryptedContent;
-	        $.post('/memberAPI/saveNewPageComment', {
-	            itemId: itemId,
-	            content: encryptedContent
-	        }, function(data, textStatus, jQxhr) {
-	            if (data.status === 'ok') {
-
-	                var $comment = $('.commentTemplate').clone().removeClass('commentTemplate hidden').addClass('comment');
-	                var id = data.id;
-	                $comment.data("id", id);
-	                var writerName = "You";
-	                var creationTime = "Created, " + formatTimeDisplay(data.creationTime);
-	                id = "comment-" + data.creationTime;
-	                $comment.attr('id', id);
-	                $comment.find('.btnWrite').attr('id', id);
-	                $comment.find('.btnWrite').on('click', handleBtnWriteClicked);
-	                $comment.find('.fa-pencil').attr('id', id);
-	                $comment.find('.froala-editor').attr('id', id);
-	                $comment.find('.commentWriterName').html(writerName);
-	                $comment.find('.commentCreationTime').html(creationTime);
-	                $comment.find('.froala-editor').html(content);
-	                var $commentsSearchResults = $('.commentsSearchResults');
-	                $commentsSearchResults.append($comment);
-
-	                var $thisEditor = $('.froala-editor#newComment');
-	                $thisEditor.on('froalaEditor.html.set', function(e, editor) {
-	                    doneEditing();
-	                });
-	                $thisEditor.froalaEditor('html.set', "");
-	            }
-	        }, 'json');
-	    }
-	};
-
-	function updateComment() {
-	    var id = currentEditor.closest('.comment').data("id");
-	    var commentId = id.split("-")[1];
-	    if (isBlankPageItem) {
-	        return;
-	    }
-	    var $comment = currentEditor.closest('.comment');
-	    var content = currentEditor.froalaEditor('html.get');
-	    content = preProcessEditorContentBeforeSaving(content).content;
-
-	    var encodedContent = forge.util.encodeUtf8(content);
-	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
-
-	    if (isBlankPageItem) {
-	        return;
-	    } else {
-	        $.post('/memberAPI/updatePageComment', {
-	            itemId: itemId,
-	            commentId: commentId,
-	            content: encryptedContent
-	        }, function(data, textStatus, jQxhr) {
-	            if (data.status === 'ok') {
-	                var lastUpdateTime = "Updated, " + formatTimeDisplay(data.lastUpdateTime);
-	                $comment.find('.commentLastUpdateTime').html(lastUpdateTime);
-	                $comment.find('.commentLastUpdateTimeRow').removeClass('hidden');
-	                doneEditing();
-	            }
-	        }, 'json');
-	    }
-	}
-
-	function saveImageWords() {
-	    var content = currentEditor.froalaEditor('html.get');
-	    var tempElement = $('<div></div>');
-	    tempElement.html(content);
-
-	    content = tempElement.html();
-	    var encodedContent = forge.util.encodeUtf8(content);
-	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
-
-	    var index = currentEditorId.split('-')[1];
-	    itemCopy.images[index].words = encryptedContent;
-	    itemCopy.update = "image words";
-	    createNewItemVersionForPage();
-
 	};
 
 	function initializeEditorButtons() {
@@ -1518,7 +2015,7 @@
 	                            }
 	                            console.log('s3Key:', s3Key);
 	                            signedURL = data.signedURL;
-	                            console.log('signedURL:', signedURL);
+	                            //console.log('signedURL:', signedURL);
 	                            fn(null, s3Key, signedURL);
 	                        } else {
 	                            fn(data.error);
@@ -1905,7 +2402,7 @@
 	                        var uploadGalleryImgDeferred = $.Deferred();
 	                        var uploadGalleryImgPromise = uploadGalleryImgDeferred.promise();
 	                        var uploadThumbnailImgDeferred = $.Deferred();
-	                        var uploadThumbnailImgPromise = uploadThumbnailImgDeferred.promise();
+	                        var uploadThumbnailImgPromise = uploadThumbnailImgDeferred.promise();	                        
 	                        var originalXhr = null;
 	                        var galleryXhr = null;
 	                        var thumbnailXhr = null;
@@ -2298,6 +2795,7 @@
 	                itemCopy.update = "images";
 	                createNewItemVersionForPage();
 	            };
+
 	            if (err) {
 	                console.log(err);
 	            } else {
@@ -2721,11 +3219,25 @@
 	    $('.imagePanel').remove();
 	    $('.attachment').remove();
 	    $('.comment').remove();
-	    $('.imageBtnRow').removeClass('hidden')
+	    $('.imageBtnRow').removeClass('hidden');
+
+	    // edi_start
+	    $('.contentsWrapper').remove();
+	    $('.contentContainer').remove();
+	    $('.btnFloatingCanvasSave').remove();
+	    $('.btnFloatingMinimize').remove();
+	    $('.templateOtherTypesStatusAndProgress').remove();
+	    $('.templateOtherTypesUploadProgress').remove();
+	    $('.widgetIcon').remove();
+	    $('.selectContentType').remove();
+	    $('.btnWrite.editControl#content').removeClass('hidden');
+		$('.btnWrite.btnEditor#content').removeClass('hidden');
 	}
 
 	function getPageItem(thisItemId, thisExpandedKey, thisPrivateKey, thisSearchKey, done, thisVersion) {
-	    oldVersion = "undefined"
+		pageContentType = null;
+	    oldVersion = "undefined";
+
 	    if (!thisVersion) {
 	        expandedKey = thisExpandedKey;
 	        privateKey = thisPrivateKey;
@@ -2834,14 +3346,39 @@
 	                                    var encryptedTag = encryptedTags[i];
 	                                    var encodedTag = decryptBinaryString(encryptedTag, itemKey, itemIV);
 	                                    var tag = forge.util.decodeUtf8(encodedTag);
-	                                    itemTags.push(tag);
+
+	                                    if ($.inArray(tag, [constContentTypeWrite, constContentTypeDraw, constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph, constContentTypeRecordAudio, constContentTypeRecordVideo]) > -1) {
+											pageContentType = tag;
+										} else {
+											itemTags.push(tag);
+										}
+	                                    
+	                                    // if (tag == constContentTypeWrite) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeDraw) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeSpreadsheet) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeDoc) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeMxGraph) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeRecordAudio) {
+	                                    // 	pageContentType = tag;
+	                                    // } else if (tag == constContentTypeRecordVideo) {
+	                                    // 	pageContentType = tag;
+	                                    // } else {
+	                                    // 	itemTags.push(tag);
+	                                    // }
 	                                } catch (err) {
 	                                    alert(err);
 	                                }
 	                            }
 	                            $('#tagsInput').tokenfield('setTokens', itemTags);
+	                            
 	                        };
 
+	                        
 	                        if (!thisVersion) {
 	                            initializeTagsInput();
 	                        } else {
@@ -2868,10 +3405,12 @@
 	                        $('.froala-editor#title').removeClass('loading');
 
 	                        getAndShowPath(itemId, envelopeKey, teamName, titleText);
+
+	                        var content = null;
 	                        if (item.content) {
 	                            try {
 	                                var encodedContent = decryptBinaryString(item.content, itemKey, itemIV);
-	                                var content = forge.util.decodeUtf8(encodedContent);
+	                                content = forge.util.decodeUtf8(encodedContent);
 	                                DOMPurify.addHook('afterSanitizeAttributes', function(node) {
 	                                    // set all elements owning target to target=_blank
 	                                    if ('target' in node) {
@@ -2885,25 +3424,24 @@
 	                                    }
 	                                });
 	                                content = DOMPurify.sanitize(content);
+	                                // if (pageContentType != constContentTypeMxGraph) {
+	                                // 	content = DOMPurify.sanitize(content);	
+	                                // }	                                
+	                                if ( content && (pageContentType == null) ) { // old case...
+			                        	pageContentType = constContentTypeWrite;
+			                        }
+			                        console.log('load_pageContentType = ', pageContentType);
+			                        console.log('load_content = ', content);
+
 	                                $('.froala-editor#content').removeClass('loading');
-	                                $('.froala-editor#content').html(content);
+
+	                                
 	                            } catch (err) {
 	                                alert(err);
 	                            }
-	                            downloadContentImageObjects();
-	                            handleVideoObjects();
-	                        }
-
-	                        if (localStorage.getItem(itemId)) {
-                            	if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
-							    	flgIsLoadingFromLocalStorage = true;
-							    	contentsFromServer = $('.froala-editor#content').html();
-							    	$('.froala-editor#content').html(localStorage.getItem(itemId));							    	
-							    	//$('.btnWrite.editControl#content').trigger( "click" );
-								} else {
-								    localStorage.removeItem(itemId);
-								}
-                            }
+	                            // downloadContentImageObjects();
+	                            // handleVideoObjects();   	                            
+	                        } 
 
 	                        if (item.images && item.images.length) {
 	                            function downloadAndDisplayImages() {
@@ -3056,6 +3594,7 @@
 	                            $download.off();
 	                            $download.click(queueDownloadEvent);
 	                        }
+
 	                        if (!thisVersion || thisVersion === currentVersion) {
 	                            enableEditControls();
 	                            /*initializeEditorButtons();
@@ -3066,9 +3605,13 @@
 	                            disableEditControls();
 	                        }
 
-	                        if (flgIsLoadingFromLocalStorage) {
-		                		$('.btnWrite.editControl#content').trigger( "click" );	
-		                	}	
+	                        
+                            if ($('.contentContainer').length > 0) {
+                            	//$('.contentContainer').remove();
+                            	$('.contentContainer').addClass('hidden');
+                            }
+                            initContentView(content);
+
 	                    }
 	                    if (itemSpace.substring(0, 1) === 'u') {
 	                        $('.navbarTeamName').text("Yours");
@@ -3170,6 +3713,8 @@
 	                                done(null, null);
 	                            }
 	                        });
+
+	                        addSelectContentTypeView();
 	                    } else {
 	                        done(null, null);
 	                    }
@@ -3196,7 +3741,7 @@
 	    addButtonLock();
 	    addSnippet();
 	    modifyPrevnextButton();
-	    backupContentsInLocalStorage();
+	    //backupContentsInLocalStorage();
 	}
 
 	function handleMoveAnItem(e) {
@@ -3217,16 +3762,1047 @@
 	    return false;
 	}
 
+	function saveContentInLocalStorage() {
+		if (pageContentType == null) {
+			pageLocalStorageKey = itemId + constContentTypeWrite;
+		} else {
+			pageLocalStorageKey = itemId + pageContentType;	
+		}
+		
+		var current_contents = getCurrentContent();
+		localStorage.setItem(pageLocalStorageKey, current_contents);
+		console.log('pageLocalStorageKey, current_contents', pageLocalStorageKey, current_contents);
+		$( ".btnContentSave" ).removeAttr( "disabled" );
+	}
+
 	var backupContentsInLocalStorage = function() {
-	    if (editorContentsStatus) {
-	    	var current_contents = currentEditor.froalaEditor('html.get');
-	    	if (lastEditorContent != current_contents) {
-	    		console.log('originalEditorContent', originalEditorContent);
-	    		console.log('current_contents', current_contents);	
-	    		localStorage.setItem(itemId, current_contents);
+		window.onbeforeunload = null;
+		//console.log('backupContentsInLocalStorage, pageContentType', pageContentType);
+		if (isOldVersion()) {
+		} else if (pageContentType) {
+	    	var flg = true;
+	    	if ( (pageContentType == constContentTypeWrite) && !editorContentsStatus ) {
+	    		flg = false;
 	    	}
-	    	lastEditorContent = current_contents;
-	    	
+
+	    	if (flg) {
+	    		//var current_contents = currentEditor.froalaEditor('html.get');
+		    	var current_contents = getCurrentContent();
+		    	if (lastContent == undefined) {
+		    		lastContent = current_contents;
+		    	} else if ( (current_contents != null) && (lastContent != current_contents) ) {
+		    		console.log('lastContent', lastContent);
+		    		console.log('current_contents', current_contents);	
+		    		pageLocalStorageKey = itemId + pageContentType;
+		    		console.log('save chagned contents(pageLocalStorageKey)', pageLocalStorageKey);
+		    		localStorage.setItem(pageLocalStorageKey, current_contents);
+		    		lastContent = current_contents;	
+		    	}
+		    	//lastContent = current_contents;	  
+	    	}
+	    	  	
 	    }
 	    setTimeout(backupContentsInLocalStorage, 3000);
 	}; 
+
+	function addSelectContentTypeView()
+	{
+		if (isOldVersion())	{
+			return;
+		}
+		
+		$('.btnWrite.editControl#content').after( html_selectContentType );
+		
+		$('.selectContentType').click(function(e) {
+			$('#selectContentTypeModal').modal('show');
+			return false;
+		});
+	}
+
+	function showCanvasLoadingPage(){			
+		$(".froala-editor").LoadingOverlay("show", {
+	        image: "",
+	        fontawesome: "fa fa-circle-o-notch fa-spin",
+	        maxSize: "38px",
+	        minSize: "36px",
+	        background: "rgba(255, 255, 255, 0.0)"
+	    });
+	}
+
+	function hideCanvasLoadingPage() {
+	    $(".froala-editor").LoadingOverlay("hide");
+	};
+
+	function addSelectContentTypeModal()
+	{
+		var htmlSelectContentTypeModal = `
+			<div class="modal fade in" id="selectContentTypeModal" tabindex="-1" role="dialog" aria-labelledby="selectContentTypeModal" aria-hidden="true" style="display: none; padding-right: 17px;">
+				<div class="modal-dialog">
+					<div class="modal-content" style="overflow: hidden;">
+						<div class="modal-header">
+							<button type="button" class="close" id="closeSelectContentTypeModal" data-dismiss="modal" aria-hidden="true">×</button>
+							<h4 class="modal-title" id="moveItemsModalLabel">Please Select a Type</h4>
+						</div>
+						<div class="modal-body" style="max-height: 336px; overflow-y: auto;">
+							
+							<div class="list-group containersList">
+								<a href="#" class="list-group-item contentTypeItem contentTypeWrite">
+									<em class="fontSize18Px">Write</em>
+								</a>
+								<a href="#" class="list-group-item contentTypeItem contentTypeDraw">
+									<em class="fontSize18Px">Draw</em>
+								</a>
+								<a href="#" class="list-group-item contentTypeItem contentTypeSpreadsheet">
+									<em class="fontSize18Px">Spreadsheet</em>
+								</a>
+								<a href="#" class="list-group-item contentTypeItem contentTypeDoc">
+									<em class="fontSize18Px">Doc</em>
+								</a>
+								<a href="#" class="list-group-item contentTypeItem contentTypeMxGraph">
+									<em class="fontSize18Px">Diagram</em>
+								</a>
+								<a href="#" class="list-group-item contentTypeItem contentTypeRecordAudio">
+									<em class="fontSize18Px">Recording Audio</em>
+								</a>
+								<a href="#" class="list-group-item contentTypeItem contentTypeRecordVideo">
+									<em class="fontSize18Px">Recording Video</em>
+								</a>
+							</div>
+						</div>
+					</div>
+				<!-- /.modal-content -->
+				</div>
+			<!-- /.modal-dialog -->
+			</div>
+		`;
+
+		$(htmlSelectContentTypeModal).appendTo('body');
+
+		$('.contentTypeItem').click(function(e) {	
+			e.preventDefault();	
+
+			var $contentTypeItem = $(e.target);
+			if (e.target.tagName == 'EM') {
+				$contentTypeItem = $(e.target.parentNode);
+			}
+
+		    if ($contentTypeItem.hasClass('contentTypeWrite')) {
+		    	pageContentType = constContentTypeWrite;
+		    	//$('.btnWrite.editControl#content').trigger("click");
+		    } else if ($contentTypeItem.hasClass('contentTypeDraw')) {
+		    	pageContentType = constContentTypeDraw;
+		    } else if ($contentTypeItem.hasClass('contentTypeSpreadsheet')) {
+		    	pageContentType = constContentTypeSpreadsheet;
+		    } else if ($contentTypeItem.hasClass('contentTypeDoc')) {
+		    	pageContentType = constContentTypeDoc;
+		    } else if ($contentTypeItem.hasClass('contentTypeMxGraph')) {
+		    	pageContentType = constContentTypeMxGraph;
+		    } else if ($contentTypeItem.hasClass('contentTypeRecordAudio')) {
+		    	pageContentType = constContentTypeRecordAudio;
+		    } else if ($contentTypeItem.hasClass('contentTypeRecordVideo')) {
+		    	pageContentType = constContentTypeRecordVideo;
+		    } else {
+		    	alert('Select the correct type.');
+		    	return;
+		    }
+
+		    $('#selectContentTypeModal').modal('hide');
+			$('.selectContentType').addClass('hidden');
+
+		    console.log('clicked the type: ' + pageContentType);
+			initContentView(null);	
+			return;
+			showCanvasLoadingPage();
+			loadLibrayJsCss(pageContentType, function() {
+				// if ($.inArray(pageContentType, [constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph]) > -1) {
+				// 	$('.widgetIcon').trigger('click');
+				// }
+				loadDataInContentView(null);
+				hideCanvasLoadingPage();
+				console.log('loaded library.');
+			});
+		})
+		
+	}
+
+	addSelectContentTypeModal();
+
+	function addTemplateOtherTypesStatusAndProgress()
+	{
+		var html_tmp = `<div class="templateOtherTypesStatusAndProgress">
+							<div class="uploadText downloadText"></div>
+							<div class="progress progress-striped active marginTop20Px marginBottom0Px">
+			                	<div class="sceneControl progress-bar width0Percent"></div>
+			                </div>
+		                </div>
+        `;
+
+        $('.btnWrite.editControl#content').parent().after(html_tmp);
+        $tmp = $('.templateOtherTypesStatusAndProgress');
+
+        return($tmp);
+	}
+
+	function addTemplateOtherTypesUploadProgress()
+	{
+		var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" style="position: fixed;
+					    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;">
+							<div class="progress progress-striped active marginTop20Px marginBottom0Px">
+			                	<div class="sceneControl progress-bar width0Percent"></div>
+			                </div>
+		                </div>
+        `;
+
+        $('.contentsWrapper').append(html_tmp);
+        
+        $tmp = $('.templateOtherTypesUploadProgress');
+
+        return($tmp);
+	}
+
+	function loadLibrayJsCss(content_type, done)
+	{
+		if ($('.contentContainer').length > 0) {
+			done(null);
+			return;
+		}
+
+		if ((content_type == null) || (content_type == constContentTypeWrite)) {
+			done(null);
+			return;
+		}
+
+		function loadCSS(href) 
+		{
+			var cssLink = $("<link>");
+			$("head").append(cssLink);
+			cssLink.attr({
+				rel:  "stylesheet",
+				type: "text/css",
+				href: href
+			});
+		};
+
+		function loadJS(jsFile, done)
+		{
+			$(function (d, s, id) {
+			    'use strict';
+
+			    var js, fjs = d.getElementsByTagName(s)[0];
+			    js = d.createElement(s);
+			    js.onload = function() {
+			      done();
+			    };
+			    js.src = jsFile;
+				js.setAttribute("crossorigin", "anonymous");
+			    // fjs.parentNode.insertBefore(js, fjs);
+				if (typeof fjs === 'undefined') {
+					document.body.appendChild(js);
+				} else {
+					fjs.parentNode.insertBefore(js, fjs);	
+				}
+
+			}(document, 'script', 'forge'));	
+		}
+		
+		function loadCSSInIframe(href) 
+		{
+			var cssLink = $("<link>");
+			$("iframe").append(cssLink);
+			cssLink.attr({
+				rel:  "stylesheet",
+				type: "text/css",
+				href: href
+			});
+		};
+
+		function loadJSInIframe(jsFile, done)
+		{
+			var iframe_body = $("#frame_doc").contents().find("body");
+			// $(function (d, s, id) {
+			//     'use strict';
+
+			//     var js, fjs = d.getElementsByTagName(s)[0];
+			//     js = d.createElement(s);
+			//     js.onload = function() {
+			//       done();
+			//     };
+			//     js.src = jsFile;
+			// 	js.setAttribute("crossorigin", "anonymous");
+			//     fjs.parentNode.insertBefore(js, fjs);
+
+			// }(iframe_body, 'script', 'forge'));	
+			
+			var js, fjs = iframe_body.getElementsByTagName(s)[0];
+		    js = iframe_body.createElement('script');
+		    js.onload = function() {
+		      done();
+		    };
+		    js.src = jsFile;
+			js.setAttribute("crossorigin", "anonymous");
+		    fjs.parentNode.insertBefore(js, fjs);
+
+		}
+
+		function addContentWidget()
+		{
+			// content widget
+			if (content_type == constContentTypeDraw) {
+				$('.pageRow.editorRow').append('<div class="contentContainer" style="margin-left:10px; margin-right:10px;"></div>');
+				var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" >
+									<div class="progress progress-striped active marginLeft10Px marginRight10Px">
+					                	<div class="sceneControl progress-bar width0Percent"></div>
+					                </div>
+				                </div>
+		        `;
+
+		        $('.contentContainer').after(html_tmp);
+				return;
+			} else { // fullscreen
+				
+				$('body').append('<div class="contentsWrapper"><div class="contentContainer"></div></div>');
+				var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" style="position: fixed;
+							    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;">
+									<div class="progress progress-striped active marginTop20Px marginBottom0Px">
+					                	<div class="sceneControl progress-bar width0Percent"></div>
+					                </div>
+				                </div>
+		        `;
+
+		        $('.contentsWrapper').append(html_tmp);
+				//addTemplateOtherTypesUploadProgress();
+			}			
+		}
+
+		addContentWidget();
+
+		function addIconAndButtons()
+		{
+			// process edit button...
+			if (content_type == constContentTypeWrite) {				
+			} else {
+				$('.btnWrite.editControl#content').addClass('hidden');
+				$('.btnWrite.btnEditor#content').addClass('hidden');
+			}
+
+			// content icon
+			var icon_src = null;
+			if (content_type == constContentTypeSpreadsheet) {
+				icon_src = iconSpreadsheet;
+			} else if (content_type == constContentTypeDoc) {
+				icon_src = iconDoc;
+			} else if (content_type == constContentTypeMxGraph) {
+				icon_src = iconDiagram;
+			}
+
+			if (icon_src) {
+				$('.pageRow.editorRow').append('<div class="widgetIcon text-center"></div>');
+				$('<img />', {
+				    src: icon_src,
+				    width:'200px'
+				}).appendTo($('.widgetIcon').empty());			
+
+				$('.widgetIcon').click(function(e) {
+					e.preventDefault();	
+					noScroll();
+					window.addEventListener('scroll', noScroll);
+
+					$('.contentContainer').removeClass('hidden');
+					$('.btnMinimize').removeClass('hidden');
+					$('.btnContentSave').removeClass('hidden');
+
+					function hidePage() {
+						$(".sample-browser").removeClass('hidden');
+						$(".navbar").addClass('hidden');
+						$(".pathRow").addClass('hidden');
+						$(".pagePanel").addClass('hidden');
+						$(".btnEditor").addClass('hidden');
+						$(".itemNavigationRow").addClass('hidden');
+						//alert('hidePage');
+					}
+					hidePage();
+
+					$('.contentContainer').css({
+				        'display': 'block',
+						'z-index': '9999',
+						'position': 'fixed',
+						'width': '100%',
+						'height': '100%',
+						'top': '0',
+						'right': '0',
+						'left': '0',
+						'bottom': '0',
+						'overflow': 'auto',
+						'margin-left': '10px'
+				    });
+
+				    if (content_type == constContentTypeSpreadsheet) {
+				    	$("#spreadsheet").data("kendoSpreadsheet").resize();
+				    } 
+				});
+			}
+
+			// content minimize button
+			if (icon_src) {
+				var htmlButton = `
+					<div class="btn btnFloatingMinimize btnFloating btnMinimize" style="">
+						<i class="fa fa-times fa-2x" aria-hidden="true"></i>
+					</div>
+				`;
+				$('body').after( htmlButton );
+				$('.btnMinimize').click(function(e) {
+					e.preventDefault();	
+					$('.btnMinimize').addClass('hidden');
+					$('.btnContentSave').addClass('hidden');
+					$('.contentContainer').addClass('hidden');
+					window.removeEventListener('scroll', noScroll);
+
+					function showPage() {
+					
+						$(".navbar").removeClass('hidden');
+						$(".pathRow").removeClass('hidden');
+						$(".pagePanel").removeClass('hidden');
+						//$(".btnEditor").removeClass('hidden');
+						$(".itemNavigationRow").removeClass('hidden');
+					}
+					showPage();
+
+					if (pageContentType == constContentTypeMxGraph) {
+						mxEvent.removeListener(window, 'scroll', mxGraphUI.scrollHandler);	
+					} 
+				});
+			}
+
+			// conent save button
+			var htmlButton = `
+				<div class="btn btnFloatingCanvasSave btnFloating btnContentSave" style="">
+					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
+				</div>
+			`;
+			$('body').after( htmlButton );	
+
+			//if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > -1) {
+			if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw, constContentTypeRecordAudio, constContentTypeRecordVideo]) > -1) {
+				$('.btnFloatingCanvasSave').css('right', $('.btnFloatingWrite').css('right'));
+			} else {
+				$('.btnFloatingCanvasSave').css('right', "20px");
+			}
+
+			$( ".btnContentSave" ).attr( "disabled", "disabled" );
+			if (isOldVersion()) {
+				//$( ".btnContentSave" ).attr( "disabled", "disabled" );
+			} else {
+				$('.btnContentSave').click(function(e) {
+					e.preventDefault();									
+					saveOtherTypesContent();				
+				});
+			}
+			
+		}
+
+		if (content_type == constContentTypeDraw) {
+			
+			loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
+			loadCSS('/javascripts/libraryInit/literallycanvas.css');
+
+			//loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
+			loadJS('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-with-addons.js', function() {
+				//loadJS("/javascripts/literallycanvas/js/react-dom.js", function() {
+				loadJS('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js', function() {
+					loadJS('/javascripts/libraryInit/literallycanvas.js', function() {
+						$( ".contentContainer" ).attr('id', 'literallycanvas');
+						lc = LC.init(
+				            document.getElementsByClassName('contentContainer')[0], 
+				            	{imageURLPrefix: '/javascripts/literallycanvas/img',
+				            	//{imageURLPrefix: 'https://github.com/literallycanvas/literallycanvas/blob/master/lib/img',
+				            	backgroundColor: 'whitesmoke'}
+				        );
+				        //lc.loadSnapshotJSON('{"shapes":[],"colors":{"primary":"#000","secondary":"#fff","background":"black"}}');
+				        addIconAndButtons();
+						done(null);
+					});
+				});
+			});
+		} else if (content_type == constContentTypeSpreadsheet) {
+			spreedsheetKey = itemId + 'SpreedsheetContent';
+
+    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.common-material.min.css');
+    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.rtl.min.css');
+    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.min.css');
+    		loadCSS('https://kendo.cdn.telerik.com/2019.2.619/styles/kendo.material.mobile.min.css');
+    		loadCSS('/javascripts/libraryInit/kendo.examples.css');
+    		//loadCSS('http://localhost:8000/javascripts/kendo/css/kendo.examples.css');
+
+			loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/jszip.min.js", function() {
+				loadJS("https://kendo.cdn.telerik.com/2019.2.619/js/kendo.all.min.js", function() {
+					
+					addIconAndButtons();
+					done(null);
+				});
+			});				
+		} else if (content_type == constContentTypeDoc) {
+			//$('head').append('<meta http-equiv="Content-Security-Policy" content="unsafe-inline" />');
+			//$('meta[http-equiv="Content-Security-Policy"]').remove();
+			syncfusionKey = itemId + 'SyncfusionWordContent';
+
+
+			var template = `
+				<div class="control-section">
+					<title>Essential JS 2 - DocumentEditor</title>
+					<div id="panel" style="height: 100%;">
+						<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
+						<div id="documenteditor_container_body" style="display: flex;position:relative; height:100%">
+							<div id="syncfusion_container" style="width: 100%; height: 100%;"></div>
+						</div>
+					</div>
+				</div>
+			`;
+
+
+
+			
+			$(".contentContainer").css("border", "1px solid red;");
+			$(".contentContainer").append(template);
+
+			loadCSS('/javascripts/syncfusion/css/material.css');				
+			//loadCSS('https://cdn.syncfusion.com/ej2/material.css');				
+			loadCSS('https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.css');
+			//loadCSS('/javascripts/libraryInit/syncfusion.docEditor.css');
+			
+			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
+			//loadJS('https://cdn.syncfusion.com/ej2/dist/ej2.min.js', function() {
+				//loadJS("http://localhost:8000/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+				loadJS("https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+				//loadJS("/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+					
+					//$('.contentContainer').attr('id', 'syncfusion_documenteditor');
+					//$("body").css({"touch-action":"none"});
+					//noScroll();
+					//window.addEventListener('scroll', noScroll);
+
+					
+					addIconAndButtons();
+					done(null);					
+				});
+			});
+		} else if (content_type == constContentTypeMxGraph) {
+			$('.contentContainer').addClass('geEditor');
+			$('.contentContainer').attr('id', 'editor-ui-container');
+			mxRoot = '/javascripts/';
+
+			loadCSS('/javascripts/grapheditor/styles/grapheditor.css');
+
+			loadJS('/javascripts/grapheditor/grapheditorOptions.js', function() {
+			//loadJS('http://localhost:8000/javascripts/grapheditor/grapheditorOptions.js', function() {
+			loadJS('/javascripts/grapheditor/js/Init.js', function() {
+			loadJS('/javascripts/grapheditor/deflate/pako.min.js', function() {
+			loadJS('/javascripts/grapheditor/deflate/base64.js', function() {
+			loadJS('/javascripts/grapheditor/jscolor/jscolor.js', function() {
+			loadJS('/javascripts/grapheditor/sanitizer/sanitizer.min.js', function() {
+			loadJS('/javascripts/grapheditor/mxClient/mxClient.js', function() {
+			//loadJS('http://localhost:8000/javascripts/grapheditor/mxClient/mxClient.js', function() {
+			loadJS('/javascripts/grapheditor/js/EditorUi.js', function() {
+			//loadJS('http://localhost:8000/javascripts/grapheditor/js/Editor.js', function() {
+			loadJS('/javascripts/grapheditor/js/Editor.js', function() {
+			loadJS('/javascripts/grapheditor/js/Sidebar.js', function() {
+			loadJS('/javascripts/grapheditor/js/Graph.js', function() {
+			loadJS('/javascripts/grapheditor/js/Format.js', function() {
+			loadJS('/javascripts/grapheditor/js/Shapes.js', function() {
+			loadJS('/javascripts/grapheditor/js/Actions.js', function() {
+			loadJS('/javascripts/grapheditor/js/Menus.js', function() {
+			//loadJS('http://localhost:8000/javascripts/grapheditor/js/Toolbar.js', function() {
+			loadJS('/javascripts/grapheditor/js/Toolbar.js', function() {
+				loadJS('/javascripts/grapheditor/js/Dialogs.js', function() {
+					//loadJS('/javascripts/grapheditor/index.js', function() {
+						addIconAndButtons();						
+						done(null);
+					//});
+				});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+		} else if (content_type == constContentTypeRecordAudio) {
+			$('head').append('<meta http-equiv="Content-Security-Policy" content="worker-src blob:" />');
+			var server_addr = 'http://localhost:8000';
+			loadCSS(server_addr + '/javascripts/videojsRecord/css/video-js.min.css');
+			loadCSS(server_addr + '/javascripts/videojsRecord/css/videojs.wavesurfer.min.css');
+			loadCSS(server_addr + '/javascripts/videojsRecord/css/videojs.record.min.css');
+
+			loadJS(server_addr + '/javascripts/videojsRecord/js/video.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/RecordRTC.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/adapter.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/wavesurfer.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/wavesurfer.microphone.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/videojs.wavesurfer.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/videojs.record.min.js', function() {
+			loadJS(server_addr + '/javascripts/videojsRecord/js/browser-workarounds.js', function() {
+			//loadJS(server_addr + '/javascripts/videojsRecord/js/index.js', function() {
+
+				$('.contentContainer').attr('id', 'myRecordAudio');
+				$('.contentContainer').addClass('video-js vjs-default-skin');
+
+				var options = {
+				    controls: true,
+				    width: 600,
+				    height: 300,
+				    fluid: false,
+				    plugins: {
+				        wavesurfer: {
+				            src: 'live',
+				            waveColor: '#36393b',
+				            progressColor: 'black',
+				            debug: true,
+				            cursorWidth: 1,
+				            msDisplayMax: 20,
+				            hideScrollbar: true
+				        },
+				        record: {
+				            audio: true,
+				            video: false,
+				            maxLength: 20,
+				            debug: true
+				        }
+				    }
+				};
+
+				// apply audio workarounds for certain browsers
+				applyAudioWorkaround();
+
+				// create player
+				objRecordAudio = videojs('myRecordAudio', options, function() {
+				    // print version information at startup
+				    var msg = 'Using video.js ' + videojs.VERSION +
+				        ' with videojs-record ' + videojs.getPluginVersion('record') +
+				        ', videojs-wavesurfer ' + videojs.getPluginVersion('wavesurfer') +
+				        ', wavesurfer.js ' + WaveSurfer.VERSION + ' and recordrtc ' +
+				        RecordRTC.version;
+				    videojs.log(msg);
+				});
+
+				// error handling
+				objRecordAudio.on('deviceError', function() {
+				    console.log('device error:', objRecordAudio.deviceErrorCode);
+				    alert('device error: ' + objRecordAudio.deviceErrorCode);
+				});
+
+				objRecordAudio.on('error', function(element, error) {
+				    console.error(error);
+				    alert(error);
+				});
+
+				// user clicked the record button and started recording
+				objRecordAudio.on('startRecord', function() {
+				    console.log('started recording!');
+				});
+				// user completed recording and stream is available
+				objRecordAudio.on('finishRecord', function() {
+				    // the blob object contains the recorded data that
+				    // can be downloaded by the user, stored on server etc.
+				    console.log('finished recording: ', objRecordAudio.recordedData);
+				});
+
+				addIconAndButtons();						
+				done(null);
+			//});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+			});
+		} else if (content_type == constContentTypeRecordVideo) {
+		}
+
+	}
+
+	function isOldVersion()
+	{
+		var isOld = false;
+
+		if ((oldVersion != undefined) && (oldVersion < currentVersion)) {
+			isOld = true;
+		}
+
+		return isOld;
+	}
+
+	function noScroll() {
+		$(window).scrollTop(0);
+	}
+
+	function timerSaveSpreedsheet()
+	{
+		spreadsheet
+        .saveJSON()
+        .then(function(data){
+            var json = JSON.stringify(data, null, 2);
+            localStorage.setItem(spreedsheetKey, json);
+            //setTimeout(timerSaveSpreedsheet, 3000); 
+        });
+	}
+
+	function loadDataInContentView(contentJSON) {
+    	if (pageContentType == constContentTypeWrite) {
+    		if (contentJSON != null) {
+    			$('.froala-editor#content').html(contentJSON);	
+				downloadContentImageObjects();
+	            handleVideoObjects();	
+
+				if (flgIsLoadingFromLocalStorageForWrite) {
+	        		$('.btnWrite.editControl#content').trigger( "click" );	
+	        	}	
+    		}	
+
+		} else if (pageContentType == constContentTypeDraw) {			
+	        if (contentJSON != null)
+	        {
+	        	lc.loadSnapshot(JSON.parse(contentJSON));
+	        }
+	        var unsubscribe = lc.on('drawingChange', function(arguments) {
+				saveContentInLocalStorage();
+			});
+		} else if (pageContentType == constContentTypeSpreadsheet) {	
+			$('#spreadsheet').remove();
+			$('.contentContainer').append('<div id="spreadsheet"></div>');
+			$('#spreadsheet').css('width', '99%');
+			$('#spreadsheet').css('height', '99%');
+			$("#spreadsheet").kendoSpreadsheet({change: onSpreadsheetChange});
+			spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+			//spreadsheet.resize();								
+
+			if (contentJSON != null) {
+				spreadsheet.fromJSON(JSON.parse(contentJSON));					
+				//spreadsheet.resize();
+			} 
+
+			function onSpreadsheetChange(arg) {
+				spreadsheet
+		        .saveJSON()
+		        .then(function(data){
+		            var json = JSON.stringify(data, null, 2);
+		            localStorage.setItem(spreedsheetKey, json);
+		            saveContentInLocalStorage();
+		        });
+			}
+
+			// trigger fullscreen...
+			$('.widgetIcon').trigger('click');
+			//hideLoadingPage();
+		} else if (pageContentType == constContentTypeDoc) {	
+			
+			suncfusion_container = loadSyncfusionWordContent(contentJSON);
+			
+			suncfusion_container.contentChange = function () { 
+				console.log('change_event_syncfusion');
+				saveContentInLocalStorage(); 
+			}
+			$('.widgetIcon').trigger('click');
+		} else if (pageContentType == constContentTypeMxGraph) {
+			
+			function loadMxGraphContent() {
+				if (mxGraphUI == null) {
+					setTimeout(loadMxGraphContent, 500);
+				} else {
+					window.onbeforeunload = null;
+					//var doc = mxUtils.parseXml($.parseXML(contentJSON));
+					if (contentJSON != null) {
+						var doc = mxUtils.parseXml(contentJSON);
+						mxGraphUI.editor.setGraphXml(doc.documentElement);
+					}
+
+					mxGraphUI.editor.graph.getModel().addListener(mxEvent.CHANGE, function() {
+						console.log('change_event_mxGraph');
+						saveContentInLocalStorage();
+					});
+					//mxClient.IS_IOS = false;
+
+				}
+			}
+			mxGraphUI = null;
+			var editorUiInit = EditorUi.prototype.init;
+
+			EditorUi.prototype.init = function()
+			{
+				editorUiInit.apply(this, arguments);
+			};
+
+			mxResources.loadDefaultBundle = false;
+		    var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+		        mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage);
+			mxUtils.getAll([bundle, STYLE_PATH + '/default.xml'], function(xhr)
+		      {
+		        // Adds bundle text to resources
+		        mxResources.parse(xhr[0].getText());
+
+		        // Configures the default graph theme
+		        var themes = new Object();
+		        themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement();
+
+		        // Main
+		        mxGraphUI = new EditorUi(new Editor(urlParams['chrome'] == '0', themes), document.getElementById("editor-ui-container"));
+		      }, function()
+		      {
+		        document.body.innerHTML = '<center style="margin-top:10%;">Error loading resource files. Please check browser console.</center>';
+		      });
+
+			loadMxGraphContent();					
+			 
+			$('.widgetIcon').trigger('click');
+			//hideLoadingPage();
+		}
+    }
+
+	function initContentView(contentFromeServer)
+	{
+		var pageLocalStorageContent = null;
+
+		var content = null;
+		$downloadContent = null;
+
+		console.log('starting_initContentView');
+
+		showCanvasLoadingPage();
+
+		// check localstorage content
+		function getKeyContentFromLocalStorage() {
+			if (localStorage.getItem(itemId + constContentTypeWrite)) {
+				pageLocalStorageKey = itemId + constContentTypeWrite;
+			} else if (localStorage.getItem(itemId + constContentTypeDraw)) {
+				pageLocalStorageKey = itemId + constContentTypeDraw;
+			} else if (localStorage.getItem(itemId + constContentTypeSpreadsheet)) {
+				pageLocalStorageKey = itemId + constContentTypeSpreadsheet;
+			} else if (localStorage.getItem(itemId + constContentTypeDoc)) {
+				pageLocalStorageKey = itemId + constContentTypeDoc;
+			} else if (localStorage.getItem(itemId + constContentTypeMxGraph)) {
+				pageLocalStorageKey = itemId + constContentTypeMxGraph;
+			} 
+
+			if (pageLocalStorageKey != null) {
+				// found LocalStorage item...
+				pageLocalStorageContent = localStorage.getItem(pageLocalStorageKey);
+				//console.log('pageLocalStorageContent = ', pageLocalStorageContent);
+			}
+		}
+
+		getKeyContentFromLocalStorage();
+		
+		// next get contents		
+		if ( (pageContentType == null) && (pageLocalStorageContent == null) )  {
+			addSelectContentTypeView();	
+			hideCanvasLoadingPage();
+		} else {
+			//s3Key = contentFromeServer;
+
+			startGettingContent(function(err) {	
+				if ($downloadContent) $downloadContent.remove();
+				console.log('finish_startGettingContent');
+
+				if (err) {
+					hideCanvasLoadingPage();
+                    console.log(err);
+                    alert(err);
+                } else {                    
+                    var content_data = content;
+                    var isLocalStorage;
+                    //console.log('currentVersion = ', currentVersion);
+                    //console.log('oldVersion = ', oldVersion);
+
+                    if (oldVersion == '1') {
+                    	$('.widgetIcon').addClass('hidden');
+                    } else {
+                    	$('.widgetIcon').removeClass('hidden');
+                    }
+                    
+                	if (isOldVersion()) {
+                		isLocalStorage = false;
+                	} else {
+                		isLocalStorage = isLoadFromLocalStorage();
+                	}
+
+                	if (isLocalStorage) {
+                		content_data = pageLocalStorageContent;
+                		if (pageContentType == constContentTypeWrite) {
+                			flgIsLoadingFromLocalStorageForWrite = true;
+                		}
+                	} 
+
+                    loadLibrayJsCss(pageContentType, function(err) {      
+                    	if (pageContentType == null) {
+                    		addSelectContentTypeView();
+                    	} else {
+                    		function stripslashes(str) {
+							    str = str.replace(/\\'/g, '\'');
+							    str = str.replace(/\\"/g, '"');
+							    str = str.replace(/\\0/g, '\0');
+							    str = str.replace(/\\\\/g, '\\');
+							    return str;
+							}
+							//content_data = content_data.replace('\\', '');
+                    		loadDataInContentView(content_data);
+                    		$('.contentContainer').removeClass('hidden');	
+                    	}
+                    	if (isLocalStorage) {
+                    		$( ".btnContentSave" ).removeAttr( "disabled" );	
+                    	}                    	
+                    	
+                    	hideCanvasLoadingPage();
+                    }); 
+	                
+                }
+			});
+		}
+
+		function startGettingContent(doneGetting) {
+
+            function getWriteTypesContent(done) {
+            	content = contentFromeServer;
+            	contentsFromServer = contentFromeServer;
+            	done(null);
+            }
+
+            function downloadOtherTypesContent(done) {
+                $downloadContent = addTemplateOtherTypesStatusAndProgress();
+                $downloadContent.find('.downloadText').text("Downloading");
+				$downloadContent.find('.progress-bar').css('width', '0%');				
+                // var id = $downloadImage.attr('id');
+                // var s3CommonKey = $downloadImage.data('s3Key');
+                //var s3Key = s3CommonKey + "_gallery";
+                var s3Key = contentFromeServer;
+                console.log('download_s3Key = ', s3Key);
+
+                if (s3Key == null) {
+                	done(null); // this is version 1...
+                	return;
+                }
+
+                $.post('/memberAPI/preS3Download', {
+                    itemId: itemId,
+                    s3Key: s3Key
+                }, function(data, textStatus, jQxhr) {
+                	console.log('call_preS3Download = ', data.status);
+                    if (data.status === 'ok') {
+                        var signedURL = data.signedURL;
+                        console.log('signedURL = ', signedURL);
+
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', signedURL, true);
+                        xhr.responseType = 'arraybuffer';
+
+                        xhr.addEventListener("progress", function(evt) {
+                            if (evt.lengthComputable) {
+                                var percentComplete = evt.loaded / evt.total * 100;
+                                //$downloadImage.find('.progress-bar').css('width', percentComplete + '%');
+                                $downloadContent.find('.progress-bar').css('width', percentComplete + '%');
+                                //console.log('xhr_download progress = ', percentComplete + '%');
+                            }
+                        }, false);
+
+                        xhr.onload = function(e) {
+                            $downloadContent.find('.downloadText').text("Decrypting");
+                            // $downloadImage.find('.downloadText').text("Decrypting");
+                            // currentImageDownloadXhr = null;
+                            var encryptedContentDataInArrayBuffer = this.response;
+                            $.post('/memberAPI/postS3Download', {
+                                itemId: itemId,
+                                s3Key: s3Key
+                            }, function(data, textStatus, jQxhr) {
+                            	console.log('call_postS3Download = ', data.status);
+                                if (data.status === 'ok') {
+                                    var item = data.item;
+                                    var size = item.size;
+
+                                    //var decryptedContentDataInUint8Array = decryptArrayBuffer(encryptedContentDataInArrayBuffer, itemKey, itemIV);
+                                    var encryptedContentDataInUint8Array = new Uint8Array(encryptedContentDataInArrayBuffer);
+                                    var encryptedContentDataInBinaryString = convertUint8ArrayToBinaryString(encryptedContentDataInUint8Array);
+                                    var decryptedContentData = decryptLargeBinaryString(encryptedContentDataInBinaryString, itemKey, itemIV);
+                                    var decodedContent = forge.util.decodeUtf8(decryptedContentData);
+                                    content = decodedContent;
+
+         //                            function ab2str(buf) {
+									// 	try {
+									// 		return new TextDecoder("utf-8").decode(buf);
+									// 	}
+									// 	catch(err) {
+									// 		return String.fromCharCode.apply(null, new Uint8Array(buf));
+									// 	}
+									// }
+									// var arraybufferContent = decryptedContentDataInUint8Array;
+									// arraybufferContent = ab2str(arraybufferContent);
+									// content = arraybufferContent;
+
+                                    done(null);
+                                }
+                            }, 'json');
+
+                        };
+
+                        xhr.onerror = function (e) {
+							alert('Ooh, please retry! Error occurred when connecting the following url : \n\n' + signedURL);
+							//console.log('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
+						};
+
+                        xhr.send();
+                        //currentImageDownloadXhr = xhr;
+
+                    }
+                }, 'json');
+
+            };
+
+            // var doneDownloadingOtherTypesContent = function(err) {
+            //     if (err) {
+            //         console.log(err);
+            //         done(err);
+            //     } else {                    
+            //         done(null);                    
+            //     }
+            // };
+            
+            if ( (contentFromeServer == null) || (pageContentType == null) ){
+            	doneGetting(null);
+            } else if (pageContentType == constContentTypeWrite) {
+				getWriteTypesContent(doneGetting);
+			} else {
+            	//downloadOtherTypesContent(doneDownloadingOtherTypesContent);
+            	downloadOtherTypesContent(doneGetting);
+			}
+        }
+
+        function isLoadFromLocalStorage() {
+        	if (pageLocalStorageContent == null) {
+        		return false;
+        	}
+        	console.log('isLoadFromLocalStorage(pageLocalStorageKey)',pageLocalStorageKey);
+        	console.log('isLoadFromLocalStorage(itemId)',itemId);
+        	if ( (pageContentType == null) || (pageLocalStorageKey == itemId + pageContentType) ) {
+        		if (content != pageLocalStorageContent) {
+        			if (confirm('Found item contents in Local Storage.\nWould you like to recover the content from local storage?')) {
+        				pageContentType = pageLocalStorageKey.replace(itemId, '');
+        				console.log('pageContentType from localstorage', pageContentType);
+        				return true;
+        			} else {
+        				localStorage.removeItem(pageLocalStorageKey);
+        			}
+        		}			
+        	}
+        	return false;
+        }
+
+		//backupContentsInLocalStorage();				
+	}
+
