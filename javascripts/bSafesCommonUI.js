@@ -1500,7 +1500,6 @@ function positionItemNavigationControls() {
             //$(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel, .btnFloatingCanvasSave").css("right", rightMargin + "px");
             $(".btnFloatingWrite, .btnFloatingSave, .btnFloatingCancel").css("right", rightMargin + "px");
             
-            //if ((pageContentType == null) || (pageContentType == constContentTypeWrite) || (pageContentType == constContentTypeDraw)) {
             if (typeof pageContentType !== "undefined") {
                 if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > -1) {
                     $(".btnFloatingCanvasSave").css("right", rightMargin + "px");
@@ -1513,7 +1512,13 @@ function positionItemNavigationControls() {
             // var margin = (w - panelWidth) / 2;
             // var leftMargin = margin - 30;
             // var rightMargin = margin - 30;
-            $('.btnLock').css('left', rightMargin - 30 + 'px');
+            //console.log('rightMargin=', rightMargin);
+            if ($('.pagePanel').is(':hidden')) {
+                $('.btnLock').css('left', '20px');
+            } else {
+                $('.btnLock').css('left', rightMargin - 30 + 'px');    
+            }
+            
             //var button_left = parseInt($('.drawCanvas').css('width')) - 70;
             //$('.btnCanvasSave').css('margin-left', button_left + 'px');
             /*
@@ -1525,7 +1530,8 @@ function positionItemNavigationControls() {
                   var leftMargin = margin - 24 ;
                   $previousPageBtn.css("left", leftMargin + "px"); 
             */
-            $('#syncfusion-container').css('height', $(window).height() - 40);
+            $('#syncfusion_container').css('height', $(window).height() - 40);
+            console.log('height', $(window).height() - 40);
         }
     }
 

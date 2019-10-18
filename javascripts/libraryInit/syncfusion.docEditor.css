@@ -173,8 +173,8 @@
 } 
 
 .content {
-/*overflow: auto;
-height: calc(100% - 50px);*/
+overflow: auto;
+height: calc(100% - 50px);
 }
 
 

@@ -78,6 +78,8 @@
 	var iconDoc = addr_images + 'docIcon.jpg';
 	var iconDiagram = addr_images + 'diagram.jpg';
 
+	var $body=null;
+
 	// Page for skeleton screen
 	function prepareSkeletonScreen()
 	{
@@ -1204,41 +1206,52 @@
 				return buf;
 			}
 
-			var arraybufferContent = str2ab(content);
-			//var encryptedData = encryptArrayBuffer(arraybufferContent, itemKey, itemIV);
-			encryptArrayBufferAsync(arraybufferContent, itemKey, itemIV, function(encryptedData) {
-				encrypted_buffer = Utf8ArrayToStr(encryptedData, 2000);
-				console.log('encryptedData = ', encryptedData);
+			//var arraybufferContent = str2ab(content);
 
-				uploadToS3(encryptedData, function(err) {
-                    if (err) {
-                    	console.log('err_uploadToS3');
-                        doneUploadingOtherTypesContent('uploadToS3:' + err);
-                    } else {
-                        console.log("Done uploading uploadToS3");
-                        s3ObjectSize = encryptedData.byteLength;
-                        postS3Upload(function(err) {
-                            if (err) {
-                            	console.log('err_postS3Upload');
-                                doneUploadingOtherTypesContent(err);
-                            } else {
-                                
-                                doneUploadingOtherTypesContent(null);
-                            }
-                        });
-                    }
-                });
+			var encodedContent = forge.util.encodeUtf8(content);
+
+			//var encryptedData = encryptArrayBuffer(arraybufferContent, itemKey, itemIV);
+			//encryptArrayBufferAsync(arraybufferContent, itemKey, itemIV, function(encryptedData) {
+			encryptDataInBinaryString(encodedContent, function(err, encryptedContentDataInUint8Array) {
+				if (err) {
+                    console.log("encryptedContentDataInUint8Array failed");
+                    doneUploadingOtherTypesContent("encryptedContentDataInUint8Array failed");
+                } else {
+
+					encrypted_buffer = Utf8ArrayToStr(encryptedContentDataInUint8Array, 2000);
+					console.log('encryptedContentDataInUint8Array = ', encryptedContentDataInUint8Array);
+
+					uploadToS3(encryptedContentDataInUint8Array, function(err) {
+	                    if (err) {
+	                    	console.log('err_uploadToS3');
+	                        doneUploadingOtherTypesContent('uploadToS3:' + err);
+	                    } else {
+	                        console.log("Done uploading uploadToS3");
+	                        s3ObjectSize = encryptedContentDataInUint8Array.byteLength;
+	                        postS3Upload(function(err) {
+	                            if (err) {
+	                            	console.log('err_postS3Upload');
+	                                doneUploadingOtherTypesContent(err);
+	                            } else {
+	                                
+	                                doneUploadingOtherTypesContent(null);
+	                            }
+	                        });
+	                    }
+	                });                
+                }
 			});
 
         };
 
         function doneUploadingOtherTypesContent(err) {
         	$('.btnContentSave').LoadingOverlay('hide');
+        	$( ".btnContentSave" ).attr( "disabled", "disabled" );
         	$('.templateOtherTypesUploadProgress').addClass('hidden');
         	$progressBar.css('width', '0%');
         	setStatusLen();
             if (err) {
-                alert("Ooh, please retry!");
+                alert("Ooh, please retry!\n\n" + err);
             } else {
                 localStorage.removeItem(pageLocalStorageKey);
                 content = s3Key;
@@ -3982,11 +3995,54 @@
 			    };
 			    js.src = jsFile;
 				js.setAttribute("crossorigin", "anonymous");
-			    fjs.parentNode.insertBefore(js, fjs);
+			    // fjs.parentNode.insertBefore(js, fjs);
+				if (typeof fjs === 'undefined') {
+					document.body.appendChild(js);
+				} else {
+					fjs.parentNode.insertBefore(js, fjs);	
+				}
 
 			}(document, 'script', 'forge'));	
 		}
-		//addContentSaveButton();
+		
+		function loadCSSInIframe(href) 
+		{
+			var cssLink = $("<link>");
+			$("iframe").append(cssLink);
+			cssLink.attr({
+				rel:  "stylesheet",
+				type: "text/css",
+				href: href
+			});
+		};
+
+		function loadJSInIframe(jsFile, done)
+		{
+			var iframe_body = $("#frame_doc").contents().find("body");
+			// $(function (d, s, id) {
+			//     'use strict';
+
+			//     var js, fjs = d.getElementsByTagName(s)[0];
+			//     js = d.createElement(s);
+			//     js.onload = function() {
+			//       done();
+			//     };
+			//     js.src = jsFile;
+			// 	js.setAttribute("crossorigin", "anonymous");
+			//     fjs.parentNode.insertBefore(js, fjs);
+
+			// }(iframe_body, 'script', 'forge'));	
+			
+			var js, fjs = iframe_body.getElementsByTagName(s)[0];
+		    js = iframe_body.createElement('script');
+		    js.onload = function() {
+		      done();
+		    };
+		    js.src = jsFile;
+			js.setAttribute("crossorigin", "anonymous");
+		    fjs.parentNode.insertBefore(js, fjs);
+
+		}
 
 		function addContentWidget()
 		{
@@ -4003,6 +4059,7 @@
 		        $('.contentContainer').after(html_tmp);
 				return;
 			} else { // fullscreen
+				
 				$('body').append('<div class="contentsWrapper"><div class="contentContainer"></div></div>');
 				var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" style="position: fixed;
 							    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;">
@@ -4054,6 +4111,17 @@
 					$('.btnMinimize').removeClass('hidden');
 					$('.btnContentSave').removeClass('hidden');
 
+					function hidePage() {
+						$(".sample-browser").removeClass('hidden');
+						$(".navbar").addClass('hidden');
+						$(".pathRow").addClass('hidden');
+						$(".pagePanel").addClass('hidden');
+						$(".btnEditor").addClass('hidden');
+						$(".itemNavigationRow").addClass('hidden');
+						//alert('hidePage');
+					}
+					hidePage();
+
 					$('.contentContainer').css({
 				        'display': 'block',
 						'z-index': '9999',
@@ -4070,14 +4138,14 @@
 
 				    if (content_type == constContentTypeSpreadsheet) {
 				    	$("#spreadsheet").data("kendoSpreadsheet").resize();
-				    }
+				    } 
 				});
 			}
 
 			// content minimize button
 			if (icon_src) {
 				var htmlButton = `
-					<div class="btnEditor btn btnFloatingMinimize btnFloating btnMinimize" style="">
+					<div class="btn btnFloatingMinimize btnFloating btnMinimize" style="">
 						<i class="fa fa-times fa-2x" aria-hidden="true"></i>
 					</div>
 				`;
@@ -4089,15 +4157,25 @@
 					$('.contentContainer').addClass('hidden');
 					window.removeEventListener('scroll', noScroll);
 
+					function showPage() {
+					
+						$(".navbar").removeClass('hidden');
+						$(".pathRow").removeClass('hidden');
+						$(".pagePanel").removeClass('hidden');
+						//$(".btnEditor").removeClass('hidden');
+						$(".itemNavigationRow").removeClass('hidden');
+					}
+					showPage();
+
 					if (pageContentType == constContentTypeMxGraph) {
 						mxEvent.removeListener(window, 'scroll', mxGraphUI.scrollHandler);	
-					}
+					} 
 				});
 			}
 
 			// conent save button
 			var htmlButton = `
-				<div class="btnEditor btn btnFloatingCanvasSave btnFloating btnContentSave" style="">
+				<div class="btn btnFloatingCanvasSave btnFloating btnContentSave" style="">
 					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
 				</div>
 			`;
@@ -4124,8 +4202,8 @@
 
 		if (content_type == constContentTypeDraw) {
 			
-			//loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
-			//loadCSS('/javascripts/libraryInit/literallycanvas.css');
+			loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
+			loadCSS('/javascripts/libraryInit/literallycanvas.css');
 
 			//loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
 			loadJS('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-with-addons.js', function() {
@@ -4135,8 +4213,8 @@
 						$( ".contentContainer" ).attr('id', 'literallycanvas');
 						lc = LC.init(
 				            document.getElementsByClassName('contentContainer')[0], 
-				            	//{imageURLPrefix: '/javascripts/literallycanvas/img',
-				            	{imageURLPrefix: 'https://github.com/literallycanvas/literallycanvas/blob/master/lib/img',
+				            	{imageURLPrefix: '/javascripts/literallycanvas/img',
+				            	//{imageURLPrefix: 'https://github.com/literallycanvas/literallycanvas/blob/master/lib/img',
 				            	backgroundColor: 'whitesmoke'}
 				        );
 				        //lc.loadSnapshotJSON('{"shapes":[],"colors":{"primary":"#000","secondary":"#fff","background":"black"}}');
@@ -4163,46 +4241,46 @@
 				});
 			});				
 		} else if (content_type == constContentTypeDoc) {
-		
 			//$('head').append('<meta http-equiv="Content-Security-Policy" content="unsafe-inline" />');
 			//$('meta[http-equiv="Content-Security-Policy"]').remove();
 			syncfusionKey = itemId + 'SyncfusionWordContent';
 
-			var template = `				
-				<div id="waiting-popup"></div>
+
+			var template = `
 				<div class="control-section">
 					<title>Essential JS 2 - DocumentEditor</title>
 					<div id="panel" style="height: 100%;">
 						<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
 						<div id="documenteditor_container_body" style="display: flex;position:relative; height:100%">
-							<div id="syncfusion-container" style="width: 100%; height: 100%;"></div>
+							<div id="syncfusion_container" style="width: 100%; height: 100%;"></div>
 						</div>
 					</div>
-				</div>	
+				</div>
 			`;
 
+
+
+			
 			$(".contentContainer").css("border", "1px solid red;");
 			$(".contentContainer").append(template);
 
-			//loadCSS('/javascripts/syncfusion/css/material.css');				
-			loadCSS('https://cdn.syncfusion.com/ej2/material.css');				
-			//loadCSS('/javascripts/syncfusion/css/docEditor.css');
-			loadCSS('/javascripts/libraryInit/syncfusion.docEditor.css');
+			loadCSS('/javascripts/syncfusion/css/material.css');				
+			//loadCSS('https://cdn.syncfusion.com/ej2/material.css');				
+			loadCSS('https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.css');
+			//loadCSS('/javascripts/libraryInit/syncfusion.docEditor.css');
+			
+			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
+			//loadJS('https://cdn.syncfusion.com/ej2/dist/ej2.min.js', function() {
+				//loadJS("http://localhost:8000/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+				loadJS("https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+				//loadJS("/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+					
+					//$('.contentContainer').attr('id', 'syncfusion_documenteditor');
+					//$("body").css({"touch-action":"none"});
+					//noScroll();
+					//window.addEventListener('scroll', noScroll);
 
-			//loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
-			loadJS('https://cdn.syncfusion.com/ej2/dist/ej2.min.js', function() {
-				loadJS("/javascripts/libraryInit/syncfusion.docEditor.js", function() {
-				//loadJS("http://localhost:8000/javascripts/syncfusion/js/docEditor.js", function() {
-					$('.contentContainer').attr('id', 'syncfusion-documenteditor');
-
-					function removeJumpforIpad() {
-						$arr = $('#syncfusion-container_editor_editableDiv');
-						if ($arr.length > 1) {
-							$arr[0].remove();
-						}
-						setTimeout(removeJumpforIpad, 1000); 
-					}
-					removeJumpforIpad();
+					
 					addIconAndButtons();
 					done(null);					
 				});
@@ -4432,22 +4510,8 @@
 			suncfusion_container.contentChange = function () { 
 				console.log('change_event_syncfusion');
 				saveContentInLocalStorage(); 
-				// suncfusion_container.documentEditor.saveAsBlob('Sfdt').then(function (sfdtBlob) { 
-		  //           var fileReader = new FileReader(); 
-		  //           fileReader.onload = function (e) { 
-		  //               // Get Json string here 
-		  //               var sfdtText = fileReader.result; 
-		  //               // This string can send to server for saving it in database 
-		  //               localStorage.setItem(syncfusionKey, sfdtText);
-		  //               saveContentInLocalStorage();                
-		  //           } 
-		  //           fileReader.readAsText(sfdtBlob); 
-		  //       }); 
 			}
-			
-
 			$('.widgetIcon').trigger('click');
-			//hideLoadingPage();
 		} else if (pageContentType == constContentTypeMxGraph) {
 			
 			function loadMxGraphContent() {
@@ -4581,9 +4645,20 @@
                     	if (pageContentType == null) {
                     		addSelectContentTypeView();
                     	} else {
+                    		function stripslashes(str) {
+							    str = str.replace(/\\'/g, '\'');
+							    str = str.replace(/\\"/g, '"');
+							    str = str.replace(/\\0/g, '\0');
+							    str = str.replace(/\\\\/g, '\\');
+							    return str;
+							}
+							//content_data = content_data.replace('\\', '');
                     		loadDataInContentView(content_data);
                     		$('.contentContainer').removeClass('hidden');	
                     	}
+                    	if (isLocalStorage) {
+                    		$( ".btnContentSave" ).removeAttr( "disabled" );	
+                    	}                    	
                     	
                     	hideCanvasLoadingPage();
                     }); 
@@ -4651,17 +4726,25 @@
                                     var item = data.item;
                                     var size = item.size;
 
-                                    var decryptedContentDataInUint8Array = decryptArrayBuffer(encryptedContentDataInArrayBuffer, itemKey, itemIV);
-                                    function ab2str(buf) {
-										//return String.fromCharCode.apply(null, new Uint8Array(buf));
-										var str = new TextDecoder("utf-8").decode(buf);
-										return str;
-									}
-									var arraybufferContent = decryptedContentDataInUint8Array;
-									arraybufferContent = ab2str(arraybufferContent);
-									content = arraybufferContent;
-                                    //console.log('decryptedContentDataInUint8Array = ', decryptedContentDataInUint8Array);
-                                    //console.log('arraybufferContent=', arraybufferContent);
+                                    //var decryptedContentDataInUint8Array = decryptArrayBuffer(encryptedContentDataInArrayBuffer, itemKey, itemIV);
+                                    var encryptedContentDataInUint8Array = new Uint8Array(encryptedContentDataInArrayBuffer);
+                                    var encryptedContentDataInBinaryString = convertUint8ArrayToBinaryString(encryptedContentDataInUint8Array);
+                                    var decryptedContentData = decryptLargeBinaryString(encryptedContentDataInBinaryString, itemKey, itemIV);
+                                    var decodedContent = forge.util.decodeUtf8(decryptedContentData);
+                                    content = decodedContent;
+
+         //                            function ab2str(buf) {
+									// 	try {
+									// 		return new TextDecoder("utf-8").decode(buf);
+									// 	}
+									// 	catch(err) {
+									// 		return String.fromCharCode.apply(null, new Uint8Array(buf));
+									// 	}
+									// }
+									// var arraybufferContent = decryptedContentDataInUint8Array;
+									// arraybufferContent = ab2str(arraybufferContent);
+									// content = arraybufferContent;
+
                                     done(null);
                                 }
                             }, 'json');
@@ -4669,7 +4752,7 @@
                         };
 
                         xhr.onerror = function (e) {
-							alert('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
+							alert('Ooh, please retry! Error occurred when connecting the following url : \n\n' + signedURL);
 							//console.log('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
 						};
 
@@ -4719,8 +4802,6 @@
         	}
         	return false;
         }
-
-
 
 		//backupContentsInLocalStorage();				
 	}
