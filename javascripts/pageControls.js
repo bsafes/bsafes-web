@@ -4265,8 +4265,8 @@
 			$(".contentContainer").append(template);
 
 			//loadCSS('/javascripts/syncfusion/css/material.css');
-			loadCSS('/javascripts/libraryInit/syncfusion.material.css');				
-			//loadCSS('https://cdn.syncfusion.com/ej2/material.css');				
+			//loadCSS('/javascripts/libraryInit/syncfusion.material.css');				
+			loadCSS('https://cdn.syncfusion.com/ej2/material.css');				
 			loadCSS('https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.css');
 			//loadCSS('/javascripts/libraryInit/syncfusion.docEditor.css');
 			
