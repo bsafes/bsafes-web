@@ -4202,7 +4202,7 @@
 
 		if (content_type == constContentTypeDraw) {
 			
-			loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
+			//loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
 			loadCSS('/javascripts/libraryInit/literallycanvas.css');
 
 			//loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
