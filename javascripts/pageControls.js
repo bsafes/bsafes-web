@@ -4267,8 +4267,8 @@
 			//loadCSS('/javascripts/syncfusion/css/material.css');
 			//loadCSS('/javascripts/libraryInit/syncfusion.material.css');				
 			loadCSS('https://cdn.syncfusion.com/ej2/material.css');				
-			loadCSS('https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.css');
-			//loadCSS('/javascripts/libraryInit/syncfusion.docEditor.css');
+			//loadCSS('https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.css');
+			loadCSS('/javascripts/libraryInit/syncfusion.docEditor.css');
 			
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
 			//loadJS('https://cdn.syncfusion.com/ej2/dist/ej2.min.js', function() {
@@ -4280,6 +4280,7 @@
 					//$("body").css({"touch-action":"none"});
 					//noScroll();
 					//window.addEventListener('scroll', noScroll);
+					$(".e-popup.e-popup-open.e-dialog").css({"display":""});
 					
 					addIconAndButtons();
 					done(null);					
