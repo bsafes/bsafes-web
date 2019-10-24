@@ -4202,7 +4202,7 @@
 
 		if (content_type == constContentTypeDraw) {
 			
-			loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
+			//loadCSS('/javascripts/literallycanvas/css/literallycanvas.css');
 			loadCSS('/javascripts/libraryInit/literallycanvas.css');
 
 			//loadJS("/javascripts/literallycanvas/js/react-with-addons.js", function() {
@@ -4257,29 +4257,27 @@
 					</div>
 				</div>
 			`;
-
-
-
-			
+		
 			$(".contentContainer").css("border", "1px solid red;");
 			$(".contentContainer").append(template);
 
-			loadCSS('/javascripts/syncfusion/css/material.css');				
-			//loadCSS('https://cdn.syncfusion.com/ej2/material.css');				
-			loadCSS('https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.css');
-			//loadCSS('/javascripts/libraryInit/syncfusion.docEditor.css');
+			//loadCSS('/javascripts/syncfusion/css/material.css');
+			//loadCSS('/javascripts/libraryInit/syncfusion.material.css');				
+			loadCSS('https://cdn.syncfusion.com/ej2/material.css');				
+			//loadCSS('https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.css');
+			loadCSS('/javascripts/libraryInit/syncfusion.docEditor.css');
 			
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
 			//loadJS('https://cdn.syncfusion.com/ej2/dist/ej2.min.js', function() {
 				//loadJS("http://localhost:8000/javascripts/libraryInit/syncfusion.docEditor.js", function() {
-				loadJS("https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.js", function() {
-				//loadJS("/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+				//loadJS("https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+				loadJS("/javascripts/libraryInit/syncfusion.docEditor.js", function() {
 					
 					//$('.contentContainer').attr('id', 'syncfusion_documenteditor');
 					//$("body").css({"touch-action":"none"});
 					//noScroll();
 					//window.addEventListener('scroll', noScroll);
-
+					$(".e-popup.e-popup-open.e-dialog").css({"display":""});
 					
 					addIconAndButtons();
 					done(null);					

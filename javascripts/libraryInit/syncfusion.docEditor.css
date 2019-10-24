@@ -353,3 +353,7 @@ a.e-disabled {
     }
 }
 
+.e-popup.e-popup-open.e-dialog {
+    display: inline-block !important;
+    max-height: none !important;
+}
