@@ -4257,10 +4257,7 @@
 					</div>
 				</div>
 			`;
-
-
-
-			
+		
 			$(".contentContainer").css("border", "1px solid red;");
 			$(".contentContainer").append(template);
 
@@ -4273,8 +4270,8 @@
 			loadJS("/javascripts/syncfusion/js/ej2.min.js", function() {
 			//loadJS('https://cdn.syncfusion.com/ej2/dist/ej2.min.js', function() {
 				//loadJS("http://localhost:8000/javascripts/libraryInit/syncfusion.docEditor.js", function() {
-				loadJS("https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.js", function() {
-				//loadJS("/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+				//loadJS("https://s3.amazonaws.com/com.openbsafes.code/javascripts/libraryInit/syncfusion.docEditor.js", function() {
+				loadJS("/javascripts/libraryInit/syncfusion.docEditor.js", function() {
 					
 					//$('.contentContainer').attr('id', 'syncfusion_documenteditor');
 					//$("body").css({"touch-action":"none"});

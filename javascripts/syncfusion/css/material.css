@@ -17583,8 +17583,8 @@ body.e-colorpicker-overflow {
   font-size: 13px;
   font-weight: normal;
   line-height: normal;
-  overflow: auto;
-  overflow-x: hidden;
+  /*overflow: auto;
+  overflow-x: hidden;*/
 }
 
 .e-dialog .e-footer-content {
