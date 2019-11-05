@@ -161,7 +161,9 @@ function loadPage(){
             envelopeIV: item.envelopeIV,
             ivEnvelope: item.ivEnvelope,
             ivEnvelopeIV: item.ivEnvelopeIV,
-            title: item.title
+            title: item.title,
+            version: item.version,
+            totalItemSize: item.usage.totalItemSize
         };
         itemInfo.push(info);
 

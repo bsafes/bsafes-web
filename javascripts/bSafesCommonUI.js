@@ -38,6 +38,12 @@ function formatTimeDisplay(timeValue) {
     return dateStr;
 }
 
+var bSafesCommonUIObj = {
+  currentItem: {
+    path:[]
+  }
+}
+
 function getPath(itemId, pageId, done) {
     $.post('/memberAPI/getItemPath', {
         itemId: itemId
@@ -58,6 +64,9 @@ function showPath(teamName, itemPath, itemId, envelopeKey, pageId, endItemTitle)
         var newItem = { _id: pageId };
         path.push(newItem);
     };
+
+    bSafesCommonUIObj.currentItem.path = [];
+
     for (var i = 0; i < path.length; i++) {
         $pathItem = $('.pathItemTemplate').clone().removeClass('pathItemTemplate hidden').addClass('pathItem');
         var pathItemType = path[i]._id.charAt(0);
@@ -66,6 +75,7 @@ function showPath(teamName, itemPath, itemId, envelopeKey, pageId, endItemTitle)
 
         var pathItemIcon;
         var pathItemLink;
+				bSafesCommonUIObj.currentItem.path.push(path[i]._id);
         switch (pathItemType) {
             case 'u':
                 pathItemIcon = 'Personal';
@@ -372,7 +382,15 @@ function postGetItemData(item) {
     setBoxControlsPanel(item.container);
 }
 
-function createNewItemVersion(itemId, itemCopy, currentVersion, addedSize, done) {
+function isItemAContainer(itemId) {
+  var itemType = itemId.split(':')[0];
+  if(itemType === 'b' || itemType === 'f' || itemType === 'n' || itemType === 'd') {
+    return true;
+  }
+  return false;
+}
+
+function createNewItemVersion(itemId, itemCopy, currentVersion, done) {
     itemCopy.version = currentVersion + 1;
 
     $.ajax({
@@ -381,8 +399,7 @@ function createNewItemVersion(itemId, itemCopy, currentVersion, addedSize, done)
         dataType: 'json',
         data: {
             itemId: itemId,
-            itemVersion: JSON.stringify(itemCopy),
-            addedSize: addedSize ? addedSize : 0
+						itemVersion: JSON.stringify(itemCopy)
         },
         error: function(jqXHR, textStatus, errorThrown) {
             done({ code: textStatus });
@@ -445,7 +462,7 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
 
 
 /* End of commons for all item views */
-/*-- Commons for container views */
+/*-- Commons for container and page views */
 var selectedItemsInContainer = [];
 var updateContainerKeyValue;
 var updateContainerToolbar;
@@ -458,6 +475,7 @@ var itemInfo = [];
 
 function initCurrentSpace(thisSpace) {
     currentSpace = thisSpace;
+		bSafesCommonUIObj.currentItem.path = [currentSpace];
 }
 
 function initContainerFunctions(listItems, searchByTokens, decryptResult, updateToolbar, updateKeyValue, showLoading, hideLoading) {
@@ -718,6 +736,23 @@ var handleAddAction = function(e) {
     $('#addAnItemBtn').trigger('click');
 }
 
+function calculateTotalMovingItemsUsage() {
+  var totalItemVersions = 0;
+  var totalStorage = 0;
+
+  for(var i=0; i< selectedItemsInContainer.length; i++) {
+    if(selectedItemsInContainer[i].totalStorage) {
+      totalItemVersions += selectedItemsInContainer[i].totalItemVersions;
+      totalStorage += selectedItemsInContainer[i].totalStorage;
+
+    } else {
+      totalItemVersions += selectedItemsInContainer[i].version;
+      totalStorage += selectedItemsInContainer[i].totalItemSize;
+    }
+  }
+  return {totalItemVersions: totalItemVersions, totalStorage: totalStorage};
+}
+
 var handleDropAction = function(e) {
     var $targetItem = $(e.target).closest('.resultItem');
     var targetItemId = $targetItem.attr('id');
@@ -746,13 +781,26 @@ var handleDropAction = function(e) {
     }
     console.log(dropAction);
 
-    $.post('/memberAPI/' + dropAction, {
+    var options = {
         space: currentSpace,
         targetContainer: $targetItem.data('container'),
         items: JSON.stringify(selectedItemsInContainer),
         targetItem: targetItemId,
         targetPosition: $targetItem.data('position')
-    }, function(data, textStatus, jQxhr) {
+		};
+
+    if(dropAction === 'dropItemsInside') {
+      var totalUsage = calculateTotalMovingItemsUsage();
+      var targetContainersPath = bSafesCommonUIObj.currentItem.path.slice(0);
+      targetContainersPath.push(targetItemId);
+      options.sourceContainersPath =  JSON.stringify(bSafesCommonUIObj.currentItem.path);
+      options.targetContainersPath =  JSON.stringify(targetContainersPath);
+      options.totalUsage = JSON.stringify(totalUsage);
+    }
+
+    $.post('/memberAPI/' + dropAction,
+      options,
+      function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             selectedItemsInContainer.length = 0;
 
@@ -761,7 +809,7 @@ var handleDropAction = function(e) {
                 //listItemsCloseToAndAfterItem($targetItem);
             }, 1500);
         }
-    }, 'json');
+      }, 'json');
 }
 
 function newResultItem(resultItem) {
@@ -811,12 +859,42 @@ function newResultItem(resultItem) {
     $resultItem.data('ivEnvelope', resultItem.ivEnvelope);
     $resultItem.data('ivEnvelopeIV', resultItem.ivEnvelopeIV);
     $resultItem.data('title', resultItem.title);
+    if(resultItem.version) {
+      var version = resultItem.version;
+    } else {
+      var version = 1;
+    }
+    $resultItem.data('version', version);
+
+
+    if(resultItem.totalItemSize) {
+      var totalItemSize = resultItem.totalItemSize;
+    } else {
+      var totalItemSize = 0;
+    }
+    $resultItem.data('totalItemSize', totalItemSize);
 
     if (isItemSelected(id)) {
         $resultItem.find('.selectItemBox').prop('checked', true);
     }
     var itemType = id.split(':')[0];
+    if(itemType === 'b' || itemType === 'f' || itemType === 'n' || itemType === 'd') {
+      var totalStorage, totalItemVersions;
+      if(resultItem.totalStorage) {
+        totalStorage = resultItem.totalStorage;
+      } else {
+        totalStorage = 0;
+      }
+      if(resultItem.totalItemVersions) {
+        totalItemVersions = resultItem.totalItemVersions;
+      } else {
+        totalItemVersions = 0;
+      }
+      $resultItem.data('totalStorage', totalStorage);
+      $resultItem.data('totalItemVersions', totalItemVersions);
+    }
     var link;
+    var debugUsage = 1;
     switch (itemType) {
         case 'p':
             if (title.substring(0, 2) === '<h') {
@@ -829,14 +907,23 @@ function newResultItem(resultItem) {
             } else {
                 link = '/page/' + id;
             }
+            if(debugUsage!== undefined && debugUsage) {
+              title = title + '<p> version: '+ version + ' totalItemSize: ' + totalItemSize + '</p>'
+            }
             break;
         case 'b':
             title = '<i class="fa fa-archive safeItemTypeIcon" aria-hidden="true"></i>' + title;
+						if(debugUsage!== undefined && debugUsage) {
+              title = title + '<p> totalItemVersions: '+ totalItemVersions + ' totalStorage: ' + totalStorage + '</p>'
+            }
             link = '/box/' + id;
             break;
         case 'f':
             title = '<i class="fa fa-folder-o safeItemTypeIcon" aria-hidden="true"></i>' + title;
             link = '/folder/' + id;
+						if(debugUsage!== undefined && debugUsage) {
+              title = title + '<p> totalItemVersions: '+ totalItemVersions + ' totalStorage: ' + totalStorage + '</p>'
+            }
             break;
         case 'n':
             title = '<i class="fa fa-book safeItemTypeIcon" aria-hidden="true"></i>' + title;
@@ -844,6 +931,9 @@ function newResultItem(resultItem) {
                 link = '/notebook/p/' + resultItem.lastAccessedPage;
             } else {
                 link = '/notebook/p/' + itemId.replace('n:', 'np:') + ':' + 1;
+            }
+            if(debugUsage!== undefined && debugUsage) {
+              title = title + '<p> totalItemVersions: '+ totalItemVersions + ' totalStorage: ' + totalStorage + '</p>'
             }
             break;
         case 'np':
@@ -864,6 +954,9 @@ function newResultItem(resultItem) {
             if (date < 10) date = '0' + date;
             var pageIndex = year + '-' + month + '-' + date;
             link = '/diary/p/' + itemId.replace('d:', 'dp:') + ':' + pageIndex;
+            if(debugUsage!== undefined && debugUsage) {
+              title = title + '<p> totalItemVersions: '+ totalItemVersions + ' totalStorage: ' + totalStorage + '</p>'
+            }
             break;
         case 'dp':
             if (title.substring(0, 2) === '<h') {
@@ -897,17 +990,28 @@ function newResultItem(resultItem) {
         var ivEnvelope = $thisItem.data('ivEnvelope');
         var ivEnvelopeIV = $thisItem.data('ivEnvelopeIV');
         var title = $thisItem.data('title');
+        var version = $thisItem.data('version');
+        var totalItemSize = $thisItem.data('totalItemSize');
 
         var item = {
             id: itemId,
+            version: version,
             container: itemContainer,
             position: itemPosition,
             keyEnvelope: keyEnvelope,
             envelopeIV: envelopeIV,
             ivEnvelope: ivEnvelope,
             ivEnvelopeIV: ivEnvelopeIV,
-            title: title
-        };
+						title: title,
+						totalItemSize: totalItemSize        
+				};
+
+        var itemType = itemId.split(':')[0];
+
+        if(itemType === 'b' || itemType === 'f' || itemType === 'n' || itemType === 'd') {
+          item.totalStorage = $thisItem.data('totalStorage');
+          item.totalItemVersions = $thisItem.data('totalItemVersions');
+        }
 
         if (e.target.checked) {
             selectedItemsInContainer.push(item);
@@ -1044,11 +1148,25 @@ var currentTargetContainerName;
 var containersPerPage = 20;
 var containersPageNumber = 1;
 
+var moveItemsModalObj = {
+  targetContainersPath: []
+}
+
 function resetContainersList() {
     containersPageNumber = 1;
 }
 
 function listContainers(itemId, itemTitle) {
+    function updateTargetContainersPath () {
+      moveItemsModalObj.targetContainersPath = [];
+      var $targetContainersPath =  $('.moveItemsPathItemsList').find('.moveItemsPathItem');
+      for(i=0; i < $targetContainersPath.length; i++) {
+        $pathItem = $($targetContainersPath[i]);
+        var pathItemId = $pathItem.data('itemId');
+        moveItemsModalObj.targetContainersPath.push(pathItemId);
+      }
+    }
+
     $('#moreContainersBtn').addClass('hidden');
     $.post('/memberAPI/listContainers', {
         container: itemId,
@@ -1094,11 +1212,13 @@ function listContainers(itemId, itemTitle) {
                         var containers = data.hits.hits;
                         var total = data.hits.total;
                         $target.nextAll().remove();
+                        updateTargetContainersPath();
                         displayContainers(containers, total);
                     }
                 }, 'json');
             });
             $('.moveItemsPathItemsList').append($moveItemsPathItem);
+            updateTargetContainersPath();
         }
     }, 'json');
 }
@@ -1206,12 +1326,16 @@ function showMoveItemsModal(thisSpace) {
             return false;
         }
 
+        var totalUsage = calculateTotalMovingItemsUsage();
         console.log("targetId, targetName", currentTargetContainer, currentTargetContainerName);
         showLoadingInMoveItemsModal();
         $.post('/memberAPI/dropItemsInside', {
             space: currentSpace,
             items: JSON.stringify(selectedItemsInContainer),
-            targetItem: currentTargetContainer
+            targetItem: currentTargetContainer,
+            sourceContainersPath: JSON.stringify(bSafesCommonUIObj.currentItem.path),
+            targetContainersPath: JSON.stringify(moveItemsModalObj.targetContainersPath),
+            totalUsage: JSON.stringify(totalUsage)
         }, function(data, textStatus, jQxhr) {
             hideLoadingInMoveItemsModal();
             if (data.status === 'ok') {
@@ -1229,9 +1353,7 @@ function showMoveItemsModal(thisSpace) {
 
     currentTargetContainer = thisSpace;
     currentTargetContainerName = "Top";
-    var $topPathItem = $($('.moveItemsPathItem')[0]);
-    $topPathItem.nextAll().remove();
-
+    $('.moveItemsPathItemsList').empty();
     listContainers(thisSpace, "Top");
 
     return false;
@@ -1266,10 +1388,42 @@ function showMoveAnItemModal(thisItem, thisSpace) {
 
         console.log("targetId, targetName", currentTargetContainer, currentTargetContainerName);
         showLoadingInMoveAnItemModal(); 
+        var currentItemPath = bSafesCommonUIObj.currentItem.path;
+        var sourceContainersPath = currentItemPath.slice(0);
+        sourceContainersPath.pop();
+
+        function calculateTotalMovingItemUsage() {
+          var totalItemVersions = 0;
+          var totalStorage = 0;
+          if(isItemAContainer(thisItem.id)) {
+            if(thisItem.totalItemVersions) {
+              totalItemVersions = thisItem.totalItemVersions;
+              totalStorage = thisItem.totalStorage;
+            } else {
+              totalItemVersions = 0;
+              totalStorage = 0;
+            }
+          } else {
+            if(thisItem.usage) {
+              totalItemVersions = thisItem.version;
+              totalStorage = thisItem.usage.totalItemSize;
+            } else {
+              totalItemVersions = thisItem.version;
+              totalStorage = 0;
+            }
+          }
+          return {totalItemVersions: totalItemVersions, totalStorage: totalStorage};
+        }
+
+        var totalUsage = calculateTotalMovingItemUsage();
+
         $.post('/memberAPI/moveAnItemToTarget', {
             space: currentSpace,
             item: JSON.stringify(thisItem),
-            targetItem: currentTargetContainer
+            targetItem: currentTargetContainer,
+            sourceContainersPath: JSON.stringify(sourceContainersPath),
+            targetContainersPath: JSON.stringify(moveItemsModalObj.targetContainersPath),
+            totalUsage: JSON.stringify(totalUsage)
         }, function(data, textStatus, jQxhr) {
             hideLoadingInMoveAnItemModal(); 
             if (data.status === 'ok') {
@@ -1283,8 +1437,8 @@ function showMoveAnItemModal(thisItem, thisSpace) {
 
     currentTargetContainer = thisSpace;
     currentTargetContainerName = "Top";
-    var $topPathItem = $($('.moveItemsPathItem')[0]);
-    $topPathItem.nextAll().remove();
+
+    $('.moveItemsPathItemsList').empty();
 
     listContainers(thisSpace, "Top");
 
@@ -1300,13 +1454,17 @@ function showTrashItemsModal(thisSpace, originalContainer) {
     var $thisBtn = $('#goTrashBtn');
     $thisBtn.addClass('disabled');
 
+    var totalUsage = calculateTotalMovingItemsUsage();
+
     $thisBtn.click(function(e) {
         if (!goTrashEnabled) return;
         showLoadingInTrashModal();
         $.post('/memberAPI/trashItems', {
             items: JSON.stringify(selectedItemsInContainer),
             targetSpace: thisSpace,
-            originalContainer: originalContainer
+            originalContainer: originalContainer,
+            sourceContainersPath: JSON.stringify(bSafesCommonUIObj.currentItem.path),
+            totalUsage: JSON.stringify(totalUsage)
         }, function(data, textStatus, jQxhr) {
             hideLoadingInTrashModal();
             if (data.status === 'ok') {
@@ -1341,6 +1499,36 @@ function showTrashAnItemModal(thisSpace, originalContainer) {
     var $thisBtn = $('#goTrashAnItemBtn');
     $thisBtn.addClass('disabled');
 
+    var currentItemPath = bSafesCommonUIObj.currentItem.path;
+    var sourceContainersPath = currentItemPath.slice(0);
+    sourceContainersPath.pop();
+
+    function calculateTotalMovingItemUsage() {
+      var totalItemVersions = 0;
+      var totalStorage = 0;
+      var thisItem = itemInfo[0];
+      if(isItemAContainer(thisItem.id)) {
+           if(thisItem.totalItemVersions !== undefined) {
+              totalItemVersions = thisItem.totalItemVersions;
+              totalStorage = thisItem.totalStorage;
+            } else {
+              totalItemVersions = 0;
+              totalStorage = 0;
+            }
+          } else {
+            if(thisItem.totalItemSize !== undefined) {
+              totalItemVersions = thisItem.version;
+              totalStorage = thisItem.totalItemSize;
+            } else {
+              totalItemVersions = thisItem.version;
+              totalStorage = 0;
+            }
+          }
+          return {totalItemVersions: totalItemVersions, totalStorage: totalStorage};
+        }
+
+    var totalUsage = calculateTotalMovingItemUsage();
+
     $thisBtn.click(function(e) {
         if (!goTrashEnabled) return;
         showLoadingInTrashModal();
@@ -1348,7 +1536,9 @@ function showTrashAnItemModal(thisSpace, originalContainer) {
         $.post('/memberAPI/trashItems', {
             items: JSON.stringify(itemInfo),
             targetSpace: thisSpace,
-            originalContainer: itemInfo[0].container// originalContainer
+            originalContainer: itemInfo[0].container,
+            sourceContainersPath: JSON.stringify(sourceContainersPath),
+            totalUsage: JSON.stringify(totalUsage)
         }, function(data, textStatus, jQxhr) {
             hideLoadingInTrashModal();
             if (data.status === 'ok') {
@@ -1449,6 +1639,16 @@ function positionItemNavigationControls() {
     $nextItemBtn.css("right", rightMargin + "px");
     $previousItemBtn = $('.previousItemBtn');
     $previousItemBtn.css("left", leftMargin + "px");
+}
+
+function postDownloadS3Object(s3Key) {
+  $.post('/memberAPI/postS3Download', {
+    s3Key: s3Key
+  }, function(data, textStatus, jQxhr) {
+    if (data.status === 'ok') {
+
+    }
+  }, 'json');
 }
 
 (function() {

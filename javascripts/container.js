@@ -217,7 +217,7 @@ function loadPage(){
   }
 
   function createNewItemVersionForContainer() {
-    createNewItemVersion(itemId, itemCopy, currentVersion,  0, function(err, data) {
+		createNewItemVersion(itemId, itemCopy, currentVersion, function(err, data) {
       if(err) {
         alert(err.code);
         return;
@@ -312,7 +312,9 @@ function loadPage(){
               envelopeIV: data.item.envelopeIV,
               ivEnvelope: data.item.ivEnvelope,
               ivEnvelopeIV: data.item.ivEnvelopeIV,
-              title: data.item.title
+              title: data.item.title,
+              totalStorage: data.item.totalStorage,
+              totalItemVersions: data.item.totalItemVersions
           };
           itemInfo.push(info);
 

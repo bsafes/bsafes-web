@@ -143,7 +143,16 @@ function loadPage(){
     	var itemContainer = $resultItem.data('container');
 			var itemOriginalContainer = $resultItem.data('originalContainer');
 			var itemOriginalPosition = $resultItem.data('originalPosition');
-    	var item = {id:itemId, container:itemContainer, position:itemPosition, originalContainer: itemOriginalContainer, originalPosition: itemOriginalPosition};	
+      var item = {id:itemId, container:itemContainer, position:itemPosition, originalContainer: itemOriginalContainer, originalPosition: itemOriginalPosition};
+      var itemType = itemId.split(':')[0];
+      if(itemType === 'b' || itemType === 'f' || itemType === 'n' || itemType === 'd') {
+        var totalStorage = $resultItem.data('totalStorage');
+        var totalItemVersions = $resultItem.data('totalItemVersions');
+      } else {
+        var totalStorage = $resultItem.data('totalItemSize');
+        var totalItemVersions = $resultItem.data('version');
+      }
+      var item = {id:itemId, container:itemContainer, position:itemPosition, originalContainer: itemOriginalContainer, originalPosition: itemOriginalPosition, totalStorage: totalStorage, totalItemVersions: totalItemVersions};
 			selectedItems.push(item);
 		}
 		if(selectedItems.lengthi === 0) {
@@ -151,6 +160,7 @@ function loadPage(){
 		} else {
 			$.post('/memberAPI/restoreItemsFromTrash', {
 				teamSpace: teamSpace,
+        trashBoxId: trashBoxId,
 				selectedItems:JSON.stringify(selectedItems)
 			}, function(data, textStatus, jQxhr) {
 				if(data.status === 'ok') {
@@ -176,12 +186,21 @@ function loadPage(){
       var itemContainer = $resultItem.data('container');
       var itemOriginalContainer = $resultItem.data('originalContainer');
       var itemOriginalPosition = $resultItem.data('originalPosition');
-      var item = {id:itemId, container:itemContainer, position:itemPosition, originalContainer: itemOriginalContainer, originalPosition: itemOriginalPosition};
+      var itemType = itemId.split(':')[0];
+      if(itemType === 'b' || itemType === 'f' || itemType === 'n' || itemType === 'd') {
+        var totalStorage = $resultItem.data('totalStorage');
+        var totalItemVersions = $resultItem.data('totalItemVersions');
+      } else {
+        var totalStorage = $resultItem.data('totalItemSize');
+        var totalItemVersions = $resultItem.data('version');
+      }
+      var item = {id:itemId, container:itemContainer, position:itemPosition, originalContainer: itemOriginalContainer, originalPosition: itemOriginalPosition, totalStorage: totalStorage, totalItemVersions: totalItemVersions};
       selectedItems.push(item);
 		}		
 
 		$.post('/memberAPI/restoreItemsFromTrash', {
       teamSpace: teamSpace,
+      trashBoxId: trashBoxId,
       selectedItems:JSON.stringify(selectedItems)
     }, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
@@ -202,6 +221,7 @@ function loadPage(){
 		selectedItems.push(trashedItem);
 		$.post('/memberAPI/emptyTrashBoxItems', {
 			teamSpace: teamSpace,
+      trashBoxId: trashBoxId,
 			selectedItems:JSON.stringify(selectedItems)
 		}, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
@@ -220,6 +240,7 @@ function loadPage(){
 		showLoadingInTrashBox();
 		$.post('/memberAPI/emptyTrashBoxItems', {
       teamSpace: teamSpace,
+      trashBoxId: trashBoxId,			
       selectedItems:JSON.stringify(currentSelectedItems)
     }, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {

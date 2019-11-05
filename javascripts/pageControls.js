@@ -701,8 +701,8 @@
 	    return false;
 	};
 
-	function createNewItemVersionForPage(addedSize) {
-	    createNewItemVersion(itemId, itemCopy, currentVersion, addedSize, function(err, data) {
+  function createNewItemVersionForPage() {
+      createNewItemVersion(itemId, itemCopy, currentVersion, function(err, data) {
 	    	$('.btnContentSave').LoadingOverlay('hide');
 	        if (err) {
 	            if ((itemCopy.update === 'title') || (itemCopy.update === 'content')) {
@@ -712,13 +712,14 @@
 	            alert(err.code);
 	            return;
 	        }
-	        itemCopy.accumulatedS3ObjectsInContent = data.accumulatedS3ObjectsInContent;
-	        itemCopy.accumulatedAttachments = data.accumulatedAttachments;
-	        itemCopy.accumulatedGalleryImages = data.accumulatedGalleryImages;
+          if(data.status === 'ok') {
+            var usage = JSON.parse(data.usage);
+            itemCopy.usage = usage;
 
-	        setCurrentVersion(itemCopy.version);
-	        if ((itemCopy.update !== "tags") && currentEditor) doneEditing();
-	        if ((itemCopy.update === "tags") && (!$('.tagsConfirmRow').hasClass('hidden'))) $('.tagsConfirmRow').addClass('hidden');
+            setCurrentVersion(itemCopy.version);
+            if ((itemCopy.update !== "tags") && currentEditor) doneEditing();
+            if ((itemCopy.update === "tags") && (!$('.tagsConfirmRow').hasClass('hidden'))) $('.tagsConfirmRow').addClass('hidden');
+          }
 	    });
 	};
 
@@ -1676,16 +1677,14 @@
 
 	function createNewItemVersionForPageForAttachments() {
 	    var newAttachments = itemCopy.attachments;
-	    var addedSize = 0;
 	    for (var i = 0; i < uploadedAttachments.length; i++) {
 	        var thisAttachment = { fileName: uploadedAttachments[i].fileName, s3KeyPrefix: uploadedAttachments[i].s3KeyPrefix, size: uploadedAttachments[i].size };
-	        addedSize += uploadedAttachments[i].size;
 	        newAttachments.push(thisAttachment);
 	    }
 	    itemCopy.attachments = newAttachments;
 	    itemCopy.update = "attachments";
-	    createNewItemVersionForPage(addedSize);
-	    uploadedAttachments = [];
+      createNewItemVersionForPage();	    
+			uploadedAttachments = [];
 	}
 
 	var checkUploadDownlodQueue = function() {
@@ -1736,6 +1735,7 @@
 	    var decryptChunkIndex = 0;
 	    var decryptedFileInUint8Array;
 	    var decryptedFileIndex;
+      var s3Key;
 	    var $decryptChunkDeferred = $.Deferred();
 	    var $decryptChunkPromise = $decryptChunkDeferred.promise();
 	    $decryptChunkDeferred.resolve();
@@ -1813,15 +1813,6 @@
 	                console.log('isDownloaded:', isDownloaded);
 
 	                console.log('downloaded chunk size:', encryptedChunkInArrayBuffer.byteLength);
-	                /*          $(document.getElementById('progressBar'+id)).parent().remove();
-	                          $.post('/memberAPI/postS3Download', {
-	                            itemId: itemId,
-	                            s3Key: s3CommonKey
-	                          }, function(data, textStatus, jQxhr ){
-	                            if(data.status === 'ok'){
-	                              var item = data.item;
-	                              var size = item.size;
-	                */
 	                console.log('Chunk downloaded:', chunkIndex);
 
 	                $decryptChunkPromise.done(function() {
@@ -1863,17 +1854,7 @@
 	                        }
 	                    });
 	                });
-	                /*
-	                            var link = window.URL.createObjectURL(new Blob([decryptedChunkInUint8Array]), {type: 'image/jpeg'});
-	                              $img = $('<img>');
-	                              $img.attr('src', link);
-	                              $('.container').append($img);
-
-	                              $downloadedElement = $(document.getElementById(id));
-	                              $downloadedElement.removeClass('bSafesDownloading');
-	                              displayImage(link);
-	                            }
-	                          }, 'json');*/
+                  postDownloadS3Object(s3Key);								
 	            };
 
 
@@ -1888,7 +1869,7 @@
 	        }
 
 
-
+          s3Key = id + '_chunk_' + chunkIndex;
 	        $.post('/memberAPI/preS3ChunkDownload', {
 	                itemId: itemId,
 	                chunkIndex: chunkIndex.toString(),
@@ -3107,22 +3088,14 @@
 
 	            xhr.onload = function(e) {
 	                var encryptedImageDataInArrayBuffer = this.response;
-	                $(document.getElementById('progressBar' + id)).parent().remove();
-	                $.post('/memberAPI/postS3Download', {
-	                    itemId: itemId,
-	                    s3Key: s3CommonKey
-	                }, function(data, textStatus, jQxhr) {
-	                    if (data.status === 'ok') {
-	                        var item = data.item;
-	                        var size = item.size;
 
-	                        var decryptedImageDataInUint8Array = decryptArrayBuffer(encryptedImageDataInArrayBuffer, itemKey, itemIV);
-	                        var link = window.URL.createObjectURL(new Blob([decryptedImageDataInUint8Array]), { type: 'image/jpeg' });
-	                        $downloadedElement = $(document.getElementById(id));
-	                        $downloadedElement.removeClass('bSafesDownloading');
-	                        displayImage(link);
-	                    }
-	                }, 'json');
+	                $(document.getElementById('progressBar' + id)).parent().remove();
+                  var decryptedImageDataInUint8Array = decryptArrayBuffer(encryptedImageDataInArrayBuffer, itemKey, itemIV);
+                  var link = window.URL.createObjectURL(new Blob([decryptedImageDataInUint8Array]), { type: 'image/jpeg' });
+                  $downloadedElement = $(document.getElementById(id));
+                  $downloadedElement.removeClass('bSafesDownloading');
+                  displayImage(link);
+                  postDownloadS3Object(s3Key);
 	            };
 
 	            xhr.send();
@@ -3187,6 +3160,7 @@
 	                    $parent.replaceWith($videoSpan);
 
 	                });
+									postDownloadS3Object(s3Key);
 	            };
 
 	            xhr.send();
@@ -3479,76 +3453,64 @@
 	                                            itemId: itemId,
 	                                            s3Key: s3Key
 	                                        }, function(data, textStatus, jQxhr) {
-	                                            if (data.status === 'ok') {
-	                                                var signedURL = data.signedURL;
+                                            if (data.status === 'ok') {
+                                              var signedURL = data.signedURL;
 
-	                                                var xhr = new XMLHttpRequest();
-	                                                xhr.open('GET', signedURL, true);
-	                                                xhr.responseType = 'arraybuffer';
+                                              var xhr = new XMLHttpRequest();
+                                              xhr.open('GET', signedURL, true);
+                                              xhr.responseType = 'arraybuffer';
 
-	                                                xhr.addEventListener("progress", function(evt) {
-	                                                    if (evt.lengthComputable) {
-	                                                        var percentComplete = evt.loaded / evt.total * 100;
-	                                                        $downloadImage.find('.progress-bar').css('width', percentComplete + '%');
-	                                                    }
-	                                                }, false);
+                                              xhr.addEventListener("progress", function(evt) {
+                                                if (evt.lengthComputable) {
+                                                  var percentComplete = evt.loaded / evt.total * 100;
+                                                  $downloadImage.find('.progress-bar').css('width', percentComplete + '%');
+                                                }
+                                              }, false);
 
-	                                                xhr.onload = function(e) {
-	                                                    $downloadImage.find('.downloadText').text("Decrypting");
-	                                                    currentImageDownloadXhr = null;
-	                                                    var encryptedImageDataInArrayBuffer = this.response;
-	                                                    $.post('/memberAPI/postS3Download', {
-	                                                        itemId: itemId,
-	                                                        s3Key: s3CommonKey
-	                                                    }, function(data, textStatus, jQxhr) {
-	                                                        if (data.status === 'ok') {
-	                                                            var item = data.item;
-	                                                            var size = item.size;
+                                              xhr.onload = function(e) {
+                                                $downloadImage.find('.downloadText').text("Decrypting");
+                                                currentImageDownloadXhr = null;
+                                                var encryptedImageDataInArrayBuffer = this.response;
 
-	                                                            var decryptedImageDataInUint8Array = decryptArrayBuffer(encryptedImageDataInArrayBuffer, itemKey, itemIV);
-	                                                            var link = window.URL.createObjectURL(new Blob([decryptedImageDataInUint8Array]), { type: 'image/jpeg' });
-	                                                            $img = $('<img class="img-responsive" src="' + link + '"' + '>');
-	                                                            $img.on('load', function(e) {
-	                                                                var $thisImg = $(e.target);
-	                                                                $thisImg.data('width', $thisImg[0].width);
-	                                                                $thisImg.data('height', $thisImg[0].height);
+                                                var decryptedImageDataInUint8Array = decryptArrayBuffer(encryptedImageDataInArrayBuffer, itemKey, itemIV);
+                                                var link = window.URL.createObjectURL(new Blob([decryptedImageDataInUint8Array]), { type: 'image/jpeg' });
+                                                $img = $('<img class="img-responsive" src="' + link + '"' + '>');
+                                                $img.on('load', function(e) {
+                                                  var $thisImg = $(e.target);
+                                                  $thisImg.data('width', $thisImg[0].width);
+                                                  $thisImg.data('height', $thisImg[0].height);
 
-	                                                                var $imagePanel = $('.imagePanelTemplate').clone().removeClass('imagePanelTemplate hidden').addClass('imagePanel');
-	                                                                $imagePanel.find('.deleteImageBtn').attr('data-key', s3CommonKey).on('click', pageControlFunctions.deleteImageOnPage);
-	                                                                $imagePanel.attr('id', id);
-	                                                                $imagePanel.find('.image').append($thisImg);
-	                                                                var encryptedWords = $downloadImage.data('words');
-	                                                                if (encryptedWords) {
-	                                                                    var encodedWords = decryptBinaryString(encryptedWords, itemKey, itemIV);
-	                                                                    var words = forge.util.decodeUtf8(encodedWords);
-	                                                                    words = DOMPurify.sanitize(words);
-	                                                                    $imagePanel.find('.froala-editor').html(words);
-	                                                                }
-	                                                                $imagePanel.find('.btnWrite').on('click', handleBtnWriteClicked);
-	                                                                $imagePanel.find('.insertImages').on('change', insertImages);
-	                                                                $downloadImage.before($imagePanel);
-	                                                                $downloadImage.remove();
-
-	                                                                done(null);
-	                                                            });
-	                                                            $img.on('click', function(e) {
-	                                                                $thisImg = $(e.target);
-	                                                                $thisImagePanel = $thisImg.closest('.imagePanel');
-	                                                                var index = $thisImagePanel.attr('id');
-	                                                                var startingIndex = parseInt(index.split('-')[1]);
-	                                                                showGallery(startingIndex);
-	                                                            });
-	                                                        }
-	                                                    }, 'json');
-
-	                                                };
-
-	                                                xhr.send();
-	                                                currentImageDownloadXhr = xhr;
-
+                                                  var $imagePanel = $('.imagePanelTemplate').clone().removeClass('imagePanelTemplate hidden').addClass('imagePanel');
+                                                  $imagePanel.find('.deleteImageBtn').attr('data-key', s3CommonKey).on('click', pageControlFunctions.deleteImageOnPage);
+                                                  $imagePanel.attr('id', id);
+                                                  $imagePanel.find('.image').append($thisImg);
+                                                  var encryptedWords = $downloadImage.data('words');
+                                                  if (encryptedWords) {
+                                                    var encodedWords = decryptBinaryString(encryptedWords, itemKey, itemIV);                              
+                                                    var words = forge.util.decodeUtf8(encodedWords);
+                                                    words = DOMPurify.sanitize(words);
+                                                    $imagePanel.find('.froala-editor').html(words);
+                                                  } 
+                                                  $imagePanel.find('.btnWrite').on('click', handleBtnWriteClicked);                                     
+                                                  $imagePanel.find('.insertImages').on('change', insertImages);                                         
+                                                  $downloadImage.before($imagePanel);
+                                                  $downloadImage.remove();
+                                                  
+                                                  done(null);
+                                                });
+                                                $img.on('click', function(e) {
+                                                  $thisImg = $(e.target);
+                                                  $thisImagePanel = $thisImg.closest('.imagePanel');
+                                                  var index = $thisImagePanel.attr('id');
+                                                  var startingIndex = parseInt(index.split('-')[1]);
+                                                  showGallery(startingIndex);
+                                                });
+                                                postDownloadS3Object(s3Key);
 	                                            }
-	                                        }, 'json');
-
+                                              xhr.send();
+                                              currentImageDownloadXhr = xhr;
+                                            }
+                                          }, 'json');
 	                                    };
 
 	                                    var doneDownloadingAnImage = function(err) {
@@ -4677,9 +4639,6 @@
                 $downloadContent = addTemplateOtherTypesStatusAndProgress();
                 $downloadContent.find('.downloadText').text("Downloading");
 				$downloadContent.find('.progress-bar').css('width', '0%');				
-                // var id = $downloadImage.attr('id');
-                // var s3CommonKey = $downloadImage.data('s3Key');
-                //var s3Key = s3CommonKey + "_gallery";
                 var s3Key = contentFromeServer;
                 console.log('download_s3Key = ', s3Key);
 
@@ -4715,43 +4674,18 @@
                             // $downloadImage.find('.downloadText').text("Decrypting");
                             // currentImageDownloadXhr = null;
                             var encryptedContentDataInArrayBuffer = this.response;
-                            $.post('/memberAPI/postS3Download', {
-                                itemId: itemId,
-                                s3Key: s3Key
-                            }, function(data, textStatus, jQxhr) {
-                            	console.log('call_postS3Download = ', data.status);
-                                if (data.status === 'ok') {
-                                    var item = data.item;
-                                    var size = item.size;
+														var encryptedContentDataInUint8Array = new Uint8Array(encryptedContentDataInArrayBuffer);
+                            var encryptedContentDataInBinaryString = convertUint8ArrayToBinaryString(encryptedContentDataInUint8Array);
+                            var decryptedContentData = decryptLargeBinaryString(encryptedContentDataInBinaryString, itemKey, itemIV);
+                            var decodedContent = forge.util.decodeUtf8(decryptedContentData);
+                            content = decodedContent;
 
-                                    //var decryptedContentDataInUint8Array = decryptArrayBuffer(encryptedContentDataInArrayBuffer, itemKey, itemIV);
-                                    var encryptedContentDataInUint8Array = new Uint8Array(encryptedContentDataInArrayBuffer);
-                                    var encryptedContentDataInBinaryString = convertUint8ArrayToBinaryString(encryptedContentDataInUint8Array);
-                                    var decryptedContentData = decryptLargeBinaryString(encryptedContentDataInBinaryString, itemKey, itemIV);
-                                    var decodedContent = forge.util.decodeUtf8(decryptedContentData);
-                                    content = decodedContent;
-
-         //                            function ab2str(buf) {
-									// 	try {
-									// 		return new TextDecoder("utf-8").decode(buf);
-									// 	}
-									// 	catch(err) {
-									// 		return String.fromCharCode.apply(null, new Uint8Array(buf));
-									// 	}
-									// }
-									// var arraybufferContent = decryptedContentDataInUint8Array;
-									// arraybufferContent = ab2str(arraybufferContent);
-									// content = arraybufferContent;
-
-                                    done(null);
-                                }
-                            }, 'json');
-
+                            done(null);
+														postDownloadS3Object(s3Key);
                         };
 
                         xhr.onerror = function (e) {
 							alert('Ooh, please retry! Error occurred when connecting the following url : \n\n' + signedURL);
-							//console.log('Ooh, please retry! Error occurred when connecing the url : ', signedURL);
 						};
 
                         xhr.send();
@@ -4762,23 +4696,13 @@
 
             };
 
-            // var doneDownloadingOtherTypesContent = function(err) {
-            //     if (err) {
-            //         console.log(err);
-            //         done(err);
-            //     } else {                    
-            //         done(null);                    
-            //     }
-            // };
-            
             if ( (contentFromeServer == null) || (pageContentType == null) ){
             	doneGetting(null);
             } else if (pageContentType == constContentTypeWrite) {
-				getWriteTypesContent(doneGetting);
-			} else {
-            	//downloadOtherTypesContent(doneDownloadingOtherTypesContent);
+							getWriteTypesContent(doneGetting);
+						} else {
             	downloadOtherTypesContent(doneGetting);
-			}
+						}
         }
 
         function isLoadFromLocalStorage() {
@@ -4800,7 +4724,5 @@
         	}
         	return false;
         }
-
-		//backupContentsInLocalStorage();				
 	}
 
