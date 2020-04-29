@@ -119,6 +119,21 @@ body {
 .up-arrow, .down-arrow {
   cursor: pointer;
 }
+
+.bottomBanner {
+  position: fixed; 
+  bottom: 0;
+  left: 0;
+  right: 0;
+	min-height:60px;
+  background: #ebc334;
+	opacity: 0.9;
+}
+
+.bottomBannerMessage {
+	margin-top:10px;
+	margin-left:10px;
+}
 /* End of general */
 
 /*--***** Custom body */
@@ -889,8 +904,25 @@ body {
 	margin-right:7px
 }
 /* End of comments */
-
-/*edi append*/
+/*--****** Dashboard */
+.dashboardBody {
+	background-color: #ddd;
+}
+.dashboardTableProperty {
+	font-weight:bold;
+}
+/* End of Dashboard */
+/*--***** Managed Members */
+#accountURL {
+	font-size:12px;
+}
+/* End of Managed Members */
+/*--****** Accounting */
+#payAgain {
+	color: #c42533;
+}
+/* End of Accounting */
+/*--edi append*/
 .contentsWrapper {
   background-color: #CACFD2;
   padding-left:10px;
