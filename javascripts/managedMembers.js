@@ -1,15 +1,6 @@
 function loadPage(){
-	var pki = forge.pki;
-  var rsa = forge.pki.rsa;
 
 	var currentKeyVersion = 1;
-
-	var pki = forge.pki;
-	var rsa = forge.pki.rsa;
-
-	var expandedKey;
-	var publicKeyPem;
-	var privateKePemy;
 
 	var addAction = 'addATeamOnTop';
 	var $addTargetTeam;
@@ -22,6 +13,33 @@ function loadPage(){
 
 	$('#personalBtn').click(function(e){
 		window.location.href = '/safe/';
+	});
+
+	$('#createNicknameBtn').click(function(e) {
+		$('.nicknameWarning').addClass('hidden');
+		showLoadingIn($('#accountNickname'));
+		var nickname = $('#accountNickname').val();
+		if(nickname === "") {
+			$('#nicknameEmpty').removeClass('hidden');
+			return false;
+		}
+		$.post('/memberAPI/createNickname', {
+			nickname: nickname
+		}, function(data, textStatus, jQxhr ){
+			hideLoadingIn($('#accountNickname'));
+			if(data.status ===  'ok') {
+				$('#createNicknameBtn').addClass('hidden');
+				var accountURL = 'https://www.bsafes.com/n/' + nickname;
+				$('#accountURL').val(accountURL);
+			} else {
+				if(data.error === "ConditionalCheckFailedException") {
+					$('#nicknameNotAvailable').removeClass('hidden');
+				} else {
+					$('#nicknameOtherWarning').removeClass('hidden');
+				}	
+			}
+		});
+		return false;
 	});
 
   function checkInputStrength($input, value, progressId, strengthTextId) {
@@ -150,6 +168,7 @@ function loadPage(){
 				function(data, textStatus, jQxhr) {
 					if(data.status === 'ok') {
 				    $('.listMode').removeClass('hidden');
+						$('.nicknameWarning').addClass('hidden');
     				$('.addingMode').addClass('hidden');
 						clearMemberForm();		
 						listManagedMembers();
@@ -269,14 +288,5 @@ function loadPage(){
 		}, 'json'); 
 	}
 
-  bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey) {
-      if(err) {
-        alert(err);
-      } else {
-        expandedKey = key;
-				publicKeyPem = thisPublicKey;
-				privateKeyPem = thisPrivateKey;
-				listManagedMembers();
-      }
-  });
+	listManagedMembers();
 };

@@ -4,25 +4,6 @@ function loadPage(){
 	var email;
 	var password;
 
-	$('#startBtn').click(function(e) {
-		email = $('#email').val();
-		
-		if(!(email.length && email.includes("@"))){
-      alert("Invalid Email");
-      return;
-    }
- 
-		$.post('/registerEmail', {
-			email: email
-    }, function(data, textStatus, jQxhr ){
-      if(data.status === 'ok') {
-				$('.emailSignUpForm').addClass('hidden');
-				$('.emailVerificationForm').removeClass('hidden');
-      }
-    }, 'json');
-		return false;
-	});
-
 	$('#sendCodeBtn').click(function(e) {
 		var verificationCode = $('#verificationCode').val();
 		$.post('/resetEmailPasswordVerifyCode', {
@@ -31,7 +12,9 @@ function loadPage(){
       if(data.status === 'ok') {
         $('.emailVerificationForm').addClass('hidden');
         $('.passwordSetupForm').removeClass('hidden');
-      }
+      } else {
+				$('#verificationFailed').removeClass('hidden');
+			}
     }, 'json');
     return false;	
 	});

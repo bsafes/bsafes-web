@@ -333,11 +333,11 @@ function loadPage() {
                     } else {
                         var teamKeyEnvelope = team.teamKeyEnvelope;
                         var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-                        var encodedTeamKey = privateKeyFromPem.decrypt(teamKeyEnvelope);
+                        var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
                         teamKey = forge.util.decodeUtf8(encodedTeamKey);
                         var encryptedTeamName = team.team._source.name;
                         var teamIV = team.team._source.IV;
-                        var encodedTeamName = decryptBinaryString(encryptedTeamName, teamKey, teamIV);
+                        var encodedTeamName = decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV));
                         var teamName = forge.util.decodeUtf8(encodedTeamName);
                         teamName = DOMPurify.sanitize(teamName);
                         var length = teamName.length;
@@ -351,7 +351,7 @@ function loadPage() {
                         var teamSearchKeyEnvelope = team.team._source.searchKeyEnvelope;
                         var teamSearchKeyIV = team.team._source.searchKeyIV;
 
-                        teamSearchKey = decryptBinaryString(teamSearchKeyEnvelope, teamKey, teamSearchKeyIV);
+                        teamSearchKey = decryptBinaryString(forge.util.decode64(teamSearchKeyEnvelope), teamKey, forge.util.decode64(teamSearchKeyIV));
 
 
                         document.title = teamName;

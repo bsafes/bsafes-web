@@ -124,9 +124,9 @@ function showPath(teamName, itemPath, itemId, envelopeKey, pageId, endItemTitle)
         var itemTitleText;
         if (i !== 0 && i !== (path.length - 1)) {
             var thisItem = path[i];
-            var itemKey = decryptBinaryString(thisItem._source.keyEnvelope, envelopeKey, thisItem._source.envelopeIV);
-            var itemIV = decryptBinaryString(thisItem._source.ivEnvelope, envelopeKey, thisItem._source.ivEnvelopeIV);
-            var encodedTitle = decryptBinaryString(thisItem._source.title, itemKey, itemIV);
+            var itemKey = decryptBinaryString(forge.util.decode64(thisItem._source.keyEnvelope), envelopeKey, forge.util.decode64(thisItem._source.envelopeIV));
+            var itemIV = decryptBinaryString(forge.util.decode64(thisItem._source.ivEnvelope), envelopeKey, forge.util.decode64(thisItem._source.ivEnvelopeIV));
+            var encodedTitle = decryptBinaryString(forge.util.decode64(thisItem._source.title), itemKey, itemIV);
             var title = forge.util.decodeUtf8(encodedTitle);
             title = DOMPurify.sanitize(title);
             itemTitleText = $(title).text();
@@ -826,11 +826,11 @@ function newResultItem(resultItem) {
 		if((resultItem.keyEnvelope === undefined) || (resultItem.envelopeIV === undefined) || (resultItem.ivEnvelope === undefined) || (resultItem.ivEnvelopeIV === undefined)) {
 			var title = "Error!";		
 		} else {
-    	var itemKey = decryptResultInContainer(resultItem.keyEnvelope, resultItem.envelopeIV);
-    	var itemIV = decryptResultInContainer(resultItem.ivEnvelope, resultItem.ivEnvelopeIV);
+    	var itemKey = decryptResultInContainer(forge.util.decode64(resultItem.keyEnvelope), forge.util.decode64(resultItem.envelopeIV));
+    	var itemIV = decryptResultInContainer(forge.util.decode64(resultItem.ivEnvelope), forge.util.decode64(resultItem.ivEnvelopeIV));
 			if (resultItem.title) {
         try {
-          var encodedTitle = decryptBinaryString(resultItem.title, itemKey, itemIV);
+          var encodedTitle = decryptBinaryString(forge.util.decode64(resultItem.title), itemKey, itemIV);
           var title = forge.util.decodeUtf8(encodedTitle);
           title = DOMPurify.sanitize(title);
         } catch (err) {
@@ -894,7 +894,7 @@ function newResultItem(resultItem) {
       $resultItem.data('totalItemVersions', totalItemVersions);
     }
     var link;
-    var debugUsage = 1;
+    var debugUsage = 0;
     switch (itemType) {
         case 'p':
             if (title.substring(0, 2) === '<h') {
@@ -1085,11 +1085,11 @@ function createANewItem(currentContainer, selectedItemType, addAction, $addTarge
         addActionOptions = {
             "targetContainer": currentContainer,
             "type": selectedItemType,
-            "keyEnvelope": keyEnvelope,
-            "ivEnvelope": ivEnvelope,
-            "envelopeIV": envelopeIV,
-            "ivEnvelopeIV": ivEnvelopeIV,
-            "title": encryptedTitle,
+            "keyEnvelope": forge.util.encode64(keyEnvelope),
+            "ivEnvelope": forge.util.encode64(ivEnvelope),
+            "envelopeIV": forge.util.encode64(envelopeIV),
+            "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
+            "title": forge.util.encode64(encryptedTitle),
             "titleTokens": JSON.stringify(titleTokens)
         };
     } else {
@@ -1101,11 +1101,11 @@ function createANewItem(currentContainer, selectedItemType, addAction, $addTarge
             "targetItem": targetItem,
             "targetPosition": targetPosition,
             "type": selectedItemType,
-            "keyEnvelope": keyEnvelope,
-            "ivEnvelope": ivEnvelope,
-            "envelopeIV": envelopeIV,
-            "ivEnvelopeIV": ivEnvelopeIV,
-            "title": encryptedTitle,
+            "keyEnvelope": forge.util.encode64(keyEnvelope),
+            "ivEnvelope": forge.util.encode64(ivEnvelope),
+            "envelopeIV": forge.util.encode64(envelopeIV),
+            "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
+            "title": forge.util.encode64(encryptedTitle),
             "titleTokens": JSON.stringify(titleTokens)
         };
     }
@@ -1251,11 +1251,11 @@ function displayContainers(containers, total, mode) {
             } else if (thisItem.type === 'F') {
                 var $thisItem = $('.folderTemplate').clone().removeClass("folderTemplate hidden").addClass("folder");
             }
-            var itemKey = decryptResultInContainer(thisItem.keyEnvelope, thisItem.envelopeIV);
-            var itemIV = decryptResultInContainer(thisItem.ivEnvelope, thisItem.ivEnvelopeIV);
+            var itemKey = decryptResultInContainer(forge.util.decode64(thisItem.keyEnvelope), forge.util.decode64(thisItem.envelopeIV));
+            var itemIV = decryptResultInContainer(forge.util.decode64(thisItem.ivEnvelope), forge.util.decode64(thisItem.ivEnvelopeIV));
             if (thisItem.title) {
                 try {
-                    var encodedTitle = decryptBinaryString(thisItem.title, itemKey, itemIV);
+                    var encodedTitle = decryptBinaryString(forge.util.decode64(thisItem.title), itemKey, itemIV);
                     var title = forge.util.decodeUtf8(encodedTitle);
                     title = DOMPurify.sanitize(title);
                     title = $(title).text();

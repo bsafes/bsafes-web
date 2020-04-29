@@ -489,7 +489,7 @@ function tokenfieldToEncryptedArray(thisArray, key, iv) {
     if(thisArray[i].value.length) {
       var encodedElement = forge.util.encodeUtf8(thisArray[i].value);
       var encryptedElement = encryptBinaryString(encodedElement, key, iv);
-      encryptedArray.push(encryptedElement);
+      encryptedArray.push(forge.util.encode64(encryptedElement));
     }
   }
   return encryptedArray;

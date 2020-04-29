@@ -229,8 +229,11 @@ function loadPage(){
     	var publicKeyFromPem = pki.publicKeyFromPem(publicKey);
     	var encodedTeamKey = forge.util.encodeUtf8(teamKey);
     	var encryptedTeamKey = publicKeyFromPem.encrypt(encodedTeamKey);
+			encryptedTeamKey = forge.util.encode64(encryptedTeamKey);
+
 			var encodedTeamName = forge.util.encodeUtf8(teamName);
 			var encryptedTeamName = publicKeyFromPem.encrypt(encodedTeamName);   
+			encryptedTeamName = forge.util.encode64(encryptedTeamName);
  
     	$.post('/memberAPI/addATeamMember', {
       	teamId: teamId,
@@ -314,9 +317,12 @@ function loadPage(){
 		var publicKeyFromPem = pki.publicKeyFromPem(publicKey);
 		var encodedTeamKey = forge.util.encodeUtf8(teamKey);
 		var encryptedTeamKey = publicKeyFromPem.encrypt(encodedTeamKey);	
-		
+		encryptedTeamKey = forge.util.encode64(encryptedTeamKey);		
+	
 		var encodedTeamName = forge.util.encodeUtf8(teamName);
 		var encryptedTeamName	= publicKeyFromPem.encrypt(encodedTeamName);
+		encryptedTeamName = forge.util.encode64(encryptedTeamName);
+
 		addATeamMember(memberId, encryptedTeamKey, encryptedTeamName, function(err) {
 			if(err) console.log(err);
 		});
@@ -550,11 +556,11 @@ function loadPage(){
 						} else {
 							var teamKeyEnvelope = team.teamKeyEnvelope;	
 							var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-							var encodedTeamKey = privateKeyFromPem.decrypt(teamKeyEnvelope);
+							var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
 							teamKey = forge.util.decodeUtf8(encodedTeamKey);
 							var encryptedTeamName = team.team._source.name;
 							var teamIV = team.team._source.IV;
-							var encodedTeamName = decryptBinaryString(encryptedTeamName, teamKey, teamIV);
+							var encodedTeamName = decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV));
 							teamName = forge.util.decodeUtf8(encodedTeamName);
 							teamName = DOMPurify.sanitize(teamName);
 							document.title = teamName;

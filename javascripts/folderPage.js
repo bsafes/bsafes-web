@@ -117,11 +117,11 @@ function loadPage(){
       "targetItem": targetItem,
       "targetPosition": targetPosition,
       "type": "Page",
-      "keyEnvelope": keyEnvelope,
-      "ivEnvelope": ivEnvelope,
-      "envelopeIV": envelopeIV,
-			"ivEnvelopeIV": ivEnvelopeIV,
-      "title": encryptedTitle,
+      "keyEnvelope": forge.util.encode64(keyEnvelope),
+      "ivEnvelope": forge.util.encode64(ivEnvelope),
+      "envelopeIV": forge.util.encode64(envelopeIV),
+			"ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
+      "title": forge.util.encode64(encryptedTitle),
       "titleTokens": JSON.stringify(titleTokens)
     };		
 		

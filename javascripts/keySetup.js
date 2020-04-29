@@ -87,6 +87,7 @@ function loadPage(){
 		var keyHint = $('#inputHint').val() || "undefined";
 
 		keySalt =	forge.random.getBytesSync(128);
+		var encodedKeySalt = forge.util.encode64(keySalt);
 		var expandedKey	= forge.pkcs5.pbkdf2(goldenKey, keySalt, 10000, 32);
 
 		var md = forge.md.sha256.create();
@@ -126,12 +127,12 @@ function loadPage(){
     			$.post('/memberAPI/setupKeyData', {
         		"keyHash": goldenKeyHash,
 						"keyHint": keyHint,
-						"keySalt": keySalt,
+						"keySalt": encodedKeySalt,
 						"publicKey": publicKey,
-						"privateKeyEnvelope": privateKeyEnvelope,
-						"envelopeIV": envelopeIV,
-						"searchKeyEnvelope": searchKeyEnvelope,
-						"searchKeyIV": searchKeyIV
+						"privateKeyEnvelope": encodedPrivateKeyEnvelope,
+						"envelopeIV": encodedEnvelopeIV,
+						"searchKeyEnvelope": encodedSearchKeyEnvelope,
+						"searchKeyIV": encodedSearchKeyIV
       		},function(data, textStatus, jQxhr ){
         		console.log(data);
 						hideLoadingIn($('.enterYourKeyRow'));
@@ -152,7 +153,7 @@ function loadPage(){
 							localStorage.setItem("encodedSearchKeyEnvelope", encodedSearchKeyEnvelope);
 							localStorage.setItem("encodedSearchKeyIV", encodedSearchKeyIV);
 						
-							window.location.replace("/safe/");
+							window.location.replace("/teams");
         		} else {
           		console.log(data.err);
 							alert(data.err);

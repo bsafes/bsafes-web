@@ -331,8 +331,8 @@ function loadPage(){
 					initCurrentSpace(itemSpace);
 
 					function decryptItem(envelopeKey) {
-          	itemKey = decryptBinaryString(item.keyEnvelope, envelopeKey, item.envelopeIV);
-          	itemIV = decryptBinaryString(item.ivEnvelope, envelopeKey, item.ivEnvelopeIV);
+          	itemKey = decryptBinaryString(forge.util.decode64(item.keyEnvelope), envelopeKey, forge.util.decode64(item.envelopeIV));
+          	itemIV = decryptBinaryString(forge.util.decode64(item.ivEnvelope), envelopeKey, forge.util.decode64(item.ivEnvelopeIV));
 
 						$('#tagsInput').off();
           	itemTags = [];
@@ -341,6 +341,7 @@ function loadPage(){
             	encryptedTags.splice(-1, 1);
             	for(var i=0; i<item.tags.length; i++) {
               	var encryptedTag = encryptedTags[i];
+								encryptedTag = forge.util.decode64(encryptedTag);
               	var encodedTag = decryptBinaryString(encryptedTag, itemKey, itemIV);
               	var tag = forge.util.decodeUtf8(encodedTag);
               	itemTags.push(tag);
@@ -355,7 +356,8 @@ function loadPage(){
           	$('.container').data('itemKey', itemKey);
           	$('.container').data('itemIV', itemIV);
 
-          	var encodedTitle = decryptBinaryString(item.title, itemKey, itemIV);
+						var encryptedTitle = forge.util.decode64(item.title);
+          	var encodedTitle = decryptBinaryString(encryptedTitle, itemKey, itemIV);
           	var title = forge.util.decodeUtf8(encodedTitle);
 						title = DOMPurify.sanitize(title);
           	$('.froala-editor#title').html(title);
@@ -364,7 +366,6 @@ function loadPage(){
 						getAndShowPath(itemId, envelopeKey, teamName, document.title); 
           
 						initializeEditorButtons();
-
 
 					}
 					if(itemSpace.substring(0, 1) === 'u') {
@@ -385,11 +386,11 @@ function loadPage(){
               } else {
                 var teamKeyEnvelope = team.teamKeyEnvelope;
 								var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-								var encodedTeamKey = privateKeyFromPem.decrypt(teamKeyEnvelope);
+								var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
 								teamKey = forge.util.decodeUtf8(encodedTeamKey);
                 var encryptedTeamName = team.team._source.name;
                 var teamIV = team.team._source.IV;
-                teamName = forge.util.decodeUtf8(decryptBinaryString(encryptedTeamName, teamKey, teamIV));
+                teamName = forge.util.decodeUtf8(decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV)));
 								teamName = DOMPurify.sanitize(teamName);
 								if(teamName.length>20) {
                   var displayTeamName = teamName.substr(0, 20);
@@ -401,7 +402,7 @@ function loadPage(){
 								var teamSearchKeyEnvelope = team.team._source.searchKeyEnvelope;
 								var teamSearchKeyIV = team.team._source.searchKeyIV;
 
-								teamSearchKey = decryptBinaryString(teamSearchKeyEnvelope, teamKey, teamSearchKeyIV);
+								teamSearchKey = decryptBinaryString(forge.util.decode64(teamSearchKeyEnvelope), teamKey, forge.util.decode64(teamSearchKeyIV));
                 decryptItem(teamKey);
 							  if(done) {
               		done();
@@ -411,7 +412,9 @@ function loadPage(){
             });
           }
         }
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
   };
 
@@ -559,6 +562,7 @@ function loadPage(){
     var titleText = title.replace(/<(?:.|\n)*?>/gm, ' ');;
     var encodedTitle = forge.util.encodeUtf8(title);
     var encryptedTitle = encryptBinaryString(encodedTitle, itemKey, itemIV);
+		encryptedTitle = forge.util.encode64(encryptedTitle);
 
 		var thisSearchKey = isATeamItem ? teamSearchKey:searchKey;
     var titleTokens = stringToEncryptedTokens(titleText, thisSearchKey);
@@ -574,7 +578,8 @@ function loadPage(){
 		content = preProcessEditorContentBeforeSaving(content).content;
 		var encodedContent = forge.util.encodeUtf8(content);
 		var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
-		
+		encryptedContent = forge.util.encode64(encryptedContent);	
+	
 		itemCopy.content = encryptedContent;
 		itemCopy.update = "content";
 		createNewItemVersionForContainer();

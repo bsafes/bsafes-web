@@ -63,11 +63,11 @@ function loadPage(){
 				} else {
 					var teamKeyEnvelope = team.teamKeyEnvelope;
         	var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-        	var encodedTeamKey = privateKeyFromPem.decrypt(teamKeyEnvelope);
+        	var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
         	teamKey = forge.util.decodeUtf8(encodedTeamKey);
         	var encryptedTeamName = team.team._source.name;
         	var teamIV = team.team._source.IV;
-        	teamName = forge.util.decodeUtf8(decryptBinaryString(encryptedTeamName, teamKey, teamIV));
+        	teamName = forge.util.decodeUtf8(decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV)));
 					teamName = DOMPurify.sanitize(teamName);
         	if(teamName.length>20) {
           	var displayTeamName = teamName.substr(0, 20);

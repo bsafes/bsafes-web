@@ -20,11 +20,7 @@ window.fbAsyncInit = function() {
             if (data.status === 'ok') {
                 $('.emailSignInForm, .oauthSignIn, .newSignUp').addClass('hidden');
                 $('.passwordForm').removeClass('hidden');
-            } else {
-                if (data.err === "invalidMember") {
-                    $("#invalidMember").removeClass('hidden');
-                }
-            }
+            } 
             hideV5LoadingIn($('.emailSignInForm'));
         }, 'json');
         return false;

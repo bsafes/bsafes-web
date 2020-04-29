@@ -60,12 +60,12 @@ function loadPage(){
 		showLoading();
 		var addActionOptions;
 		addActionOptions = {
-      name: encryptedTeamName,
-      IV: teamIV,
-      teamKeyEnvelope: encryptedTeamKey,
-      searchKeyIV: searchKeyIV,
-      searchKeyEnvelope: searchKeyEnvelope,
-      encryptedTeamNameByMemberPublic: encryptedTeamNameByMemberPublic
+      name: forge.util.encode64(encryptedTeamName),
+      IV: forge.util.encode64(teamIV),
+      teamKeyEnvelope: forge.util.encode64(encryptedTeamKey),
+      searchKeyIV: forge.util.encode64(searchKeyIV),
+      searchKeyEnvelope: forge.util.encode64(searchKeyEnvelope),
+      encryptedTeamNameByMemberPublic: forge.util.encode64(encryptedTeamNameByMemberPublic)
     };
 
 		if(addAction !== "addATeamOnTop") {
@@ -248,7 +248,7 @@ function loadPage(){
 
 			if(team._source.encryptedTeamName) {
 				if(team._source.cachedTeamName) {
-					var encodedTeamName = ECBDecryptBinaryString(team._source.cachedTeamName, searchKey);
+					var encodedTeamName = ECBDecryptBinaryString(forge.util.decode64(team._source.cachedTeamName), searchKey);
 					var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
           appendResult(teamName);
 					i++;
@@ -257,7 +257,7 @@ function loadPage(){
           }			
 				} else {
 					var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-					var encodedTeamName = privateKeyFromPem.decrypt(team._source.encryptedTeamName);
+					var encodedTeamName = privateKeyFromPem.decrypt(forge.util.decode64(team._source.encryptedTeamName));
 					var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
 					appendResult(teamName);
 			
@@ -265,7 +265,7 @@ function loadPage(){
 					$.post('/memberAPI/cacheTeamNameForTeamMember', {
           	teamId: teamId,
           	memberId: memberId,
-          	cachedTeamName: cachedTeamName
+          	cachedTeamName: forge.util.encode64(cachedTeamName)
         	}, function(data, textStatus, jQxhr) {
           	if(data.status === 'ok') {
             	i++;
@@ -278,11 +278,11 @@ function loadPage(){
 			} else {
 				var teamKeyEnvelope = team._source.teamKeyEnvelope;
 				var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-				var encodedTeamKey = privateKeyFromPem.decrypt(teamKeyEnvelope);
+				var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
 				var teamKey = forge.util.decodeUtf8(encodedTeamKey);
 				var encryptedTeamName = team.team._source.name;
 				var teamIV = team.team._source.IV;
-				var encodedTeamName = decryptBinaryString(encryptedTeamName, teamKey, teamIV);
+				var encodedTeamName = decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV));
 				var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
 				appendResult(teamName);
 
@@ -292,7 +292,7 @@ function loadPage(){
 				$.post('/memberAPI/updateTeamNameForTeamMember', {
       		teamId: teamId,
       		memberId: memberId,
-					encryptedTeamName: encryptedTeamName
+					encryptedTeamName: forge.util.encode64(encryptedTeamName)
     		}, function(data, textStatus, jQxhr) {
       		if(data.status === 'ok') {
 						i++;

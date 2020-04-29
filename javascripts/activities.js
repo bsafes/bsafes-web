@@ -10,11 +10,11 @@ function loadPage(){
 			if(resultItem.id.charAt(0) === 't') {
 				var title = "Trash Box";
 			} else {
-				var itemKey = decryptResult(resultItem.keyEnvelope, resultItem.envelopeIV);
-				var itemIV = decryptResult(resultItem.ivEnvelope, resultItem.ivEnvelopeIV);
+				var itemKey = decryptResult(forge.util.decode64(resultItem.keyEnvelope), forge.util.decode64(resultItem.envelopeIV));
+				var itemIV = decryptResult(forge.util.decode64(resultItem.ivEnvelope), forge.util.decode64(resultItem.ivEnvelopeIV));
 				if(resultItem.title) {
 					try {
-						var encodedTitle = decryptBinaryString(resultItem.title, itemKey, itemIV);
+						var encodedTitle = decryptBinaryString(forge.util.decode64(resultItem.title), itemKey, itemIV);
 						var title = forge.util.decodeUtf8(encodedTitle);
 						title = DOMPurify.sanitize(title);
 						title = $('<div></div>').html(title).text();
@@ -279,11 +279,11 @@ function loadPage(){
 						} else {
 							var teamKeyEnvelope = team.teamKeyEnvelope;	
 							var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-							var encodedTeamKey = privateKeyFromPem.decrypt(teamKeyEnvelope);
+							var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
 							teamKey = forge.util.decodeUtf8(encodedTeamKey);
 							var encryptedTeamName = team.team._source.name;
 							var teamIV = team.team._source.IV;
-							var encodedTeamName = decryptBinaryString(encryptedTeamName, teamKey, teamIV);
+							var encodedTeamName = decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV));
 							teamName = forge.util.decodeUtf8(encodedTeamName);
 							teamName = DOMPurify.sanitize(teamName);
 							$('#teamName').text(teamName);
