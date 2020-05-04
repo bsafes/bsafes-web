@@ -1,6 +1,7 @@
 function loadPage(){
 
 	var currentKeyVersion = 1;
+	var accountId = $(".loginUserId").text();
 
 	var addAction = 'addATeamOnTop';
 	var $addTargetTeam;
@@ -28,7 +29,9 @@ function loadPage(){
 		}, function(data, textStatus, jQxhr ){
 			hideLoadingIn($('#accountNickname'));
 			if(data.status ===  'ok') {
+				$('#accountNickname').prop('disabled', true);
 				$('#createNicknameBtn').addClass('hidden');
+				$('#clearNicknameBtn').removeClass('hidden');
 				var accountURL = 'https://www.bsafes.com/n/' + nickname;
 				$('#accountURL').val(accountURL);
 			} else {
@@ -40,6 +43,30 @@ function loadPage(){
 			}
 		});
 		return false;
+	});
+
+	$('#clearNicknameBtn').click(function(e) {
+		$('.nicknameWarning').addClass('hidden');
+		$('#clearNicknameWarning').removeClass('hidden');
+	});
+
+	$('#confirmClearingNickname').click(function(e) {
+		showLoadingIn($('#accountNickname'));
+		$('#clearNicknameWarning').addClass('hidden');
+		$.post('/memberAPI/clearNickname', {
+		}, function(data, textStatus, jQxhr ){
+			hideLoadingIn($('#accountNickname'));
+			if(data.status ===  'ok') {
+				var accountURL = 'https://www.bsafes.com/m/s/' + accountId;
+				$('#accountURL').val(accountURL);
+				$('#accountNickname').val('');
+				$('#accountNickname').prop('disabled', false);
+				$('#clearNicknameBtn').addClass('hidden');
+				$('#createNicknameBtn').removeClass('hidden');
+			} else {
+				$('#nicknameOtherWarning').removeClass('hidden');
+			}
+		});	
 	});
 
   function checkInputStrength($input, value, progressId, strengthTextId) {
