@@ -1,0 +1,782 @@
+/* Medium devices (tablets, less than 992px) */
+@media (max-width: 991.98px) { 
+    .py-220 {
+        padding-top: 120px;
+        padding-bottom: 120px;
+    }
+    
+    .py-150 {
+        padding-top: 120px;
+        padding-bottom: 120px;
+    }
+    
+    .mt-150 {
+        margin-top: 100px;
+    }
+    
+    .mt-100 {
+        margin-top: 30px !important;
+    }
+    
+    .container-fluid {
+        padding: 0px 30px;
+    }
+
+    .navbar-default .navbar-nav > li {
+        margin: 0 10px;
+    }
+    
+    .navbar-default .navbar-nav > li > a {
+        font-size: 15px;
+        color: #000000;
+        background: transparent;
+        padding: 17px 0;
+    }
+
+    .navbar-right.navbar-nav > li > a {
+        padding: 8px 20px;
+        margin: 13px 0px;
+    }
+    
+    .banner.jumbotron h1 {
+        color: #000000;
+        font-size: 50px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+    }
+    
+    .banner.jumbotron p {
+        font-size: 18px;
+        margin-bottom: 30px;
+    }
+    
+    .btn-group-lg>.btn, .btn-lg {
+        padding: 12px 30px;
+        font-size: 18px;
+        line-height: 1.3333333;
+        border-radius: 35px;
+    }
+    
+    .get-started {
+        height: auto;
+        width: 100%;
+        background: #14348e;
+        padding-top: 150px;
+    }
+    
+    .get-started h2 {
+        margin: 0 0 30px 0;
+    }
+    
+    .create .right {
+        text-align: center;
+        padding-bottom: 30px;
+    }
+    
+    .get-whitepaper h2 {
+        margin-top: 0;
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+    
+    .get-whitepaper p {
+        font-size: 16px;
+        font-weight: 400;
+        margin-bottom: 20px;
+        line-height: 28px;
+        padding-right: 0;
+    }
+    
+    .blog .section-title {
+        font-size: 34px;
+        color: #000000;
+        line-height: 44px;
+        margin: 30px 0px 70px 0px;
+    }
+    
+    .why .section-title {
+        font-size: 34px;
+        line-height: 44px;
+        margin-bottom: 30px;
+    }
+    
+    .why p {
+        font-size: 18px;
+        font-weight: 400;
+        line-height: 34px;
+        margin-bottom: 20px;
+    }
+    
+    .how ol {
+        margin: 35px 0px;
+        padding: 0 25px;
+    }
+    
+    .faqs p {
+        color: #000000;
+        font-size: 15px;
+        line-height: 28px;
+        margin: 10px 0px 30px 0px;
+    }
+    
+    .faqs h5 {
+        margin-top: 30px;
+    }
+    
+    .faqs h5>span:first-child {
+        margin-right: 20px;
+    }
+    
+    .designed {
+        padding: 50px 0px;
+        border-top: 1px solid #c7c7c7;
+        border-bottom: 1px solid #c7c7c7;
+        text-align: center;
+    }
+    
+    footer {
+        padding: 100px 0px 80px 0px;
+        border-top: 1px solid #e0e3e5;
+    }
+    
+    footer ul {
+        margin-bottom: 50px;
+    }
+    
+    footer ul.social-link {
+        margin-bottom: 0px;
+    }
+    
+    .about-banner h1 {
+        font-size: 50px;
+    }
+    
+    .about-parallax {
+        height: 550px;
+    }
+    
+    .about-us .section-title {
+        font-size: 34px;
+        line-height: 44px;
+    }
+    
+    .about-us .mb-30 {
+        margin-bottom: 20px;
+    }
+    
+    .about-us .section-title {
+        margin-bottom: 30px;
+    }
+    
+    .about-counter .counter-wrapper p {
+        font-size: 14px;
+    }
+    
+    .about-branch {
+        padding-left: 70px;
+        padding-right: 70px;
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+    
+    .about-branch.about-us p {
+        padding-right: 0px;
+    }
+    
+    .about-branch.about-us a {
+        margin-bottom: 50px;
+    }
+    
+    .plan-faq .faq-single {
+        min-height: 130px;
+    }
+    
+    .plan-footer .d-flex .items:nth-child(2)::before {
+        display: none;
+    }
+    
+    .contact-us h1 {
+        font-size: 55px;
+    }
+
+    .contact-us h5 {
+        font-size: 16px;
+    }
+    
+    .contact-info p {
+        width: 60%;
+        line-height: 28px;
+    }
+    
+    .follow-links li a {
+        font-size: 45px;
+        padding: 40px 0px;
+    }
+    
+    .go-on h2.section-title {
+        font-size: 40px;
+        line-height: 55px;
+    }
+    
+    .text-block h1 {
+        font-size: 50px;
+    }
+    
+    .text-block h6 {
+        margin-top: 30px;
+    }
+}
+
+/* Small devices (landscape phones, less than 768px) */
+@media (max-width: 767.98px) { 
+    .section-title {
+        font-size: 34px;
+    }
+    
+    a.link-style {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 28px;
+    }
+    
+    .py-100 {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+    
+    .mt-20 {
+        margin-top: 10px !important;
+    }
+    
+    .navbar-brand {
+        padding: 10px 15px;
+    }
+    
+    .navbar-default .navbar-nav.main-nav {
+        margin: 10px 0 0 0;
+    }
+    
+    .navbar-default .navbar-nav > li > a {
+        text-align: center;
+        padding: 10px 0;
+    }
+    
+    .navbar-nav .open .dropdown-menu>li>a {
+        line-height: 20px;
+        text-align: center;
+        color: #000000 !important;
+    }
+    
+    .navbar-default .navbar-nav.navbar-right {
+        margin: 0 0 10px 0;
+    }
+    
+    .navbar-right.navbar-nav>li {
+        text-align: center;
+    }
+    
+    .navbar-right.navbar-nav>li>a.my-btn {
+        color: #f6cd3d;
+        border: 1px solid #f6cd3d;
+        border-radius: 25px;
+        display: inline-block;
+        margin-top: 0;
+    }
+    
+    .navbar-right.navbar-nav > li > a {
+        padding: 8px 20px;
+        margin: 13px 0px;
+    }
+    
+    .banner.jumbotron p {
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+    
+    .get-started h2 {
+        margin: 0 0 30px 0;
+    }
+    
+    .get-started p {
+        font-size: 18px;
+        font-weight: 300;
+        margin-bottom: 30px;
+    }
+    
+    .create .text-box h4 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .create .text-box p {
+        margin-bottom: 0;
+    }
+
+    .get-whitepaper {
+        text-align: center;
+    }
+    
+    .get-whitepaper h2 {
+        margin-top: 30px;
+    }
+    
+    .get-whitepaper p {
+        font-size: 15px;
+        line-height: 26px;
+        padding-right: 0;
+    }
+    
+    .blog {
+        text-align: center;
+        padding-top: 120px;
+        padding-bottom: 70px;
+    }
+    
+    .blog .section-title {
+        font-size: 24px;
+        color: #000000;
+        line-height: 34px;
+        margin: 30px 0px 50px 0px;
+    }
+    
+    .blog .mt-50, 
+    .blog .mtn-70, 
+    .blog .mt-150 {
+        margin-top: 0;
+    }
+    
+    .single-blog.mb-0 {
+        margin-bottom: 50px !important;
+    }
+    
+    .manage p {
+        font-size: 18px;
+        font-weight: 400;
+        margin-bottom: 40px;
+        line-height: 32px;
+        padding-right: 0px;
+    }
+    
+    .about-timeline .container-fluid {
+        padding: 0;
+    }
+    
+    .about-branch.about-us h3 {
+        font-size: 28px;
+    }
+    
+    .upgrade-heading h1 {
+        font-size: 40px;
+    }
+    
+    .plan-area .single-item.shadow {
+        margin-top: 80px;
+    }
+    
+    .business-btn-wrapper h6 {
+        margin-bottom: 10px;
+    }
+    
+    .business-btn-wrapper p {
+        margin-bottom: 15px;
+    }
+    
+    .plan-footer p.note {
+        font-size: 13px;
+        line-height: 26px;
+    }
+    
+    .plan-feature {
+        text-align: center;
+    }
+    
+    .icons {
+        margin-top: 35px;
+        margin-bottom: 25px;
+        margin: auto;
+    }
+    
+    .plan-faq .faq-single {
+        min-height: auto;
+    }
+    
+    .contact-us h1 {
+        font-size: 50px;
+    }
+
+    .contact-info p {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .follow-links li a {
+        font-size: 35px;
+        padding: 25px 0px;
+    }
+    
+    .go-on h2.section-title {
+        font-size: 30px;
+        line-height: 40px;
+    }
+    
+    .go-on .round-btn {
+        margin-top: 15px;
+        margin-bottom: 0px;
+    }
+    
+    .text-block h1 {
+        font-size: 40px;
+    }
+}
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) { 
+    .section-title {
+        font-size: 24px;
+    }
+    
+    .sub-title {
+        font-size: 14px;
+        line-height: 24px;
+    }
+    
+    .py-220 {
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+    
+    .py-150 {
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+    
+    .py-100 {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .px-90 {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+    
+    .mb-40 {
+        margin-bottom: 30px;
+    }
+    
+    a.link-style {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 28px;
+    }
+    
+    .navbar-brand {
+        float: left;
+        height: 50px;
+        padding: 10px 15px;
+        font-size: 18px;
+        line-height: 20px;
+    }
+    
+    .navbar-default .navbar-nav > li > a {
+        text-align: center;
+        padding: 5px 0;
+    }
+    
+    .navbar-right.navbar-nav > li > a {
+        padding: 8px 20px;
+    }
+    
+    .navbar-right.navbar-nav>li:first-child a {
+        padding: 0px;
+    }
+    
+    .banner.jumbotron h1 {
+        color: #000000;
+        font-size: 30px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+    }
+    
+    .get-started {
+        padding-top: 120px;
+    }
+    
+    .get-started h2 {
+        font-size: 20px;
+        font-weight: 700;
+    }
+    
+    .get-started p {
+        font-size: 16px;
+        font-weight: 300;
+        margin-bottom: 30px;
+    }
+    
+    .create .left .content-wrapper {
+        padding: 0 25px;
+    }
+    
+    .create .text-box p {
+        font-size: 14px;
+        line-height: 24px;
+    }
+    
+    .get-whitepaper h2 {
+        font-size: 20px;
+        line-height: 28px;
+    }
+    
+    .get-whitepaper p {
+        font-size: 14px;
+        line-height: 24px;
+        padding-right: 0;
+    }
+    
+    .blog {
+        padding-top: 80px;
+        padding-bottom: 70px;
+    }
+    
+    .manage p {
+        font-size: 14px;
+        font-weight: 400;
+        margin-bottom: 30px;
+        line-height: 24px;
+        padding-right: 0px;
+    }
+    
+    .why .section-title {
+        font-size: 22px;
+        line-height: 28px;
+        margin-bottom: 30px;
+    }
+    
+    .why p {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .how a.link-style {
+        font-size: 15px;
+        line-height: 28px;
+        margin-bottom: 15px;
+    }
+    
+    .faqs p {
+        font-size: 14px;
+        line-height: 24px;
+        margin: 10px 0px 30px 0px;
+    }
+    
+    .designed {
+        padding: 40px 0px;
+        border-top: 1px solid #c7c7c7;
+        border-bottom: 1px solid #c7c7c7;
+        text-align: center;
+    }
+    
+    footer p {
+        color: #000000;
+        font-size: 14px;
+        line-height: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .about-banner {
+        padding-top: 60px;
+    }
+    
+    .about-banner h1 {
+        font-size: 30px;
+    }
+    
+    .about-banner p {
+        color: #000000;
+        font-size: 16px;
+        margin: 30px 0px 40px 0px;
+    }
+    
+    .about-parallax {
+        height: 320px;
+        width: 100%;
+        background-size: cover;
+    }
+    
+    .about-us .section-title {
+        font-size: 24px;
+        line-height: 34px;
+    }
+    
+    .about-us p {
+        color: #000000;
+        font-size: 14px;
+        line-height: 24px;
+    }
+    
+    .about-counter .counter-wrapper {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+    
+    .about-counter .counter-wrapper h3 {
+        font-size: 24px;
+    }
+    
+    .about-branch {
+        padding: 80px 25px;
+    }
+    
+    .about-branch.about-us h3 {
+        font-size: 24px;
+    }
+    
+    .about-us a {
+        font-size: 15px;
+    }
+    
+    .upgrade-heading h1 {
+        font-size: 30px;
+    }
+    
+    .nav-tabs {
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        margin-bottom: 0;
+    }
+    
+    .nav-tabs>li {
+        float: left;
+        margin: 10px;
+        min-width: 200px;
+    }
+    
+    .plan-area .single-item h2 span {
+        font-size: 34px;
+    }
+    
+    .plan-area .single-item sub, .plan-area .single-item sup {
+        font-size: 13px;
+    }
+    
+    .business-btn-wrapper {
+        padding: 20px;
+    }
+    
+    .business-btn-wrapper h6 {
+        line-height: 26px;
+    }
+    
+    .business-btn-wrapper p {
+        line-height: 24px;
+    }
+    
+    .business-btn-wrapper a {
+        font-size: 12px;
+        padding: 10px 15px;
+    }
+    
+    .plan-footer .d-flex .items {
+        padding: 20px;
+    }
+    
+    .plan-feature h2.section-title {
+        font-size: 24px;
+        line-height: 34px;
+        margin-bottom: 50px;
+    }
+    
+    .plan-faq {
+        padding: 100px 0px 100px 0px;
+    }
+    
+    .plan-faq h2.section-title {
+        font-size: 24px;
+        line-height: 34px;
+    }
+    
+    .plan-faq .faq-single h4 {
+        line-height: 26px;
+    }
+    
+    .contact-us h1 {
+        font-size: 45px;
+    }
+    
+    .contact-us h5 {
+        font-size: 16px;
+        line-height: 28px;
+        font-weight: 400;
+        margin-bottom: 70px;
+    }
+    
+    .follow-us h2.section-title {
+        font-size: 30px;
+        margin-bottom: 35px;
+    }
+    
+    .follow-links li a {
+        font-size: 25px;
+        padding: 10px 0px;
+    }
+    
+    .go-on h2.section-title {
+        font-size: 28px;
+        line-height: 34px;
+    }
+    
+    .text-block h1 {
+        font-size: 34px;
+    }
+    
+    .text-block h2 {
+        font-size: 24px;
+    }
+    
+    .text-block h3 {
+        font-size: 20px;
+    }
+    
+    .banner {
+        margin: 0;
+        padding: 120px 0;
+    }
+    
+    .banner.jumbotron p br {
+        display: none;
+    }
+    
+    .get-started h2 {
+        line-height: 3rem;
+    }
+    
+    .get-whitepaper-text {
+        margin: 50px 0 0 0;
+    }
+    
+    .why h2.section-title {
+        line-height: 34px;
+    }
+    
+    .plan-feature.onepage h2.section-title {
+        font-size: 28px;
+        margin: 0 0 10px 0;
+    }
+    
+    .plan-area.one-page .sub-title {
+        margin-bottom: 10px !important;
+    }
+    
+    .contact-area p br {
+        display: none;
+    }
+    
+    .contact-area input {
+        width: calc(100%);
+    }
+    
+}

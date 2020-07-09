@@ -130,6 +130,16 @@ body {
 	opacity: 0.9;
 }
 
+.highBottomBanner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  min-height:120px;
+  background: #ebc334;
+  opacity: 0.9;
+}
+
 .bottomBannerMessage {
 	margin-top:10px;
 	margin-left:10px;
@@ -404,6 +414,13 @@ body {
 }
 
 /* End of sign in page */
+
+/*-- Key Enter */
+.keyForm {
+	background-color:#ffffff;
+}
+
+/* End of Key Enter page */
 /*--***** Custom buttons */
 .btn-circle {
   width: 48px;
