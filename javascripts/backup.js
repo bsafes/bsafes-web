@@ -1,4 +1,18 @@
 function loadPage(){
+	$( "#downloadWin").click(function(event) {
+		$(".instructions").addClass("hidden");
+		$("#winInstructions").removeClass("hidden");
+	});
+
+  $( "#downloadMac").click(function(event) {
+		$(".instructions").addClass("hidden");
+    $("#macInstructions").removeClass("hidden");
+  });
+
+  $( "#downloadLinux").click(function(event) {
+		$(".instructions").addClass("hidden");
+    $("#linuxInstructions").removeClass("hidden");
+  });
 
 	$( "#getCredential" ).click(function(event) {
 		event.preventDefault();

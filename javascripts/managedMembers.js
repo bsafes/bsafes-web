@@ -211,6 +211,7 @@ function loadPage(){
 	
 /*** End of creating an managedMember ***/
 	var goDeleteEnabled = false;
+	var goResetMFAEnabled = false;
   function showLoadingInDeleteModal() {
     var $thisModal = $("#deleteModal").find(".modal-content");
     $thisModal.LoadingOverlay("show", {
@@ -224,6 +225,21 @@ function loadPage(){
 
   function hideLoadingInDeleteModal() {
     $("#deleteModal").find(".modal-content").LoadingOverlay("hide");
+  };
+
+  function showLoadingInExtraMFAModal() {
+    var $thisModal = $("#extraMFAModal").find(".modal-content");
+    $thisModal.LoadingOverlay("show", {
+      image       : "",
+      fontawesome : "fa fa-circle-o-notch fa-spin",
+      maxSize     : "38px",
+      minSize      : "36px",
+      background: "rgba(255, 255, 255, 0.0)"
+    });
+  };
+
+  function hideLoadingInExtraMFAModal() {
+    $("#extraMFAModal").find(".modal-content").LoadingOverlay("hide");
   };
 
   function showDeleteModal(memberId, $targetMember) { 
@@ -241,7 +257,6 @@ function loadPage(){
       showLoadingInDeleteModal(); 
       $.post('/memberAPI/deleteAManagedMember', { 
 				memberId: memberId,
-        masterId: masterId,
 				memberName: memberName   
       }, function(data, textStatus, jQxhr) { 
         hideLoadingInDeleteModal(); 
@@ -267,12 +282,85 @@ function loadPage(){
     }); 
   }
 
+  function showExtraMFAModal(memberId, $targetMember) {
+		$('#MFAEnabled').addClass('hidden');
+		$('#noMFA').addClass('hidden');
+    $('#extraMFAModal').modal('show'); 
+    $('#resetInput').val(""); 
+    var $thisBtn = $('#goResetMFABtn'); 
+    $thisBtn.addClass('disabled'); 
+
+		var memberId = $targetMember.attr('id'); 
+		var masterId = $targetMember.data('masterId');
+		var memberName = $targetMember.data('memberName'); 
+
+		showLoadingInExtraMFAModal();
+		
+		function resetMFA() {
+    	$thisBtn.off();  
+    	$thisBtn.click(function(e) { 
+      	if(!goResetMFAEnabled) return false; 
+      	showLoadingInExtraMFAModal(); 
+      	$.post('/memberAPI/resetManagedMemberMFA', { 
+					memberId: memberId,
+					memberName: memberName   
+      	}, function(data, textStatus, jQxhr) { 
+       		hideLoadingInExtraMFAModal(); 
+       		$('#extraMFAModal').modal('hide'); 
+					if(data.status === 'ok') { 
+
+       		} else { 
+         		alert(data.err); 
+       		} 
+     		}, 'json'); 
+				return false;
+    	});  
+   
+    	$('#resetInput').on('input', function() { 
+      	var thisInput = $(this).val(); 
+      	if(thisInput === 'Reset') { 
+        	$thisBtn.removeClass('disabled'); 
+        	goResetMFAEnabled = true; 
+      	} else { 
+        	$thisBtn.addClass('disabled'); 
+        	goResetMFAEnabled = false; 
+      	} 
+   		}); 
+
+		}
+
+		$.post('/memberAPI/isManagedMemberMFAEnabled', {
+        memberId: memberId,
+        memberName: memberName
+      }, function(data, textStatus, jQxhr) {
+        hideLoadingInExtraMFAModal();
+        if(data.status === 'ok') {
+					if(data.MFAEnabled) {
+						$('#MFAEnabled').removeClass('hidden');
+						resetMFA();
+					} else {
+						$('#noMFA').removeClass('hidden');
+					}
+        } else {
+          alert(data.err);
+        }
+      }, 'json');
+  }
+
 	var handleAction = function(e) {
+		e.preventDefault();
     if($(e.target).hasClass('deleteAManagedMember')) {
       var $targetMember = $(e.target).closest('.resultItem');
       var memberId = $targetMember.attr('id');
       showDeleteModal(memberId, $targetMember);
+			return;
     }
+		if($(e.target).hasClass('extraMFA')) {
+      var $targetMember = $(e.target).closest('.resultItem');
+      var memberId = $targetMember.attr('id');
+      showExtraMFAModal(memberId, $targetMember);
+      return;
+    }	
   }
 	
 	function displayManagedMembers(managedMembers) {

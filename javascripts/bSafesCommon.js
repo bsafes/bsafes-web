@@ -87,7 +87,9 @@ function bSafesPreflight(fn) {
 			fn(null, expandedKey, publicKey, privateKey, searchKey);
 		} else if(data.status === 'locked') {
 			lockBSafes("byServer");
-		}  else {
+		} else if(data.status === 'MFA_required') {
+			window.location.replace('/extraMFA');
+    } else {
 			window.location.replace('/');	
 		}
 	}, 'json');

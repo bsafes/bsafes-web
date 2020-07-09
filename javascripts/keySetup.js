@@ -3,6 +3,16 @@ function loadPage(){
 
 	var goldenKey;
 	var keySalt;
+	var isKeyVerified = false;
+	var isBoxChecked = false;
+
+	function updateDoneButton() {
+		if(isKeyVerified && isBoxChecked) {
+			$('#setupDoneButton').removeClass('disabled');
+		} else {
+			$('#setupDoneButton').addClass('disabled');
+		}
+	}
 
 	function checkKeyStrength(key) {
 		console.log("Checking key strength:", key.length);
@@ -44,7 +54,8 @@ function loadPage(){
 
 	$('#createKey').on('input', function(){
 		$('.progress, #strengthText').removeClass('hidden');
-		$('#doneButton').addClass('disabled'); 
+		isKeyVerified = false;
+		$('#setupDoneButton').addClass('disabled'); 
 		$('#confirmKey').val('');
 		$('#confirmText').text('');
 		goldenKey = $(this).val();
@@ -57,11 +68,23 @@ function loadPage(){
 		console.log(confirmingKey);
 		if(confirmingKey === goldenKey){
 			$('#confirmText').text('Ok');
-			$('#setupDoneButton').removeClass('disabled');
+			isKeyVerified = true;
+			updateDoneButton();
 			$('#keyReminderModal').modal('toggle');	
 		} else {
 			$('#confirmText').text('');
-			$('#doneButton').addClass('disabled');
+			isKeyVerified = false;
+			updateDoneButton();
+		}
+	});
+
+	$("#agreeBox").change(function() {
+    if(this.checked) {
+			isBoxChecked = true;
+			updateDoneButton();
+    } else {
+			isBoxChecked = false;
+			updateDoneButton();
 		}
 	});
 
@@ -86,9 +109,13 @@ function loadPage(){
 		e.preventDefault();
 		var keyHint = $('#inputHint').val() || "undefined";
 
-		keySalt =	forge.random.getBytesSync(128);
+		keySalt =	forge.random.getBytesSync(32);
 		var encodedKeySalt = forge.util.encode64(keySalt);
-		var expandedKey	= forge.pkcs5.pbkdf2(goldenKey, keySalt, 10000, 32);
+		var time1 = Date.now();
+		var expandedKey	= forge.pkcs5.pbkdf2(goldenKey, keySalt, 100000, 32);
+		var time2 = Date.now();
+		var diff = time2 - time1;
+		console.log("Diff: ", diff);
 
 		var md = forge.md.sha256.create();
 		md.update(expandedKey);
@@ -102,7 +129,7 @@ function loadPage(){
 			e.preventDefault();
 			var enterKey = $('#enterKey').val();
 
-			var expandedKey = forge.pkcs5.pbkdf2(enterKey, keySalt, 10000, 32);
+			var expandedKey = forge.pkcs5.pbkdf2(enterKey, keySalt, 100000, 32);
 
 			var md = forge.md.sha256.create();
 			md.update(expandedKey);
@@ -116,7 +143,7 @@ function loadPage(){
 					var encodedPrivateKeyEnvelope = forge.util.encode64(privateKeyEnvelope);
 					var encodedEnvelopeIV = forge.util.encode64(envelopeIV);
 
-					var salt = forge.random.getBytesSync(128);
+					var salt = forge.random.getBytesSync(32);
   				var randomKey = forge.random.getBytesSync(32);
 					var searchKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
 					var searchKeyIV = forge.random.getBytesSync(16);
@@ -125,6 +152,7 @@ function loadPage(){
 					var encodedSearchKeyIV = forge.util.encode64(searchKeyIV);
 
     			$.post('/memberAPI/setupKeyData', {
+						"schemeVersion": 1,
         		"keyHash": goldenKeyHash,
 						"keyHint": keyHint,
 						"keySalt": encodedKeySalt,

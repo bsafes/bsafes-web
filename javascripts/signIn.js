@@ -34,11 +34,9 @@ window.fbAsyncInit = function() {
             password: password
         }, function(data, textStatus, jQxhr) {
             if (data.status === 'ok') {
-                window.location.href = "/member/";
+              window.location.href = "/member/";
             } else {
-                if (data.err === "wrongPassword") {
-                    $('#wrongPassword').removeClass('hidden');
-                }
+              $('#invalidMember').removeClass('hidden');
             }
             hideV5LoadingIn($('.passwordForm'));
         }, 'json');

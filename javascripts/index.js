@@ -6,6 +6,20 @@ window.fbAsyncInit = function() {
     version: 'v2.8'
   });
 
+  let scroll_link = $('.scroll');
+
+  //smooth scrolling -----------------------
+  scroll_link.click(function(e){
+    e.preventDefault();
+    let url = $('body').find($(this).attr('href')).offset().top;
+    $('html, body').animate({
+       scrollTop : url
+    },700);
+    $(this).parent().addClass('active');
+    $(this).parent().siblings().removeClass('active');
+    return false;
+  });
+
   $('#signUp').click(function(e) {
 		
     return false;
@@ -32,6 +46,38 @@ window.fbAsyncInit = function() {
     return false;
 	});
 
+	$('#sendMessage').click(function(e) {
+		var senderName = $("input[name='name']").val();
+		senderName = DOMPurify.sanitize(senderName);
+		var senderEmail = $("input[name='email']").val();
+		senderEmail = DOMPurify.sanitize(senderEmail);
+		if(senderName === "" || senderEmail === "" || senderEmail.indexOf("@") === -1) {
+			$("#nameAndEmailWarning").removeClass("hidden");
+			return false;
+		}
+		var message = $("textarea[name='message']").val();
+		message = DOMPurify.sanitize(message);
+		if(message === "") {
+			$("#messageWarning").removeClass("hidden");
+			return false;
+		}
+		$.post('/sendGuestMessage', {
+			senderName: encodeURI(senderName),
+			senderEmail: encodeURI(senderEmail),
+			message: encodeURI(message)
+		}, function(data, textStatus, jQxhr ){
+			if(data.status === 'ok') {
+				$("#messageSent").removeClass("hidden");
+				$("input[name='name']").val("");
+				$("input[name='email']").val("");
+				$("textarea[name='message']").val("");
+			} else {
+
+			}
+		}, 'json');
+
+		return false;
+	});
 //$("#slideshow > div:gt(0)").hide();
 
 setInterval(function() {

@@ -5,11 +5,13 @@
 	}
 	console.log("Please enter your key");
 
+	var schemeVersion;
 	var keySalt;
 
 	$.post('/memberAPI/keyEnterPreflight', {
 		}, function(data, textStatus, jQxhr ){
 			if(data.status === 'ok') {
+				schemeVersion = data.schemeVersion;
 				keySalt = forge.util.decode64(data.keySalt);	
 			} else {
 				alert("System Error: Please reload this page and try again!");
@@ -33,7 +35,11 @@
 		showV5LoadingIn($('.keyForm'));
 		var goldenKey = $('#enterKey').val();
 
-		var expandedKey = forge.pkcs5.pbkdf2(goldenKey, keySalt, 10000, 32);
+		if(schemeVersion === '0') {
+			var expandedKey = forge.pkcs5.pbkdf2(goldenKey, keySalt, 10000, 32);
+		} else {
+			var expandedKey = forge.pkcs5.pbkdf2(goldenKey, keySalt, 100000, 32);
+		}
 	
 		var md = forge.md.sha256.create();
 		md.update(expandedKey);

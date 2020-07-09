@@ -182,30 +182,30 @@
 	// data snippet
 	function addSnippet()
 	{
-		var modalSnippet = `
-			<div class='modal fade' id='modalSnippet' tabindex='-1' role='dialog' aria-labelledby='moveItemsModalLabel' aria-hidden='true'>
-				<div class='modal-dialog'>
-					<div class='modal-content'>
-						<div class='modal-header'>
-							<button type='button' class='close closeLogDownloadItemsModal' data-dismiss='modal' aria-hidden='true'>&times;</button>
-							<h4 class='modal-title' id='moveItemsModalLabel'>Your Encrypted Data Snippet</h4>
-							<p>It is what others see without your key. BSafes staffs can't see neither.</p>
-						</div>
-						<div class='modal-body' style='padding: 0 20px 20px 20px;'>
-							<div style='border:1px solid darkgray; border-radius: 5px; padding:10px;'>
-								<div class='enc_buffer' style='width:100%; overflow: hidden;'>
-									dgsdgaskldghalsghlkdghjklaglanlknlnoinbnbdfasddgsdga
-									lsghlkdghjklaglanlknlnoinbnbdfasddgsdgaskldghalsghlkdghjklagl
-									anlknlnoinbnbdfasddgsdgaskldghalsghlkdghjklaglan
-									lknlnoinbnbdfasddgsdgaskldghal
-									sghlkdghjklaglanlknlnoinbnbdfasd
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		`;
+		var modalSnippet = " \
+			<div class='modal fade' id='modalSnippet' tabindex='-1' role='dialog' aria-labelledby='moveItemsModalLabel' aria-hidden='true'> \
+				<div class='modal-dialog'> \
+					<div class='modal-content'> \
+						<div class='modal-header'> \
+							<button type='button' class='close closeLogDownloadItemsModal' data-dismiss='modal' aria-hidden='true'>&times;</button> \
+							<h4 class='modal-title' id='moveItemsModalLabel'>Your Encrypted Data Snippet</h4> \
+							<p>It is what others see without your key. BSafes staffs can't see neither.</p> \
+						</div> \
+						<div class='modal-body' style='padding: 0 20px 20px 20px;'> \
+							<div style='border:1px solid darkgray; border-radius: 5px; padding:10px;'> \
+								<div class='enc_buffer' style='width:100%; overflow: hidden;'> \
+									dgsdgaskldghalsghlkdghjklaglanlknlnoinbnbdfasddgsdga \
+									lsghlkdghjklaglanlknlnoinbnbdfasddgsdgaskldghalsghlkdghjklagl \
+									anlknlnoinbnbdfasddgsdgaskldghalsghlkdghjklaglan \
+									lknlnoinbnbdfasddgsdgaskldghal \
+									sghlkdghjklaglanlknlnoinbnbdfasd \
+								</div> \
+							</div> \
+						</div> \
+					</div> \
+				</div> \
+			</div> \
+		";
 		$(modalSnippet).appendTo('body');
 	}
 
@@ -3812,46 +3812,45 @@
 
 	function addSelectContentTypeModal()
 	{
-		var htmlSelectContentTypeModal = `
-			<div class="modal fade in" id="selectContentTypeModal" tabindex="-1" role="dialog" aria-labelledby="selectContentTypeModal" aria-hidden="true" style="display: none; padding-right: 17px;">
-				<div class="modal-dialog">
-					<div class="modal-content" style="overflow: hidden;">
-						<div class="modal-header">
-							<button type="button" class="close" id="closeSelectContentTypeModal" data-dismiss="modal" aria-hidden="true">×</button>
-							<h4 class="modal-title" id="moveItemsModalLabel">Please Select a Type</h4>
-						</div>
-						<div class="modal-body" style="max-height: 336px; overflow-y: auto;">
-							
-							<div class="list-group containersList">
-								<a href="#" class="list-group-item contentTypeItem contentTypeWrite">
-									<em class="fontSize18Px">Write</em>
-								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeDraw">
-									<em class="fontSize18Px">Draw</em>
-								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeSpreadsheet">
-									<em class="fontSize18Px">Spreadsheet</em>
-								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeDoc">
-									<em class="fontSize18Px">Doc</em>
-								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeMxGraph">
-									<em class="fontSize18Px">Diagram</em>
-								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeRecordAudio">
-									<em class="fontSize18Px">Recording Audio</em>
-								</a>
-								<a href="#" class="list-group-item contentTypeItem contentTypeRecordVideo">
-									<em class="fontSize18Px">Recording Video</em>
-								</a>
-							</div>
-						</div>
-					</div>
-				<!-- /.modal-content -->
-				</div>
-			<!-- /.modal-dialog -->
-			</div>
-		`;
+		var htmlSelectContentTypeModal = ' \
+      <div class="modal fade in" id="selectContentTypeModal" tabindex="-1" role="dialog" aria-labelledby="selectContentTypeModal" aria-hidden="true" style="display: none; padding-right: 17px;"> \
+        <div class="modal-dialog"> \
+          <div class="modal-content" style="overflow: hidden;"> \
+            <div class="modal-header"> \
+              <button type="button" class="close" id="closeSelectContentTypeModal" data-dismiss="modal" aria-hidden="true">×</button> \
+              <h4 class="modal-title" id="moveItemsModalLabel">Please Select a Type</h4> \
+            </div> \
+            <div class="modal-body" style="max-height: 336px; overflow-y: auto;"> \
+              <div class="list-group containersList"> \
+                <a href="#" class="list-group-item contentTypeItem contentTypeWrite"> \
+                  <em class="fontSize18Px">Write</em> \
+                </a> \
+                <a href="#" class="list-group-item contentTypeItem contentTypeDraw"> \
+                  <em class="fontSize18Px">Draw</em> \
+                </a> \
+                <a href="#" class="list-group-item contentTypeItem contentTypeSpreadsheet"> \
+                  <em class="fontSize18Px">Spreadsheet</em> \
+                </a> \
+                <a href="#" class="list-group-item contentTypeItem contentTypeDoc"> \
+                  <em class="fontSize18Px">Doc</em> \
+                </a> \
+                <a href="#" class="list-group-item contentTypeItem contentTypeMxGraph"> \
+                  <em class="fontSize18Px">Diagram</em> \
+                </a> \
+                <a href="#" class="list-group-item contentTypeItem contentTypeRecordAudio"> \
+                  <em class="fontSize18Px">Recording Audio</em> \
+                </a> \
+                <a href="#" class="list-group-item contentTypeItem contentTypeRecordVideo"> \
+                  <em class="fontSize18Px">Recording Video</em> \
+                </a> \
+              </div> \
+            </div> \
+          </div> \
+        <!-- /.modal-content --> \
+        </div> \
+      <!-- /.modal-dialog --> \
+      </div> \
+		';
 
 		$(htmlSelectContentTypeModal).appendTo('body');
 
@@ -3906,13 +3905,14 @@
 
 	function addTemplateOtherTypesStatusAndProgress()
 	{
-		var html_tmp = `<div class="templateOtherTypesStatusAndProgress">
-							<div class="uploadText downloadText"></div>
-							<div class="progress progress-striped active marginTop20Px marginBottom0Px">
-			                	<div class="sceneControl progress-bar width0Percent"></div>
-			                </div>
-		                </div>
-        `;
+		var html_tmp = ' \
+						<div class="templateOtherTypesStatusAndProgress"> \
+							<div class="uploadText downloadText"></div> \
+							<div class="progress progress-striped active marginTop20Px marginBottom0Px"> \
+			         	<div class="sceneControl progress-bar width0Percent"></div> \
+			        </div> \
+		         </div> \
+        ';
 
         $('.btnWrite.editControl#content').parent().after(html_tmp);
         $tmp = $('.templateOtherTypesStatusAndProgress');
@@ -3922,13 +3922,14 @@
 
 	function addTemplateOtherTypesUploadProgress()
 	{
-		var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" style="position: fixed;
-					    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;">
-							<div class="progress progress-striped active marginTop20Px marginBottom0Px">
-			                	<div class="sceneControl progress-bar width0Percent"></div>
-			                </div>
-		                </div>
-        `;
+		var html_tmp = ' \
+					<div class="templateOtherTypesUploadProgress hidden" style="position: fixed; \
+					    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;"> \
+						<div class="progress progress-striped active marginTop20Px marginBottom0Px"> \
+			        <div class="sceneControl progress-bar width0Percent"></div> \
+			      </div> \
+		      </div> \
+        ';
 
         $('.contentsWrapper').append(html_tmp);
         
@@ -4026,25 +4027,27 @@
 			// content widget
 			if (content_type == constContentTypeDraw) {
 				$('.pageRow.editorRow').append('<div class="contentContainer" style="margin-left:10px; margin-right:10px;"></div>');
-				var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" >
-									<div class="progress progress-striped active marginLeft10Px marginRight10Px">
-					                	<div class="sceneControl progress-bar width0Percent"></div>
-					                </div>
-				                </div>
-		        `;
+				var html_tmp = ' \
+								<div class="templateOtherTypesUploadProgress hidden" > \
+									<div class="progress progress-striped active marginLeft10Px marginRight10Px"> \
+					          <div class="sceneControl progress-bar width0Percent"></div> \
+					        </div> \
+				        </div> \
+		        ';
 
 		        $('.contentContainer').after(html_tmp);
 				return;
 			} else { // fullscreen
 				
 				$('body').append('<div class="contentsWrapper"><div class="contentContainer"></div></div>');
-				var html_tmp = `<div class="templateOtherTypesUploadProgress hidden" style="position: fixed;
-							    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;">
-									<div class="progress progress-striped active marginTop20Px marginBottom0Px">
-					                	<div class="sceneControl progress-bar width0Percent"></div>
-					                </div>
-				                </div>
-		        `;
+				var html_tmp = ' \
+							<div class="templateOtherTypesUploadProgress hidden" style="position: fixed; \
+							    display: block; bottom: 20px; width: 60%; left: 20%; z-index: 10000;"> \
+								<div class="progress progress-striped active marginTop20Px marginBottom0Px"> \
+					        <div class="sceneControl progress-bar width0Percent"></div> \
+					      </div> \
+				      </div> \
+		        ';
 
 		        $('.contentsWrapper').append(html_tmp);
 				//addTemplateOtherTypesUploadProgress();
@@ -4121,11 +4124,11 @@
 
 			// content minimize button
 			if (icon_src) {
-				var htmlButton = `
-					<div class="btn btnFloatingMinimize btnFloating btnMinimize" style="">
-						<i class="fa fa-times fa-2x" aria-hidden="true"></i>
-					</div>
-				`;
+				var htmlButton = ' \
+					<div class="btn btnFloatingMinimize btnFloating btnMinimize" style=""> \
+						<i class="fa fa-times fa-2x" aria-hidden="true"></i> \
+					</div> \
+				';
 				$('body').after( htmlButton );
 				$('.btnMinimize').click(function(e) {
 					e.preventDefault();	
@@ -4151,11 +4154,11 @@
 			}
 
 			// conent save button
-			var htmlButton = `
-				<div class="btn btnFloatingCanvasSave btnFloating btnContentSave" style="">
-					<i class="fa fa-check fa-2x" aria-hidden="true"></i>
-				</div>
-			`;
+			var htmlButton = ' \
+				<div class="btn btnFloatingCanvasSave btnFloating btnContentSave" style=""> \
+					<i class="fa fa-check fa-2x" aria-hidden="true"></i> \
+				</div> \
+			';
 			$('body').after( htmlButton );	
 
 			//if ($.inArray(pageContentType, [null, constContentTypeWrite, constContentTypeDraw]) > -1) {
@@ -4223,17 +4226,17 @@
 			syncfusionKey = itemId + 'SyncfusionWordContent';
 
 
-			var template = `
-				<div class="control-section">
-					<title>Essential JS 2 - DocumentEditor</title>
-					<div id="panel" style="height: 100%;">
-						<div id="documenteditor_titlebar" class="e-de-ctn-title"></div>
-						<div id="documenteditor_container_body" style="display: flex;position:relative; height:100%">
-							<div id="syncfusion_container" style="width: 100%; height: 100%;"></div>
-						</div>
-					</div>
-				</div>
-			`;
+			var template = ' \
+				<div class="control-section"> \
+					<title>Essential JS 2 - DocumentEditor</title> \
+					<div id="panel" style="height: 100%;"> \
+						<div id="documenteditor_titlebar" class="e-de-ctn-title"></div> \
+						<div id="documenteditor_container_body" style="display: flex;position:relative; height:100%"> \
+							<div id="syncfusion_container" style="width: 100%; height: 100%;"></div> \
+						</div> \
+					</div> \
+				</div> \
+			';
 		
 			$(".contentContainer").css("border", "1px solid red;");
 			$(".contentContainer").append(template);

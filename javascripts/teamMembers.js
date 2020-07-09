@@ -261,16 +261,22 @@ function loadPage(){
 		}
 	};
 
+	var startIndex = 0;
 	function listManagedMembers() {
 		showLoading();
-		$('.managedMembers').empty();
 		$.post('/memberAPI/listManagedMembers', {
       size: 20,
-      from: 0
+      from: startIndex 
     }, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
         var total = data.hits.total;
         var hits = data.hits.hits;
+				startIndex += hits.length;
+				if(startIndex < total) {
+					$("#moreManagedMembers").removeClass("hidden");
+				} else {
+					$("#moreManagedMembers").addClass("hidden");
+				}
         if(hits.length) {
 					displayManagedMembers(hits);
 					$("#addManagedMembersBtn").click(function(e) {
@@ -295,6 +301,11 @@ function loadPage(){
 		} 
 		return false;
 	});
+
+  $('#moreManagedMembers').click(function(e) {
+    listManagedMembers();
+    return false;
+  });
 
 	$('#cancelAddingAMemberBtn').click(function(e) {
 		$('.findAMemberResults').empty();
