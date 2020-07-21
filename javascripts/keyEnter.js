@@ -1,4 +1,6 @@
 (function(){
+	argon2Functions.loadArgon2('native-wasm');
+
 	var redirectURL = $('.redirectURL').text();
 	if(redirectURL === 'undefined') {
 		redirectURL = '/';
@@ -38,7 +40,7 @@
 		if(schemeVersion === '0') {
 			var expandedKey = forge.pkcs5.pbkdf2(goldenKey, keySalt, 10000, 32);
 		} else {
-			var expandedKey = forge.pkcs5.pbkdf2(goldenKey, keySalt, 100000, 32);
+			var expandedKey = argon2Functions.deriveKey(goldenKey, keySalt);
 		}
 	
 		var md = forge.md.sha256.create();

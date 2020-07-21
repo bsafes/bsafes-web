@@ -1,5 +1,7 @@
 function loadPage(){
 	console.log("Please set up your key");
+	
+	argon2Functions.loadArgon2('native-wasm');
 
 	var goldenKey;
 	var keySalt;
@@ -109,10 +111,10 @@ function loadPage(){
 		e.preventDefault();
 		var keyHint = $('#inputHint').val() || "undefined";
 
-		keySalt =	forge.random.getBytesSync(32);
+		keySalt =	forge.random.getBytesSync(16);
 		var encodedKeySalt = forge.util.encode64(keySalt);
 		var time1 = Date.now();
-		var expandedKey	= forge.pkcs5.pbkdf2(goldenKey, keySalt, 100000, 32);
+		var expandedKey = argon2Functions.deriveKey(goldenKey, keySalt);
 		var time2 = Date.now();
 		var diff = time2 - time1;
 		console.log("Diff: ", diff);
@@ -129,7 +131,7 @@ function loadPage(){
 			e.preventDefault();
 			var enterKey = $('#enterKey').val();
 
-			var expandedKey = forge.pkcs5.pbkdf2(enterKey, keySalt, 100000, 32);
+			var expandedKey = argon2Functions.deriveKey(enterKey, keySalt);
 
 			var md = forge.md.sha256.create();
 			md.update(expandedKey);

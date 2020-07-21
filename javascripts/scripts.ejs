@@ -1,470 +1,160 @@
 <% if(typeof(forgeJS) !== "undefined" && forgeJS)  {%>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.7.6/forge.min.js?v0.B1.20200707" integrity="sha384-F1L9GRsA4NrH87gLI5LQu110sQ1OHQDI62gGfUwIEldZLJCC03v/z9v5YLus6yM3" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.7.6/forge.min.js?v0.B1.20200720" integrity="sha384-F1L9GRsA4NrH87gLI5LQu110sQ1OHQDI62gGfUwIEldZLJCC03v/z9v5YLus6yM3" crossorigin="anonymous"></script>
 <% } %>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js?v0.B1.20200707" integrity="sha384-6ePHh72Rl3hKio4HiJ841psfsRJveeS+aLoaEf3BWfS+gTF0XdAqku2ka8VddikM" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js?v0.B1.20200707" integrity="sha384-PtTRqvDhycIBU6x1wwIqnbDo8adeWIWP3AHmnrvccafo35E7oIvW7HPXn2YimvWu" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js?v0.B1.20200707" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.5/dist/loadingoverlay.min.js?v0.B1.20200707" integrity="sha384-Ws98sWXkvMbI9Hjqigfg2zUQEenctO2lUSX9pBSrWEebk+yWcxNLhyXOZoJ6Z8Bj" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/1.0.8/purify.min.js?v0.B1.20200707" integrity="sha384-Fu0mn8DroqWATfBVHn2jftx2vMLwSLddLeUMSpMpaLzEXgux+NLhg93TQ1sF/qfb" crossorigin="anonymous"></script>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/bSafesCommon.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/bSafesCommon.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/bSafesCommon.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/bSafesCommon.js?v0.B1.20200707" integrity="sha384-QR/QoCM3TeiH/fpp3EYleGeobQFFyMeIBZyym4on+XUbuH38JnktIN/vmX1xjjZA" crossorigin="anonymous"></script>
-<%}%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/bSafesCommonUI.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/bSafesCommonUI.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/bSafesCommonUI.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/bSafesCommonUI.js?v0.B1.20200707" integrity="sha384-oiB2+3bk+nBr1BdNAWRQQxj3I10GpeJ/L2wrV8nrgjXdCWpmOZDG7uEZeeqpMJSw" crossorigin="anonymous"></script>
-<%}%>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js?v0.B1.20200720" integrity="sha384-6ePHh72Rl3hKio4HiJ841psfsRJveeS+aLoaEf3BWfS+gTF0XdAqku2ka8VddikM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js?v0.B1.20200720" integrity="sha384-PtTRqvDhycIBU6x1wwIqnbDo8adeWIWP3AHmnrvccafo35E7oIvW7HPXn2YimvWu" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js?v0.B1.20200720" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.5/dist/loadingoverlay.min.js?v0.B1.20200720" integrity="sha384-Ws98sWXkvMbI9Hjqigfg2zUQEenctO2lUSX9pBSrWEebk+yWcxNLhyXOZoJ6Z8Bj" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/1.0.8/purify.min.js?v0.B1.20200720" integrity="sha384-Fu0mn8DroqWATfBVHn2jftx2vMLwSLddLeUMSpMpaLzEXgux+NLhg93TQ1sF/qfb" crossorigin="anonymous"></script>
+    <script src="/javascripts/bSafesCommon.js?v0.B1.20200720" integrity="sha384-QR/QoCM3TeiH/fpp3EYleGeobQFFyMeIBZyym4on+XUbuH38JnktIN/vmX1xjjZA" crossorigin="anonymous"></script>
+    <script src="/javascripts/bSafesCommonUI.js?v0.B1.20200720" integrity="sha384-oiB2+3bk+nBr1BdNAWRQQxj3I10GpeJ/L2wrV8nrgjXdCWpmOZDG7uEZeeqpMJSw" crossorigin="anonymous"></script>
 <% if(typeof(indexJS) !== "undefined" && indexJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/index.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/index.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/index.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/index.js?v0.B1.20200707" integrity="sha384-Row4l0hiNRRnPxMChDk/k1A/8xCHw1tYHepfnxuqGPBclpURWu1jkvjlne2I3qe3" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/index.js?v0.B1.20200720" integrity="sha384-Row4l0hiNRRnPxMChDk/k1A/8xCHw1tYHepfnxuqGPBclpURWu1jkvjlne2I3qe3" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(signInJS) !== "undefined" && signInJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/signIn.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/signIn.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/signIn.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/signIn.js?v0.B1.20200707" integrity="sha384-hZKv52geVdqH3A9SiXIGGubbHdswQ6WqyKPYn2shJX7T6vavmwIc+f5YkCRKNblr" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/signIn.js?v0.B1.20200720" integrity="sha384-hZKv52geVdqH3A9SiXIGGubbHdswQ6WqyKPYn2shJX7T6vavmwIc+f5YkCRKNblr" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(emailSignUpJS) !== "undefined" && emailSignUpJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/emailSignUp.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/emailSignUp.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/emailSignUp.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/emailSignUp.js?v0.B1.20200707" integrity="sha384-xfCn3jNI3QLU2b0dTTonbtIs4Zpd2pjRAAXT8s3R6r0pS4qasOu3mScSgwVIGyL6" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/emailSignUp.js?v0.B1.20200720" integrity="sha384-xfCn3jNI3QLU2b0dTTonbtIs4Zpd2pjRAAXT8s3R6r0pS4qasOu3mScSgwVIGyL6" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(resetEmailPasswordJS) !== "undefined" && resetEmailPasswordJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/resetEmailPassword.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/resetEmailPassword.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/resetEmailPassword.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/resetEmailPassword.js?v0.B1.20200707" integrity="sha384-n9HwF+epozmn+lhvcf1W30AuiKUh7beV84OphvCpnOPnLF52EFfqqdR5xj4i7Dnh" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/resetEmailPassword.js?v0.B1.20200720" integrity="sha384-n9HwF+epozmn+lhvcf1W30AuiKUh7beV84OphvCpnOPnLF52EFfqqdR5xj4i7Dnh" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(setupEMailJS) !== "undefined" && setupEMailJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/setupEMail.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/setupEMail.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/setupEMail.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/setupEMail.js?v0.B1.20200707" integrity="sha384-2IENx1DvXgHRQEEMak3Sd53eSYNKysRc43Yi8rVqV5yIOzB5pqF8maJby2BRYfmq" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/setupEMail.js?v0.B1.20200720" integrity="sha384-2IENx1DvXgHRQEEMak3Sd53eSYNKysRc43Yi8rVqV5yIOzB5pqF8maJby2BRYfmq" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(dashboardJS) !== "undefined" && dashboardJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/dashboard.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/dashboard.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/dashboard.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/dashboard.js?v0.B1.20200707" integrity="sha384-F9cOGLP3Fe9kxr8spVB1Wih/FyEQbYKmVY95xXsz4JlFdkxVIC8Eb5eZOgmjJ9WP" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/dashboard.js?v0.B1.20200720" integrity="sha384-F9cOGLP3Fe9kxr8spVB1Wih/FyEQbYKmVY95xXsz4JlFdkxVIC8Eb5eZOgmjJ9WP" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(backupJS) !== "undefined" && backupJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/backup.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/backup.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/backup.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/backup.js?v0.B1.20200707" integrity="sha384-NzNRlgUU3EMtZ33L5B6t+vC8KY8b20/niaoLgppBj7Bg4Kj+Jj4ne9ZSmE7cEFSw" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/backup.js?v0.B1.20200720" integrity="sha384-NzNRlgUU3EMtZ33L5B6t+vC8KY8b20/niaoLgppBj7Bg4Kj+Jj4ne9ZSmE7cEFSw" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(securityJS) !== "undefined" && securityJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/security.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/security.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/security.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/security.js?v0.B1.20200707" integrity="sha384-Ay/TpUz4ptGKENOoMa3lVVoV88xUr94/36PTz4HlFkXcdXgy+ejea52YPACQcmwb" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/security.js?v0.B1.20200720" integrity="sha384-Ay/TpUz4ptGKENOoMa3lVVoV88xUr94/36PTz4HlFkXcdXgy+ejea52YPACQcmwb" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(extraMFAJS) !== "undefined" && extraMFAJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/extraMFA.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/extraMFA.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/extraMFA.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/extraMFA.js?v0.B1.20200707" integrity="sha384-kIf5zAAe91ts4m63s3kMPMIBBg/pShtNVvFWU8o+nSNDwElhSqX8mGh3z+g1p5Qx" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/extraMFA.js?v0.B1.20200720" integrity="sha384-kIf5zAAe91ts4m63s3kMPMIBBg/pShtNVvFWU8o+nSNDwElhSqX8mGh3z+g1p5Qx" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(resetAccountMFAJS) !== "undefined" && resetAccountMFAJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/resetAccountMFA.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/resetAccountMFA.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/resetAccountMFA.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/resetAccountMFA.js?v0.B1.20200707" integrity="sha384-h9ZlWlhliZuEdpu4MP2AKJY6RDelGTMavEtrq7uVhk9d7Rp2rDmt+Mh/4gRRm65q" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/resetAccountMFA.js?v0.B1.20200720" integrity="sha384-h9ZlWlhliZuEdpu4MP2AKJY6RDelGTMavEtrq7uVhk9d7Rp2rDmt+Mh/4gRRm65q" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(managedMembersJS) !== "undefined" && managedMembersJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/managedMembers.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/managedMembers.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/managedMembers.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/managedMembers.js?v0.B1.20200707" integrity="sha384-76ldfwKMRgoixGK5aEvAcVXXT+dLkHMkij3KnD6gilyqN8yVSZN16iNJ26YGXpvP" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/managedMembers.js?v0.B1.20200720" integrity="sha384-76ldfwKMRgoixGK5aEvAcVXXT+dLkHMkij3KnD6gilyqN8yVSZN16iNJ26YGXpvP" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(managedMemberSignInJS) !== "undefined" && managedMemberSignInJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/managedMemberSignIn.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/managedMemberSignIn.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/managedMemberSignIn.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/managedMemberSignIn.js?v0.B1.20200707" integrity="sha384-pCP59bJrmspEEWJ0jjJPrWvr+tAGYXP9sbQFYEDZSql29hpQQdwumwJEqg5wAoPM" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/managedMemberSignIn.js?v0.B1.20200720" integrity="sha384-pCP59bJrmspEEWJ0jjJPrWvr+tAGYXP9sbQFYEDZSql29hpQQdwumwJEqg5wAoPM" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(trialMembersJS) !== "undefined" && trialMembersJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/trialMembers.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/trialMembers.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/trialMembers.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/trialMembers.js?v0.B1.20200707" integrity="sha384-D0sjs3N3g/BIPtQ6yse/6RFsKcsEkvNkKrJfgDIF8BDybPolgs/WQx2PcNTZQfsr" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/trialMembers.js?v0.B1.20200720" integrity="sha384-D0sjs3N3g/BIPtQ6yse/6RFsKcsEkvNkKrJfgDIF8BDybPolgs/WQx2PcNTZQfsr" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(keySetupJS) !== "undefined" && keySetupJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/keySetup.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/keySetup.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/keySetup.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/keySetup.js?v0.B1.20200707" integrity="sha384-0cp9H5mx2/G8D1WANxFRrKi6HVl/yWB94qaL2CA7k0IvxQQlrHkXfGtt81qEUxtR" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/argon2Calc.js?v0.B1.20200720" integrity="sha384-AoaPAbhOTgP/GwUVWDGHirYbaWuQJrAkWZ8P7Tj+qG1AKmgeB85XOUQIuMJulFli" crossorigin="anonymous"></script>
+    <script src="/javascripts/keySetup.js?v0.B1.20200720" integrity="sha384-f9NCR/4K4nCR5Juqp3uiL15MoWmO/+SolhHokxlpm3WPwJ8Mi7cVveXZe7YDTFXn" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(keyEnterJS) !== "undefined" && keyEnterJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/keyEnter.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/keyEnter.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/keyEnter.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/keyEnter.js?v0.B1.20200707" integrity="sha384-HGQRt/BYXQb1MXdV5g2kOENx9s39Z8Psy3js90uqARg3oZTo0LMp4y6DXpgnWwNS" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/argon2Calc.js?v0.B1.20200720" integrity="sha384-AoaPAbhOTgP/GwUVWDGHirYbaWuQJrAkWZ8P7Tj+qG1AKmgeB85XOUQIuMJulFli" crossorigin="anonymous"></script>
+    <script src="/javascripts/keyEnter.js?v0.B1.20200720" integrity="sha384-ieAKDOnsZEHSN9rlrAcNkJQE3Y56ffoyTw2eekI0iZqdWO7hT9Ja2yUUDwvZMTiP" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(signedOutState) !== "undefined" && signedOutState)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/signedOutState.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/signedOutState.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/signedOutState.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/signedOutState.js?v0.B1.20200707" integrity="sha384-gc43oVOHDUHbyOosncbw0vACO+MOJX3DZamiZErmjf60frBL1YSZYZc+FCTLhQ/P" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/signedOutState.js?v0.B1.20200720" integrity="sha384-gc43oVOHDUHbyOosncbw0vACO+MOJX3DZamiZErmjf60frBL1YSZYZc+FCTLhQ/P" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(signedInState) !== "undefined" && signedInState)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/signedInState.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/signedInState.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/signedInState.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/signedInState.js?v0.B1.20200707" integrity="sha384-gPxS323gvBxMdm7QjAMjMKrac/yzezSM2F2TzSrkckppnCNUyK4xikBfueHsuRRD" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/signedInState.js?v0.B1.20200720" integrity="sha384-gPxS323gvBxMdm7QjAMjMKrac/yzezSM2F2TzSrkckppnCNUyK4xikBfueHsuRRD" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(keyVerifiedState) !== "undefined" && keyVerifiedState)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/keyVerifiedState.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/keyVerifiedState.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/keyVerifiedState.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/keyVerifiedState.js?v0.B1.20200707" integrity="sha384-D5POr33SCtHfJqzph2c5npgTziJmJJsT+0TMNjA40RMT2ttovPllvuif6qNRIO9h" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/keyVerifiedState.js?v0.B1.20200720" integrity="sha384-D5POr33SCtHfJqzph2c5npgTziJmJJsT+0TMNjA40RMT2ttovPllvuif6qNRIO9h" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(signedInOrKeyVerifiedState) !== "undefined" && signedInOrKeyVerifiedState)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/signedInOrKeyVerifiedState.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/signedInOrKeyVerifiedState.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/signedInOrKeyVerifiedState.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/signedInOrKeyVerifiedState.js?v0.B1.20200707" integrity="sha384-yvLBaQUqlHx0XqAyu0sz1buMfM7zpRgahC6P3Sw973Nc/0EAjbqQIpG1zIyZf3hT" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/signedInOrKeyVerifiedState.js?v0.B1.20200720" integrity="sha384-yvLBaQUqlHx0XqAyu0sz1buMfM7zpRgahC6P3Sw973Nc/0EAjbqQIpG1zIyZf3hT" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(teamsJS) !== "undefined" && teamsJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/teams.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/teams.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/teams.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/teams.js?v0.B1.20200707" integrity="sha384-+hsAXmaPwgx3pliUcJNtUui36WvuxInbsdJnqqbMzGD6QLmC/Pa9MFYlzvxbGDL1" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/teams.js?v0.B1.20200720" integrity="sha384-+hsAXmaPwgx3pliUcJNtUui36WvuxInbsdJnqqbMzGD6QLmC/Pa9MFYlzvxbGDL1" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(teamMembersJS) !== "undefined" && teamMembersJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/teamMembers.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/teamMembers.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/teamMembers.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/teamMembers.js?v0.B1.20200707" integrity="sha384-yI5jhfMaO1kxB0VbVLDbVQXw6XdQfa3bsjquKFSwulTMkKBsooyarwoUVE4z1ex1" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/teamMembers.js?v0.B1.20200720" integrity="sha384-yI5jhfMaO1kxB0VbVLDbVQXw6XdQfa3bsjquKFSwulTMkKBsooyarwoUVE4z1ex1" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(safeJS) !== "undefined" && safeJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/safe.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/safe.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/safe.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/safe.js?v0.B1.20200707" integrity="sha384-IfQhv83UMOfwvJw0EUkDfiGET4NtRpgVmYJ9cLGWQcs8tPAcJFFMpQ1R9w2ylZGC" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/safe.js?v0.B1.20200720" integrity="sha384-IfQhv83UMOfwvJw0EUkDfiGET4NtRpgVmYJ9cLGWQcs8tPAcJFFMpQ1R9w2ylZGC" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(activitiesJS) !== "undefined" && activitiesJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/activities.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/activities.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/activities.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/activities.js?v0.B1.20200707" integrity="sha384-4n9c03XXOFDLxWOgDdelFR4SP7C7W6eqm9feVYz7MepaV2tKHaQtPu/5d1ZS4SjS" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/activities.js?v0.B1.20200720" integrity="sha384-4n9c03XXOFDLxWOgDdelFR4SP7C7W6eqm9feVYz7MepaV2tKHaQtPu/5d1ZS4SjS" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(containerJS) !== "undefined" && containerJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/container.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/container.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/container.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/container.js?v0.B1.20200707" integrity="sha384-u5OTvOSdBqMpw4zneer6s1zBarJddW922r/A9zJwWgjccZLHKTTp5H0RNDR4WwYw" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/container.js?v0.B1.20200720" integrity="sha384-u5OTvOSdBqMpw4zneer6s1zBarJddW922r/A9zJwWgjccZLHKTTp5H0RNDR4WwYw" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(pageJS) !== "undefined" && pageJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/page.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/page.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/page.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/page.js?v0.B1.20200707" integrity="sha384-WYVF9q+5OcPuB6T3kuH/41RuBw7hb2tb7aLZ7K1zFl0lnsnarQjlkKxiXyN7frfh" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/page.js?v0.B1.20200720" integrity="sha384-WYVF9q+5OcPuB6T3kuH/41RuBw7hb2tb7aLZ7K1zFl0lnsnarQjlkKxiXyN7frfh" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(folderPageJS) !== "undefined" && folderPageJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/folderPage.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/folderPage.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/folderPage.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/folderPage.js?v0.B1.20200707" integrity="sha384-tUnWjXuqWosHCPIjMOTyqSCmglOvnb1h+bYzUSviFm1XnKOZLhw7MVSO026+9dck" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/folderPage.js?v0.B1.20200720" integrity="sha384-tUnWjXuqWosHCPIjMOTyqSCmglOvnb1h+bYzUSviFm1XnKOZLhw7MVSO026+9dck" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(notebookPageJS) !== "undefined" && notebookPageJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/notebookPage.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/notebookPage.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/notebookPage.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/notebookPage.js?v0.B1.20200707" integrity="sha384-3KgeYwhbLu8lx98gi3c4sKoLKl/UGFxicOrIfQULyfCWj5s7j4jYI8fI/Sl6NEds" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/notebookPage.js?v0.B1.20200720" integrity="sha384-3KgeYwhbLu8lx98gi3c4sKoLKl/UGFxicOrIfQULyfCWj5s7j4jYI8fI/Sl6NEds" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(diaryPageJS) !== "undefined" && diaryPageJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/diaryPage.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/diaryPage.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/diaryPage.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/diaryPage.js?v0.B1.20200707" integrity="sha384-8XHjHMTKndGzQviIvxVCeehZ5E1ChgsGqB7AAKH/PML9qAsAuboJQmDGGslhgFWc" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/diaryPage.js?v0.B1.20200720" integrity="sha384-8XHjHMTKndGzQviIvxVCeehZ5E1ChgsGqB7AAKH/PML9qAsAuboJQmDGGslhgFWc" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(subscribeJS) !== "undefined" && subscribeJS)  {%>
-    <script src="https://js.braintreegateway.com/web/dropin/1.19.0/js/dropin.min.js?v0.B1.20200707" integrity="sha384-13U9J6uiWQIWAxa+ghlFocIknHXT7dW80Ickps6TsPrwALizXDAUNogTjM0piRaP" crossorigin="anonymous"></script>
-    <script src="https://www.paypalobjects.com/api/checkout.js?v0.B1.20200707" integrity="sha384-tLBW3Lx1XEmiJn7D6I+u1Cfln5QSJh4fdIfNeNePf4JgQAh5rvPeIpSH6w1u0iNx" crossorigin="anonymous"></script>
-    <script src="https://js.braintreegateway.com/web/3.57.0/js/client.min.js?v0.B1.20200707" integrity="sha384-Xe4Z9177PtyIL/7SNeYlmKehFMevo+jvXyJD2BedBqxg81qn19TvNl1w3KgCumec" crossorigin="anonymous"></script>
-    <script src="https://js.braintreegateway.com/web/3.57.0/js/paypal-checkout.min.js?v0.B1.20200707" integrity="sha384-xySR83QY5MjdqJcU7iETqfJujNKD7FbQX06YFnshkOQa8BBmyGNodX6Z5wn9nSvt" crossorigin="anonymous"></script>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/subscribe.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/subscribe.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/subscribe.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/subscribe.js?v0.B1.20200707" integrity="sha384-SAwhO6v6nrGeaafzhI5DNiUtMKoCGd1pwS2GJ++TjrhqlxC7bKsft7rOchfDoGp0" crossorigin="anonymous"></script>
-<%}%>
+    <script src="https://js.braintreegateway.com/web/dropin/1.19.0/js/dropin.min.js?v0.B1.20200720" integrity="sha384-13U9J6uiWQIWAxa+ghlFocIknHXT7dW80Ickps6TsPrwALizXDAUNogTjM0piRaP" crossorigin="anonymous"></script>
+    <script src="https://www.paypalobjects.com/api/checkout.js?v0.B1.20200720" integrity="sha384-tLBW3Lx1XEmiJn7D6I+u1Cfln5QSJh4fdIfNeNePf4JgQAh5rvPeIpSH6w1u0iNx" crossorigin="anonymous"></script>
+    <script src="https://js.braintreegateway.com/web/3.57.0/js/client.min.js?v0.B1.20200720" integrity="sha384-Xe4Z9177PtyIL/7SNeYlmKehFMevo+jvXyJD2BedBqxg81qn19TvNl1w3KgCumec" crossorigin="anonymous"></script>
+    <script src="https://js.braintreegateway.com/web/3.57.0/js/paypal-checkout.min.js?v0.B1.20200720" integrity="sha384-xySR83QY5MjdqJcU7iETqfJujNKD7FbQX06YFnshkOQa8BBmyGNodX6Z5wn9nSvt" crossorigin="anonymous"></script>
+    <script src="/javascripts/subscribe.js?v0.B1.20200720" integrity="sha384-SAwhO6v6nrGeaafzhI5DNiUtMKoCGd1pwS2GJ++TjrhqlxC7bKsft7rOchfDoGp0" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(buyQuotasJS) !== "undefined" && buyQuotasJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/buyQuotas.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/buyQuotas.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/buyQuotas.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/buyQuotas.js?v0.B1.20200707" integrity="sha384-R4jUCE9VogylCTICBSmWMvUIFdJkm4CdgutMZBiHNiW5wK/OEd53KzV1sSq2qVlD" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/buyQuotas.js?v0.B1.20200720" integrity="sha384-R4jUCE9VogylCTICBSmWMvUIFdJkm4CdgutMZBiHNiW5wK/OEd53KzV1sSq2qVlD" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(trashBoxJS) !== "undefined" && trashBoxJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/trashBox.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/trashBox.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/trashBox.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/trashBox.js?v0.B1.20200707" integrity="sha384-1EC28WkK1xj77nKSRuydTpwt7yTRz4N3o1vNNi0j5Xo6/XPEHPktQwZYWQ6SRz3r" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/trashBox.js?v0.B1.20200720" integrity="sha384-1EC28WkK1xj77nKSRuydTpwt7yTRz4N3o1vNNi0j5Xo6/XPEHPktQwZYWQ6SRz3r" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(tagsJS) !== "undefined" && tagsJS)  {%>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/bootstrap-tokenfield.min.js?v0.B1.20200707" integrity="sha384-cTnJxgLYTf2Wg8ye7i/UD+Swawdw/wE0BjUk7HMK76d7AjhyNUTT43mHMhbUtzUF" crossorigin="anonymous"></script>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/docs-assets/js/scrollspy.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/docs-assets/js/scrollspy.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/docs-assets/js/scrollspy.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/docs-assets/js/scrollspy.js?v0.B1.20200707" integrity="sha384-KmDDHOCXqP/mLaAX3PgFfVqMdzSyfpgUxcCqVt0q73UbX7oXhG9QiKrNjWsACMXn" crossorigin="anonymous"></script>
-<%}%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/docs-assets/js/affix.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/docs-assets/js/affix.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/docs-assets/js/affix.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/docs-assets/js/affix.js?v0.B1.20200707" integrity="sha384-fEHkXMMGXtHGD1zMgQ1rgQVyY0qT+Dfav39RvacMaT63T4AiGoKb5dYi3UhDoXvh" crossorigin="anonymous"></script>
-<%}%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/docs-assets/js/docs.min.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/docs-assets/js/docs.min.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/docs-assets/js/docs.min.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/docs-assets/js/docs.min.js?v0.B1.20200707" integrity="sha384-Mj2dUv+Z+mrDy8JdNs07WsqUz5j3zlZqLzpwLXyF33glV4jv6RG4Uoi69YL3Gk7R" crossorigin="anonymous"></script>
-<%}%>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.2.1/typeahead.bundle.min.js?v0.B1.20200707" integrity="sha384-J82mxMs5MXlIMk1/T0Vq2i0FfrJi14iolyqEw0hCXkLFJbfmBZRK1F6gHesjb2me" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/bootstrap-tokenfield.min.js?v0.B1.20200720" integrity="sha384-cTnJxgLYTf2Wg8ye7i/UD+Swawdw/wE0BjUk7HMK76d7AjhyNUTT43mHMhbUtzUF" crossorigin="anonymous"></script>
+    <script src="/javascripts/docs-assets/js/scrollspy.js?v0.B1.20200720" integrity="sha384-KmDDHOCXqP/mLaAX3PgFfVqMdzSyfpgUxcCqVt0q73UbX7oXhG9QiKrNjWsACMXn" crossorigin="anonymous"></script>
+    <script src="/javascripts/docs-assets/js/affix.js?v0.B1.20200720" integrity="sha384-fEHkXMMGXtHGD1zMgQ1rgQVyY0qT+Dfav39RvacMaT63T4AiGoKb5dYi3UhDoXvh" crossorigin="anonymous"></script>
+    <script src="/javascripts/docs-assets/js/docs.min.js?v0.B1.20200720" integrity="sha384-Mj2dUv+Z+mrDy8JdNs07WsqUz5j3zlZqLzpwLXyF33glV4jv6RG4Uoi69YL3Gk7R" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.2.1/typeahead.bundle.min.js?v0.B1.20200720" integrity="sha384-J82mxMs5MXlIMk1/T0Vq2i0FfrJi14iolyqEw0hCXkLFJbfmBZRK1F6gHesjb2me" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(editorJS) !== "undefined" && editorJS)  {%>
-    <script src="/javascripts/froalaEditorJS/froala_editor.js?v0.B1.20200707" integrity="sha384-yW4eBxlRXEL2eT0E0kTfX0TGLXdmrL3wBXMmzXQnaajK+/L+PLZqfMrZ3G4oqNaQ" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.3.0/codemirror.min.js?v0.B1.20200707" integrity="sha384-Sa+5MKA0ot8SuVl9jiaFCra+vegCyIj5v8UL/YZ817hccZMlnJEvY8/HsE4N2w0C" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.3.0/mode/xml/xml.min.js?v0.B1.20200707" integrity="sha384-GbLTvfmZWX3n5h8QrRSMeEar69ZlbjBThcPtAV3xbs3pi1CpijEUu1+eoHSWPL6C" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/align.min.js?v0.B1.20200707" integrity="sha384-ag1sw4I0/iFEUl8aZyL13Whhu/xU67BzpwuT+qGyV7X7sVIL6pHjLDR9T1zZ2tGj" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/char_counter.min.js?v0.B1.20200707" integrity="sha384-XsiOAsTugB2Z2sQaHuTZoPH/bCtLXpwj//1qXQk4GJrpX+ZpeMn7X4ubjmLqD/a+" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/code_beautifier.min.js?v0.B1.20200707" integrity="sha384-CuO05NmYgeOYwDxiZlYLkn/IR5T7UTVTiu82CITgdKpGcSZNAgbIT1hXmqUlA4M3" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/code_view.min.js?v0.B1.20200707" integrity="sha384-GTbdowpZfcOCjPn5WUbRKWXwhIu3bZRWgDKksU5rhSDO5RHwMkPLrRt2gY+EtzgR" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/colors.min.js?v0.B1.20200707" integrity="sha384-F6Fky1O/eCKy8l6X296Ice3x1BRNUZqjZKRU7ASaLpa4pNeDigSOkMg7UV8BVXn1" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/emoticons.min.js?v0.B1.20200707" integrity="sha384-rwGPP7pq8/qpwjYKo4jHQ8/IAYyAtWuOEEmJ316jl0zihm6K2+FG4NBUkHXpB81J" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/entities.min.js?v0.B1.20200707" integrity="sha384-FOssvV4D2yRaeRksusNQKUz/PhC5kFgAICdkw4jllMqZmoA02TJLjfmdUii9Hmyt" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/file.min.js?v0.B1.20200707" integrity="sha384-3hK8lBq3rtdw7q7dQZUy5LA8hKUV8KqHkatV9Y/6UjWcGYHWwvrU7xBLFxTJ1bJ3" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/font_family.min.js?v0.B1.20200707" integrity="sha384-62IlN/kBcASfrQ2b15WVPu8S7/nnfS+hTnOcVjD7s8tZuM3chMNE40BMLP+kuich" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/font_size.min.js?v0.B1.20200707" integrity="sha384-WaLWpHoLtWdZGJiEjXXrapf2MBTE9zqcDBB5xdEHHNfWiIUNUnEF+B5iEWRu1RH9" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/fullscreen.min.js?v0.B1.20200707" integrity="sha384-v8S2lkY22wundIxQvD3MZJzPZONIzxWfM0eSlPwFLRnb56RXVO1SO7bPYe8Mxruv" crossorigin="anonymous"></script>
-    <script src="/javascripts/froalaEditorJS/froalaEncryptImage.js?v0.B1.20200707" integrity="sha384-ornBzXY45+dZVy8vnYaPbN5Fp31n7B9JPk112bIE6ejuLJ90TJH3E36MKg9IW3IW" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/image_manager.min.js?v0.B1.20200707" integrity="sha384-dXno7OPT+SKSKaKBsJpUFH7kThdvJegQU42XQZCa73tzdkNI4BRtppb45nGTob1b" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/inline_style.min.js?v0.B1.20200707" integrity="sha384-BzwR2uEGnshCJL1ctnmISOjT0y2qloY5DuJkpBGQYxZ4VMiQ4l9gapQV0qp/5mG+" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/line_breaker.min.js?v0.B1.20200707" integrity="sha384-OhlnvyX5kp0MBItsQFprEKWCW8C1tXZIOKhv5aODxdxPQuSw6yl/zcUzj/feTOFh" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/link.min.js?v0.B1.20200707" integrity="sha384-3YmCnX856cvPTa228YNrjaeZasUBaaFq/UL2Q6bhlEGxU9R5W/2Nj4Ntv6ae3xXI" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/lists.min.js?v0.B1.20200707" integrity="sha384-IMKQeCKLGlSIkjRD7QGfnWWcom5DKMKCY7esFSc0Q9s2/2JMRevY/YRdwa7WVsbx" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/paragraph_format.min.js?v0.B1.20200707" integrity="sha384-5RYPwqyB+I8pxx+rUxVA/rrhCqiJBVlvpXAKkSKa/m2KLkyUqpELie81J64Fqa97" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/paragraph_style.min.js?v0.B1.20200707" integrity="sha384-LA4MZU3lJHMuvf6KGPml0V3/14JH7X1Y9CWnECEOIOE6B3Q8V662i+zF1+eKXvwN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/quick_insert.min.js?v0.B1.20200707" integrity="sha384-p/hcXTR5SDQtx7zRnX+QVbJElglEOiqqP3gVCYWTOrmu1yUAZ44SsFVXJ3FVn9Lz" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/quote.min.js?v0.B1.20200707" integrity="sha384-7GfiC51ckxpo6lOomBMEhSvj+TzCULR0vPhCE3Pk2QwVLJmlWQ0HZxanjnozLRKB" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/save.min.js?v0.B1.20200707" integrity="sha384-5o5rn+psZogyJpwgLs09ENCIR1ijP25VFDKbqkzyd3HtF5rkus1qYrgUxqaJMxeW" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/table.min.js?v0.B1.20200707" integrity="sha384-KTzM+eqvk1oR44uORIMlFOqo/abxshLwAq3PrEXCSeArdD9f8jNf3Bd4SPkAGL3G" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/url.min.js?v0.B1.20200707" integrity="sha384-J4/p+fyiRPNAcjAM5iGyDBhu3o/QW2fpWtLij/LKAi54NhQUFTSe8iiibX0heX0K" crossorigin="anonymous"></script>
-    <script src="/javascripts/froalaEditorJS/froalaEncryptVideo.js?v0.B1.20200707" integrity="sha384-n61fM8eqmPzzsOoq+f02HNd+Gn92UyRWTtsTZ/O7gyPhSrOiPtSxqUz4K96HxyQg" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/languages/ro.js?v0.B1.20200707" integrity="sha384-yQNtvS17PEBmPGnZiz1ulS93/yj9dcJfzMM5EaqLEsUNn5M1jWhdFruJyF4XZzJi" crossorigin="anonymous"></script>
+    <script src="/javascripts/froalaEditorJS/froala_editor.js?v0.B1.20200720" integrity="sha384-yW4eBxlRXEL2eT0E0kTfX0TGLXdmrL3wBXMmzXQnaajK+/L+PLZqfMrZ3G4oqNaQ" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.3.0/codemirror.min.js?v0.B1.20200720" integrity="sha384-Sa+5MKA0ot8SuVl9jiaFCra+vegCyIj5v8UL/YZ817hccZMlnJEvY8/HsE4N2w0C" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.3.0/mode/xml/xml.min.js?v0.B1.20200720" integrity="sha384-GbLTvfmZWX3n5h8QrRSMeEar69ZlbjBThcPtAV3xbs3pi1CpijEUu1+eoHSWPL6C" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/align.min.js?v0.B1.20200720" integrity="sha384-ag1sw4I0/iFEUl8aZyL13Whhu/xU67BzpwuT+qGyV7X7sVIL6pHjLDR9T1zZ2tGj" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/char_counter.min.js?v0.B1.20200720" integrity="sha384-XsiOAsTugB2Z2sQaHuTZoPH/bCtLXpwj//1qXQk4GJrpX+ZpeMn7X4ubjmLqD/a+" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/code_beautifier.min.js?v0.B1.20200720" integrity="sha384-CuO05NmYgeOYwDxiZlYLkn/IR5T7UTVTiu82CITgdKpGcSZNAgbIT1hXmqUlA4M3" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/code_view.min.js?v0.B1.20200720" integrity="sha384-GTbdowpZfcOCjPn5WUbRKWXwhIu3bZRWgDKksU5rhSDO5RHwMkPLrRt2gY+EtzgR" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/colors.min.js?v0.B1.20200720" integrity="sha384-F6Fky1O/eCKy8l6X296Ice3x1BRNUZqjZKRU7ASaLpa4pNeDigSOkMg7UV8BVXn1" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/emoticons.min.js?v0.B1.20200720" integrity="sha384-rwGPP7pq8/qpwjYKo4jHQ8/IAYyAtWuOEEmJ316jl0zihm6K2+FG4NBUkHXpB81J" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/entities.min.js?v0.B1.20200720" integrity="sha384-FOssvV4D2yRaeRksusNQKUz/PhC5kFgAICdkw4jllMqZmoA02TJLjfmdUii9Hmyt" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/file.min.js?v0.B1.20200720" integrity="sha384-3hK8lBq3rtdw7q7dQZUy5LA8hKUV8KqHkatV9Y/6UjWcGYHWwvrU7xBLFxTJ1bJ3" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/font_family.min.js?v0.B1.20200720" integrity="sha384-62IlN/kBcASfrQ2b15WVPu8S7/nnfS+hTnOcVjD7s8tZuM3chMNE40BMLP+kuich" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/font_size.min.js?v0.B1.20200720" integrity="sha384-WaLWpHoLtWdZGJiEjXXrapf2MBTE9zqcDBB5xdEHHNfWiIUNUnEF+B5iEWRu1RH9" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/fullscreen.min.js?v0.B1.20200720" integrity="sha384-v8S2lkY22wundIxQvD3MZJzPZONIzxWfM0eSlPwFLRnb56RXVO1SO7bPYe8Mxruv" crossorigin="anonymous"></script>
+    <script src="/javascripts/froalaEditorJS/froalaEncryptImage.js?v0.B1.20200720" integrity="sha384-ornBzXY45+dZVy8vnYaPbN5Fp31n7B9JPk112bIE6ejuLJ90TJH3E36MKg9IW3IW" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/image_manager.min.js?v0.B1.20200720" integrity="sha384-dXno7OPT+SKSKaKBsJpUFH7kThdvJegQU42XQZCa73tzdkNI4BRtppb45nGTob1b" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/inline_style.min.js?v0.B1.20200720" integrity="sha384-BzwR2uEGnshCJL1ctnmISOjT0y2qloY5DuJkpBGQYxZ4VMiQ4l9gapQV0qp/5mG+" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/line_breaker.min.js?v0.B1.20200720" integrity="sha384-OhlnvyX5kp0MBItsQFprEKWCW8C1tXZIOKhv5aODxdxPQuSw6yl/zcUzj/feTOFh" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/link.min.js?v0.B1.20200720" integrity="sha384-3YmCnX856cvPTa228YNrjaeZasUBaaFq/UL2Q6bhlEGxU9R5W/2Nj4Ntv6ae3xXI" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/lists.min.js?v0.B1.20200720" integrity="sha384-IMKQeCKLGlSIkjRD7QGfnWWcom5DKMKCY7esFSc0Q9s2/2JMRevY/YRdwa7WVsbx" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/paragraph_format.min.js?v0.B1.20200720" integrity="sha384-5RYPwqyB+I8pxx+rUxVA/rrhCqiJBVlvpXAKkSKa/m2KLkyUqpELie81J64Fqa97" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/paragraph_style.min.js?v0.B1.20200720" integrity="sha384-LA4MZU3lJHMuvf6KGPml0V3/14JH7X1Y9CWnECEOIOE6B3Q8V662i+zF1+eKXvwN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/quick_insert.min.js?v0.B1.20200720" integrity="sha384-p/hcXTR5SDQtx7zRnX+QVbJElglEOiqqP3gVCYWTOrmu1yUAZ44SsFVXJ3FVn9Lz" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/quote.min.js?v0.B1.20200720" integrity="sha384-7GfiC51ckxpo6lOomBMEhSvj+TzCULR0vPhCE3Pk2QwVLJmlWQ0HZxanjnozLRKB" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/save.min.js?v0.B1.20200720" integrity="sha384-5o5rn+psZogyJpwgLs09ENCIR1ijP25VFDKbqkzyd3HtF5rkus1qYrgUxqaJMxeW" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/table.min.js?v0.B1.20200720" integrity="sha384-KTzM+eqvk1oR44uORIMlFOqo/abxshLwAq3PrEXCSeArdD9f8jNf3Bd4SPkAGL3G" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/plugins/url.min.js?v0.B1.20200720" integrity="sha384-J4/p+fyiRPNAcjAM5iGyDBhu3o/QW2fpWtLij/LKAi54NhQUFTSe8iiibX0heX0K" crossorigin="anonymous"></script>
+    <script src="/javascripts/froalaEditorJS/froalaEncryptVideo.js?v0.B1.20200720" integrity="sha384-n61fM8eqmPzzsOoq+f02HNd+Gn92UyRWTtsTZ/O7gyPhSrOiPtSxqUz4K96HxyQg" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.6.5/js/languages/ro.js?v0.B1.20200720" integrity="sha384-yQNtvS17PEBmPGnZiz1ulS93/yj9dcJfzMM5EaqLEsUNn5M1jWhdFruJyF4XZzJi" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(editorJS) !== "undefined" && editorJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/WN-downscaleImage.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/WN-downscaleImage.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/WN-downscaleImage.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/WN-downscaleImage.js?v0.B1.20200707" integrity="sha384-gExlXNTjEfb3eFCRhSBUtiY5ukj7ZSzhzbnLN7lyNb2Ls81Yx1pY36oP4ds6Ekki" crossorigin="anonymous"></script>
-<%}%>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-load-image/2.19.0/load-image.min.js?v0.B1.20200707" integrity="sha384-/dER2kYT7HkOXtA4FK3/Fnw45HfYs+evdHMcLc7JlteE+cCB0wTwY3ch+P826GOB" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.14.0/js/canvas-to-blob.min.js?v0.B1.20200707" integrity="sha384-Ruiok12tfp1D6SJw02NyOhoEKZ1oyXvy4/0YfF+K459YJA31h93bS+iOszDHXd8w" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js?v0.B1.20200707" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js?v0.B1.20200707" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script>
+    <script src="/javascripts/WN-downscaleImage.js?v0.B1.20200720" integrity="sha384-gExlXNTjEfb3eFCRhSBUtiY5ukj7ZSzhzbnLN7lyNb2Ls81Yx1pY36oP4ds6Ekki" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-load-image/2.19.0/load-image.min.js?v0.B1.20200720" integrity="sha384-/dER2kYT7HkOXtA4FK3/Fnw45HfYs+evdHMcLc7JlteE+cCB0wTwY3ch+P826GOB" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.14.0/js/canvas-to-blob.min.js?v0.B1.20200720" integrity="sha384-Ruiok12tfp1D6SJw02NyOhoEKZ1oyXvy4/0YfF+K459YJA31h93bS+iOszDHXd8w" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js?v0.B1.20200720" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js?v0.B1.20200720" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(pageControlJS) !== "undefined" && pageControlJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/pageControls.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/pageControls.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/pageControls.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/pageControls.js?v0.B1.20200707" integrity="sha384-WUf1yNaW5T230tl73o6CcS1KJ9VREJ7WIh/eDkTP+7TsoZmz++KV6USfjNC0vBTP" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/pageControls.js?v0.B1.20200720" integrity="sha384-WUf1yNaW5T230tl73o6CcS1KJ9VREJ7WIh/eDkTP+7TsoZmz++KV6USfjNC0vBTP" crossorigin="anonymous"></script>
 <% } %>
 <% if(typeof(loadForgeJS) !== "undefined" && loadForgeJS)  {%>
-<% if(typeof(developer) !== "undefined" && developer) {%>
-    <script src="http://localhost:8000/javascripts/loadForge.js?v0.B1.20200707"></script>
-<%} else if(typeof(mobile) !== "undefined" && mobile){%>
-    <script src="https://s3.amazonaws.com/com.openbsafes.code/javascripts/loadForge.js?v0.B1.20200707"></script>
-<%} else if(typeof(hp5aocbj) !== "undefined" && hp5aocbj){%>
-    <script src="https://aposta90.com/bsafes-web/javascripts/loadForge.js?v0.B1.20200707"></script>
-<%} else {%>
-    <script src="/javascripts/loadForge.js?v0.B1.20200707" integrity="sha384-sRfzHiIini0JWTL12wj5DFGhpzX8TC3XbEttUZNFjcDp9iEP5xWRsZGmPAAD8CbO" crossorigin="anonymous"></script>
-<%}%>
+    <script src="/javascripts/loadForge.js?v0.B1.20200720" integrity="sha384-sRfzHiIini0JWTL12wj5DFGhpzX8TC3XbEttUZNFjcDp9iEP5xWRsZGmPAAD8CbO" crossorigin="anonymous"></script>
 <% } %>

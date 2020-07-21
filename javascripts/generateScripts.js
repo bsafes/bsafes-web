@@ -7,7 +7,7 @@ var conditionFile = './condition.ejs';
 
 var debug = false;
 var openbsafes = false;
-var version = '?v0.B1.20200707';
+var version = '?v0.B1.20200720';
 
 if(process.argv.length > 2) {
   if(process.argv[2] === 'debug')
@@ -120,10 +120,12 @@ var trialMembersJS = [
 ];
 
 var keySetupJS = [
+	{file: "./argon2Calc.js", url:"/javascripts/argon2Calc.js"},
 	{file: "./keySetup.js", url:"/javascripts/keySetup.js"}
 ];
 
 var keyEnterJS = [
+	{file: "./argon2Calc.js", url:"/javascripts/argon2Calc.js"},
 	{file: "./keyEnter.js", url:"/javascripts/keyEnter.js"}
 ];
 
