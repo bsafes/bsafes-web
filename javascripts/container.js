@@ -905,14 +905,17 @@ function loadPage(){
 
   $('.closeTitleModal').click(function(e) {
 		e.preventDefault();
-		$('.titleModal').modal('toggle');	
     addAction = 'addAnItemOnTop';
     selectedItemType = null;
+    $('.titleInput').val(""); 
+    $('.titleModal').modal('toggle'); 
 		return false;
   });
 
   $('#closeNewItemOptionsModal').on('click', function(e) {
     addAction = 'addAnItemOnTop';
+    $('#newItemOptionsModal').modal('toggle');
+    $('.titleModal').modal('toggle'); 
   });
 
 /*** End of creating an item ***/
