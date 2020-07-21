@@ -1049,13 +1049,16 @@ function deselectItems(e) {
 
 function safeItemIsSelected(e, addAction) {
     $('#newItemOptionsModal').off();
+
+    /*
     $('#newItemOptionsModal').on('hidden.bs.modal', function(e) {
         $('.titleModal').modal('toggle');
     });
-
+    */
     $('#newItemOptionsModal').modal('toggle');
     selectedItemType = $(e.target).closest('a').attr('id');
     updateContainerKeyValue('selectedItemType', selectedItemType);
+    $('.titleModal').modal('toggle');
 };
 
 function createANewItem(currentContainer, selectedItemType, addAction, $addTargetItem, getEnvelopeKeyFunc, getSearchKeyFunc) {

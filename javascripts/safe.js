@@ -257,15 +257,14 @@ function loadPage() {
         selectedItemType = null;
         $('.titleModal').modal('toggle');
         $('.titleInput').val(""); 
+
         return false;
     });
 
     $('#closeNewItemOptionsModal').on('click', function(e) {
         addAction = 'addAnItemOnTop';
-        ifCloseNewItemOption = 1; 
-        $('.titleModal').modal('toggle');
+        //ifCloseNewItemOption = 1; 
         $('#newItemOptionsModal').modal('toggle');
-
     });
 
     /*** End of creating an item ***/

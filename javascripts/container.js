@@ -915,7 +915,6 @@ function loadPage(){
   $('#closeNewItemOptionsModal').on('click', function(e) {
     addAction = 'addAnItemOnTop';
     $('#newItemOptionsModal').modal('toggle');
-    $('.titleModal').modal('toggle'); 
   });
 
 /*** End of creating an item ***/
