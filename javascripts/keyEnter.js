@@ -1,4 +1,10 @@
 (function(){
+	if(!argon2Functions.isBrowserSupported) {
+		$(".note").removeClass("hidden");
+		$(".keyForm").addClass("hidden");
+		return;
+	}
+
 	argon2Functions.loadArgon2('native-wasm');
 
 	var redirectURL = $('.redirectURL').text();

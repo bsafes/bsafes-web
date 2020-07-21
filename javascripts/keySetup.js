@@ -1,4 +1,9 @@
 function loadPage(){
+  if(!argon2Functions.isBrowserSupported) {
+    $(".note").removeClass("hidden");
+    $(".keySetup").addClass("hidden");
+    return;
+  }
 	console.log("Please set up your key");
 	
 	argon2Functions.loadArgon2('native-wasm');
