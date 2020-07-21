@@ -1058,9 +1058,8 @@ function safeItemIsSelected(e, addAction) {
     $('#newItemOptionsModal').on('hidden.bs.modal', function(e) {
         if(selectedItemType){
             $('.titleModal').modal('toggle');
-            $('#newItemOptionsModal').off();
+            $('#newItemOptionsModal').off(); //this line fixes issue 55
         }
-        
     });
     
     $('#newItemOptionsModal').modal('toggle');

@@ -6,11 +6,11 @@ function loadPage(){
 	var teamName;
 	var isATeamSpace = false;
 	var currentKeyVersion = 1;
-  var currentPath;
+  	var currentPath;
 
 	var expandedKey;
 	var publicKeyPem;
-  var privateKePem;
+  	var privateKePem;
 	var teamKey;
 
 	var currentMode;
@@ -426,13 +426,13 @@ function loadPage(){
 
 	function resetPagination() {
 		currentContentsPage = 1;
-    $('.membersPagination').empty();
-    $('.membersPagination').addClass('hidden');
+    	$('.membersPagination').empty();
+    	$('.membersPagination').addClass('hidden');
 	}
 
 	/* List Section */
 	var goDeleteEnabled = false;
-  function showLoadingInDeleteModal() {
+  	function showLoadingInDeleteModal() {
     var $thisModal = $("#deleteModal").find(".modal-content");
     $thisModal.LoadingOverlay("show", {
       image       : "",
