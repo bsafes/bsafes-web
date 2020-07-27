@@ -734,6 +734,7 @@ var handleAddAction = function(e) {
     updateContainerKeyValue('addAction', addAction);
     updateContainerKeyValue('$addTargetItem', $addTargetItem);
     $('#addAnItemBtn').trigger('click');
+
 }
 
 function calculateTotalMovingItemsUsage() {
@@ -1047,15 +1048,23 @@ function deselectItems(e) {
     updateContainerToolbar(selectedItemsInContainer);
 }
 
+function reset(){
+    return true; 
+}
+
 function safeItemIsSelected(e, addAction) {
     $('#newItemOptionsModal').off();
+    selectedItemType = $(e.target).attr('id'); 
     $('#newItemOptionsModal').on('hidden.bs.modal', function(e) {
-        $('.titleModal').modal('toggle');
+        if(selectedItemType){
+            $('.titleModal').modal('toggle');
+            $('#newItemOptionsModal').off(); //this line fixes issue 55
+        }
     });
-
+    
     $('#newItemOptionsModal').modal('toggle');
-    selectedItemType = $(e.target).closest('a').attr('id');
     updateContainerKeyValue('selectedItemType', selectedItemType);
+    //$('.titleModal').modal('toggle');
 };
 
 function createANewItem(currentContainer, selectedItemType, addAction, $addTargetItem, getEnvelopeKeyFunc, getSearchKeyFunc) {

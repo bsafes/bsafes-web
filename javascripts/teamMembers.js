@@ -6,11 +6,11 @@ function loadPage(){
 	var teamName;
 	var isATeamSpace = false;
 	var currentKeyVersion = 1;
-  var currentPath;
+  	var currentPath;
 
 	var expandedKey;
 	var publicKeyPem;
-  var privateKePem;
+  	var privateKePem;
 	var teamKey;
 
 	var currentMode;
@@ -410,26 +410,29 @@ function loadPage(){
 
 	$('.closeTitleModal').click(function(e) {
 		e.preventDefault();
-    addAction = 'addAnItemOnTop';
-    selectedItemType = null;
+    	addAction = 'addAnItemOnTop';
+    	selectedItemType = null;
+    	$('.titleInput').val() = ""; 
+    	$('.titleModal').modal('toggle');
 		return false;
 	});
 
 	$('#closeNewItemOptionsModal').on('click', function(e) {
 		addAction = 'addAnItemOnTop';
+		$('#newItemOptionsModal').modal('toggle');
 	});
 
 /*** End of creating an item ***/
 
 	function resetPagination() {
 		currentContentsPage = 1;
-    $('.membersPagination').empty();
-    $('.membersPagination').addClass('hidden');
+    	$('.membersPagination').empty();
+    	$('.membersPagination').addClass('hidden');
 	}
 
 	/* List Section */
 	var goDeleteEnabled = false;
-  function showLoadingInDeleteModal() {
+  	function showLoadingInDeleteModal() {
     var $thisModal = $("#deleteModal").find(".modal-content");
     $thisModal.LoadingOverlay("show", {
       image       : "",

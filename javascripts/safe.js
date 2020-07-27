@@ -25,6 +25,8 @@ function loadPage() {
     var lastSearchTime;
     var lastSearchTokensStr;
 
+    var ifCloseNewItemOption = 0
+
     var memberId = $('.loginUserId').text();
     if (memberId.substring(0, 1) === 'T') {
         $('.accessTrialRow').removeClass('hidden');
@@ -253,11 +255,16 @@ function loadPage() {
         e.preventDefault();
         addAction = 'addAnItemOnTop';
         selectedItemType = null;
+        $('.titleModal').modal('toggle');
+        $('.titleInput').val(""); 
+
         return false;
     });
 
     $('#closeNewItemOptionsModal').on('click', function(e) {
         addAction = 'addAnItemOnTop';
+        //ifCloseNewItemOption = 1; 
+        $('#newItemOptionsModal').modal('toggle');
     });
 
     /*** End of creating an item ***/
