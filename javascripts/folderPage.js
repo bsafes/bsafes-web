@@ -75,10 +75,20 @@ function loadPage(){
   }
 
 	$('.addAction').click(function(e) {
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before any action.")
+        return false; 
+    }
 		handleAddAction(e);
 	});
 
   $('#moreActionsBtn').click(function(e) {
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before any action.")
+      return false; 
+    }
     $(e.target).trigger('blur');
     $('.itemBottomToolbar').removeClass('hidden');
   });
@@ -138,6 +148,11 @@ function loadPage(){
 
   $('#createAnItem').click(function(e) {
     e.preventDefault();
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before any action.")
+      return false; 
+    }
 		createANewFolderPage(e);	
 		return false;
   });
@@ -174,17 +189,32 @@ function loadPage(){
 	}
   $('#gotoCoverBtn').click(function(e){
   	e.preventDefault();
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before leaving this page.")
+      return false; 
+    }
     window.location.href = '/folder/' + folderId + '?initialDisplay=cover';
     return false;
   });
 
 	$('#gotoContentsBtn').click(function(e){
     e.preventDefault();
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before leaving this page.")
+      return false; 
+    }
     window.location.href = '/folder/' + folderId + '?initialDisplay=contents';
     return false;
   });
 
   $('#gotoFirstItemBtn').click(function(e){
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before leaving this page.")
+      return false; 
+    }
     $('#gotoFirstItemBtn').trigger('blur');
     getFirstItemInContainer(folderId, function(err, itemId) {
       if(err) {
@@ -199,6 +229,11 @@ function loadPage(){
   });
 
   $('#gotoLastItemBtn').click(function(e){
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before leaving this page.")
+      return false; 
+    }
     $('#gotoLastItemBtn').trigger('blur');
     getLastItemInContainer(folderId, function(err, itemId) {
       if(err) {
@@ -345,7 +380,11 @@ function loadPage(){
 
 	$('#nextPageBtn').click(function(e){
 		e.preventDefault();
-
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before leaving this page.")
+        return false; 
+    }
 		$.post('/memberAPI/getNextFolderPage', {
 			folderId: folderId,
 			itemId: itemId,
@@ -370,7 +409,11 @@ function loadPage(){
 
 	$('#previousPageBtn').click(function(e){
     e.preventDefault();
-
+    var ifEdited = getIfEdited();
+    if(ifEdited){
+      alert("Please save before leaving this page.")
+        return false; 
+    }
     $.post('/memberAPI/getPreviousFolderPage', {
       folderId: folderId,
       itemId: itemId,

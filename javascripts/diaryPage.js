@@ -30,6 +30,11 @@ function loadPage(){
   $('#datepicker').datepicker({
 		dateFormat: "yy-mm-dd",
     onSelect: function(dateText, inst) {
+    		var ifEdited = getIfEdited(); 
+			if(ifEdited){
+			  	alert("Please save before leaving this page.")
+			    return false; 
+			}
 			var intendedItemId = diaryPageMajorPart + ":" + dateText;
 			getDiaryPageItem(intendedItemId, privateKeyPem, searchKey);
     }
@@ -163,6 +168,11 @@ function loadPage(){
 
 	$('#gotoCoverBtn').click(function(e){
     e.preventDefault();
+    var ifEdited = getIfEdited(); 
+	if(ifEdited){
+		alert("Please save before leaving this page.")
+		return false; 
+	}
     $('#gotoContentsBtn').trigger('blur');
     window.location.href = '/diary/' + diaryId + '?initialDisplay=cover';
     return false;
@@ -170,6 +180,11 @@ function loadPage(){
 
   $('#gotoContentsBtn').click(function(e){
   	e.preventDefault();
+  	var ifEdited = getIfEdited();
+  	if(ifEdited){
+		alert("Please save before leaving this page.")
+		return false; 
+	}
 		$('#gotoContentsBtn').trigger('blur');
     window.location.href = '/diary/' + diaryId;
     return false;
@@ -177,6 +192,11 @@ function loadPage(){
 
 	var goToPage = function(e) {
     e.preventDefault();
+    var ifEdited = getIfEdited();
+  	if(ifEdited){
+		alert("Please save before leaving this page.")
+		return false; 
+	}
     var intendedPageNumber = $('#pageNumberInput').val();
     var intendedItemId = diaryPageMajorPart + ':' + intendedPageNumber;
 
@@ -217,6 +237,11 @@ function loadPage(){
 
 	$('#nextPageBtn').click(function(e){
 		e.preventDefault();
+		var ifEdited = getIfEdited();
+	  	if(ifEdited){
+			alert("Please save before leaving this page.")
+			return false; 
+		}
 		var intendedItemId = getNextPageItemId();
 
 		getDiaryPageItem(intendedItemId, privateKeyPem, searchKey);
@@ -227,6 +252,11 @@ function loadPage(){
 
 	$('#previousPageBtn').click(function(e){
     e.preventDefault();
+    	var ifEdited = getIfEdited();
+	  	if(ifEdited){
+			alert("Please save before leaving this page.")
+			return false; 
+		}
 		var intendedItemId = getPreviousPageItemId();
 	
 		getDiaryPageItem(intendedItemId, privateKeyPem, searchKey);
