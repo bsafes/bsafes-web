@@ -1,4 +1,4 @@
-function loadPage(){
+ function loadPage(){
   var pki = forge.pki;
   var rsa = forge.pki.rsa;
 	
@@ -103,13 +103,24 @@ function loadPage(){
 	}
 
   $('#gotoCoverBtn').click(function(e){
-    e.preventDefault();
-    $('#gotoContentsBtn').trigger('blur');
-    window.location.href = '/notebook/' + notebookId + '?initialDisplay=cover';
-    return false;
+  	  e.preventDefault();
+  	  var ifEdited = getIfEdited(); 
+	  if(ifEdited){
+	    	alert("Please save before leaving this page.")
+	    	return false; 
+	  }
+    
+      $('#gotoContentsBtn').trigger('blur');
+      window.location.href = '/notebook/' + notebookId + '?initialDisplay=cover';
+   	  return false;
   });
 
 	$('#gotoFirstItemBtn').click(function(e){
+		var ifEdited = getIfEdited(); 
+	  	if(ifEdited){
+	    	alert("Please save before leaving this page.")
+	    	return false; 
+	  	}
 		$('#gotoFirstItemBtn').trigger('blur');
 		getFirstItemInContainer(notebookId, function(err, itemId) {
 			if(err) {
@@ -124,6 +135,11 @@ function loadPage(){
 	});
 
 	$('#gotoLastItemBtn').click(function(e){
+		var ifEdited = getIfEdited(); 
+	  	if(ifEdited){
+	    	alert("Please save before leaving this page.")
+	    	return false; 
+	  	}
 		$('#gotoLastItemBtn').trigger('blur');
 		getLastItemInContainer(notebookId, function(err, itemId) {
       if(err) {
@@ -139,21 +155,33 @@ function loadPage(){
 
   $('#gotoContentsBtn').click(function(e){
   	e.preventDefault();
+  	var ifEdited = getIfEdited(); 
+	if(ifEdited){
+	  alert("Please save before leaving this page.")
+	  return false; 
+	}
 		$('#gotoContentsBtn').trigger('blur');
     window.location.href = '/notebook/' + notebookId;
     return false;
   });
 
 	var goToPage = function(e) {
-    e.preventDefault();
-    var intendedPageNumber = $('#pageNumberInput').val();
-    var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
+	    e.preventDefault();
 
-    getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
+	    var ifEdited = getIfEdited(); 
+	    if(ifEdited){
+	    	alert("Please save before leaving this page.")
+	    	return false; 
+	    }
+	    var intendedPageNumber = $('#pageNumberInput').val();
+	    var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
 
-    $('#gotoPageBtn').trigger('blur');
+	    getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
+
+	    $('#gotoPageBtn').trigger('blur');
 		$('#pageNumberInput').trigger('blur');
-    return false;
+
+	    return false;
 	};
 	
 	$('#gotoPageBtn').click(goToPage);
@@ -161,6 +189,11 @@ function loadPage(){
 
 	$('#nextPageBtn').click(function(e){
 		e.preventDefault();
+		var ifEdited = getIfEdited(); 
+	    if(ifEdited){
+	    	alert("Please save before leaving this page.")
+	    	return false; 
+	    }
 		var intendedPageNumber = currentPageNumber + 1;
 		var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
 
@@ -172,6 +205,11 @@ function loadPage(){
 
 	$('#previousPageBtn').click(function(e){
     	e.preventDefault();
+    	var ifEdited = getIfEdited(); 
+	    if(ifEdited){
+	    	alert("Please save before leaving this page.")
+	    	return false; 
+	    }
 	    var intendedPageNumber = currentPageNumber - 1;
 			if(intendedPageNumber > 0) {
 	    	var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
@@ -198,5 +236,6 @@ function loadPage(){
 				positionPageNavigationControls();
 			}
 	});
+
 };
 
