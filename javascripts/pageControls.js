@@ -51,6 +51,7 @@
 	var flgIsLoadingFromLocalStorageForWrite = false;
 	var contentsFromServer = null;
 	var pageLocalStorageKey = null;
+	var ifEdited = false; 
 
 	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, Recording Audio, Recording Video, etc </a>';
 	
@@ -539,8 +540,16 @@
 	    editorStateChanged('Editor is initialized');	    
 	}
 
+	function getIfEdited(){
+		return ifEdited; 
+	}
+
 	function handleBtnWriteClicked(e) {
 	    e.preventDefault();
+	    ifEdited = true; 
+	    $('.imageBtnRow').addClass('hidden');
+	    $('.attachBtnRow').addClass('hidden');
+	    $('.pull-right').addClass('hidden');
 	    $('.froala-editor#content').on('froalaEditor.contentChanged', function (e, editor) {
 			console.log('change_event_froala');
 			saveContentInLocalStorage();
@@ -654,8 +663,21 @@
 
 	function handleBtnCancelClicked(e) {
 	    e.preventDefault();
+	    //alert("Are you sure you want to cancel any changes?");
 	    var tempOriginalElement = $('<div></div>');
+	  	var currentEditorContent = currentEditor.froalaEditor('html.get');
 	    tempOriginalElement.html(originalEditorContent);
+	    //console.log(originalEditorContent);  
+	    //console.log(currentEditorContent); 
+	    if(originalEditorContent !== currentEditorContent){
+	    	//alert("Are you sure you want to cancel any changes?");
+	    	var r = confirm("Are you sure you want to delete all changes?"); 
+	    	if(r == false){
+	    		return false; 
+	    	}
+	    }
+	    
+	    //console.log(tempOriginalElement.html()); 
 	    if (editorContentsStatus && flgIsLoadingFromLocalStorageForWrite) {
 	    	flgIsLoadingFromLocalStorageForWrite = false;
 	    	tempOriginalElement.html(contentsFromServer);
@@ -677,6 +699,10 @@
 	        doneEditing();
 	    });
 	    currentEditor.froalaEditor('html.set', originalEditorContent);
+	    $('.imageBtnRow').removeClass('hidden');
+	    $('.attachBtnRow').removeClass('hidden');
+	    $('.pull-right').removeClass('hidden');
+	    ifEdited = false; 
 	    return false;
 	};
 
@@ -703,6 +729,10 @@
 	                updateComment();
 	            }
 	    };
+	    $('.imageBtnRow').removeClass('hidden');
+	    $('.attachBtnRow').removeClass('hidden');
+	    $('.pull-right').removeClass('hidden');
+	    ifEdited = false; 
 	    return false;
 	};
 
@@ -852,6 +882,7 @@
 	        itemCopy.update = "title";
 	        createNewItemVersionForPage();
 	    }
+	    isEdited = false; 
 	}
 
 	function preProcessEditorContentBeforeSaving(content) {
@@ -4771,3 +4802,22 @@
         }
 	}
 
+	function checkIfEditing(){
+		return ifEdited; 
+	}
+
+	//prompt user to save before redirecting to other page
+	window.addEventListener('beforeunload', function(e){
+		e.preventDefault(); 
+		if(ifEdited){
+			e.returnValue = "Hello"; 
+		}
+	})
+
+	
+
+
+
+
+	
+	

@@ -58,6 +58,11 @@ function loadPage() {
     });
 
     $('#nextItemBtn').click(function(e) {
+        var ifEdited = getIfEdited();
+        if(ifEdited){
+            alert("Please save before leaving this page.")
+            return false; 
+        }
         getNextItemInContainer(itemCopy.container, itemCopy.position, function(err, itemId) {
             if (err) {
 
@@ -69,6 +74,11 @@ function loadPage() {
     });
 
     $('#previousItemBtn').click(function(e) {
+        var ifEdited = getIfEdited();
+        if(ifEdited){
+            alert("Please save before leaving this page.")
+            return false; 
+        }
         getPreviousItemInContainer(itemCopy.container, itemCopy.position, function(err, itemId) {
             if (err) {
 
@@ -79,15 +89,31 @@ function loadPage() {
         return false;
     });
 
+    
     $('#gotoContainerCoverBtn').click(function(e) {
+        var ifEdited = getIfEdited();
+        if(ifEdited){
+            alert("Please save before leaving this page.")
+            return false; 
+        }
         goGetItemCover(itemCopy.container);
     });
-
+    
     $('#gotoContainerContentsBtn').click(function(e) {
+        var ifEdited = getIfEdited();
+        if(ifEdited){
+            alert("Please save before leaving this page.")
+            return false; 
+        }
         goGetItemContents(itemCopy.container);
     });
 
     $('#moreActionsBtn').click(function(e) {
+        var ifEdited = getIfEdited();
+        if(ifEdited){
+            alert("Please save before any actions.")
+            return false; 
+        }
     	$(e.target).trigger('blur');
     	$('.itemBottomToolbar').removeClass('hidden');
     });
@@ -98,6 +124,11 @@ function loadPage() {
     });
 
     $('#moveAnItemBtn').click(function(e) {
+        var ifEdited = getIfEdited();
+        if(ifEdited){
+            alert("Please save before moving this item.")
+            return false; 
+        }
     	$(e.target).trigger('blur');
         handleMoveAnItem(e);
     });

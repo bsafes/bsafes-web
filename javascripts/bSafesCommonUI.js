@@ -369,6 +369,11 @@ function setBoxControlsPanel(containerId) {
         $('.boxControlsPanel').removeClass('hidden');
         $('#gotoTeamSpaceBtn').removeClass('hidden');
         $('#gotoTeamSpaceBtn').click(function(e) {
+            var ifEdited = getIfEdited();
+            if(ifEdited){
+                alert("Please save before leaving this page.")
+                return false; 
+            }
             var link = '/team/' + teamId;
             window.location.href = link;
         });
