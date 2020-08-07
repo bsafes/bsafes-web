@@ -4781,11 +4781,12 @@
 
 	//prompt user to save before redirecting to other page
 	window.addEventListener('beforeunload', function(e){
-		e.preventDefault(); 
-		if(ifEdited){
+		//e.preventDefault(); //this forces firefox to pop up 
+		if(ifEdited == true){
 			e.returnValue = "Hello"; 
 		}
-	})
+
+	}); 
 
 	
 
