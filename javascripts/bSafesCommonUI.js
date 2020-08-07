@@ -1075,7 +1075,7 @@ function createANewItem(currentContainer, selectedItemType, addAction, $addTarge
     var title = '<h2>' + $('.titleInput').val() + '</h2>';
     var encodedTitle = forge.util.encodeUtf8(title);
 
-    var salt = forge.random.getBytesSync(128);
+    var salt = forge.random.getBytesSync(32);
     var randomKey = forge.random.getBytesSync(32);
     var itemKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
     var itemIV = forge.random.getBytesSync(16);
@@ -1145,7 +1145,9 @@ function createANewItem(currentContainer, selectedItemType, addAction, $addTarge
                             $addTargetItem.after($resultItem);
                           }
                 */
-            }
+            } else {
+							alert(data.err);
+						}
         }, 'json');
 
     updateContainerKeyValue('addAction', 'addAnItemOnTop');

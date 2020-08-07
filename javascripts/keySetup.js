@@ -190,8 +190,8 @@ function loadPage(){
 						
 							window.location.replace("/teams");
         		} else {
-          		console.log(data.err);
-							alert(data.err);
+          		console.log(data.error);
+							alert(data.error);
         		}
       		}, 'json');
 				});

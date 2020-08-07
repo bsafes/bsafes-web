@@ -28,7 +28,7 @@ function loadPage(){
 /***  Creating a team ***/
 
 	function generateTeamKey() {
-		var salt = forge.random.getBytesSync(128);
+		var salt = forge.random.getBytesSync(32);
 		var randomKey = forge.random.getBytesSync(32);
 		var teamKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
 		console.log("keyLength: ", teamKey.length);
@@ -49,7 +49,7 @@ function loadPage(){
     var encryptedTeamKey = publicKeyFromPem.encrypt(encodedTeamKey);
     var encryptedTeamNameByMemberPublic = publicKeyFromPem.encrypt(encodedTeamName);
 
-    var salt = forge.random.getBytesSync(128);
+    var salt = forge.random.getBytesSync(32);
     var randomKey = forge.random.getBytesSync(32);
     var searchKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
     var searchKeyIV = forge.random.getBytesSync(16);
@@ -83,7 +83,9 @@ function loadPage(){
         var decryptedTeamName = decryptBinaryString(team.name, thisTeamKey, team.IV);
 				hideLoading();
         listTeams(1);
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
 		addAction = "addATeamOnTop";
 	};
@@ -272,7 +274,9 @@ function loadPage(){
             	if(i < teams.length) {
               	displayATeam();
             	}
-          	}
+          	} else {
+							alert("data.err");
+						}
         	}, 'json');	
 				}
 			} else {
@@ -299,7 +303,9 @@ function loadPage(){
       			if(i < teams.length) {
         			displayATeam();
       			}	
-      		}
+      		} else {
+						alert(data.err);
+					}
     		}, 'json');
 			}
 		}

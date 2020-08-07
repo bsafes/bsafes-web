@@ -89,7 +89,7 @@ function loadPage(){
   	var title = '<h2>' + $('.titleInput').val() + '</h2>';
   	var encodedTitle = forge.util.encodeUtf8(title);
 
-  	var salt = forge.random.getBytesSync(128);
+  	var salt = forge.random.getBytesSync(32);
   	var randomKey = forge.random.getBytesSync(32);
   	var itemKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
   	var itemIV = forge.random.getBytesSync(16);
@@ -132,7 +132,9 @@ function loadPage(){
         if(data.status === 'ok') {
 					var item = data.item;
 					window.location.href = '/folder/p/' + item.id;
-        }
+        } else {
+					alert(data.err);
+				}
       }, 'json');
 	};
 

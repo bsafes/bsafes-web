@@ -277,7 +277,7 @@
 	};
 
 	function setupNewItemKey() {
-	    var salt = forge.random.getBytesSync(128);
+	    var salt = forge.random.getBytesSync(32);
 	    var randomKey = forge.random.getBytesSync(32);
 	    itemKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
 	    itemIV = forge.random.getBytesSync(16);
@@ -426,7 +426,9 @@
 	                        setCurrentVersion(itemCopy.version);
 	                        isBlankPageItem = false;
 	                        $('.tagsConfirmRow').addClass('hidden');
-	                    }
+	                    } else {
+												alert(data.err);
+											}
 	                }, 'json');
 	            } else if (itemContainer.substring(0, 1) === 'd') {
 	                $.post('/memberAPI/createADiaryPage', {
@@ -443,7 +445,9 @@
 	                        setCurrentVersion(itemCopy.version);
 	                        isBlankPageItem = false;
 	                        $('.tagsConfirmRow').addClass('hidden');
-	                    }
+	                    } else {
+													alert(data.err);
+											}
 	                }, 'json');
 	            }
 	        } else {
@@ -506,11 +510,12 @@
 	    }
 	    editor.froalaEditor({
 	        key: '1ZSZGUSXYSMZb1JGZ==',
-	        toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'emoticons', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', 'quote', 'insertHR', '-', 'insertLink', 'insertImage', 'insertVideo', 'insertFile', 'insertTable', 'undo', 'redo', 'clearFormatting', 'html'],
-	        toolbarButtonsMD: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'emoticons', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', 'quote', 'insertHR', '-', 'insertLink', 'insertImage', 'insertVideo', 'insertTable', 'undo', 'redo', 'clearFormatting', 'html'],
-	        toolbarButtonsSM: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'emoticons', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', 'quote', 'insertHR', '-', 'insertLink', 'insertImage', 'insertVideo', 'insertTable', 'undo', 'redo', 'clearFormatting', 'html'],
-	        toolbarButtonsXS: ['bold', 'fontSize', 'color', 'paragraphStyle', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'insertLink', 'insertImage', 'insertVideo', 'undo']
-	    });
+          toolbarButtons: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'emoticons', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', 'quote', 'insertHR', '-', 'insertLink', 'insertTable', 'undo', 'redo', 'clearFormatting', 'html'],
+          toolbarButtonsMD: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'emoticons', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', 'quote', 'insertHR', '-', 'insertLink', 'insertTable', 'undo', 'redo', 'clearFormatting', 'html'],
+          toolbarButtonsSM: ['fullscreen', 'bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', '|', 'color', 'emoticons', 'paragraphStyle', '|', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'outdent', 'indent', 'quote', 'insertHR', '-', 'insertLink', 'insertTable', 'undo', 'redo', 'clearFormatting', 'html'],
+          toolbarButtonsXS: ['bold', 'fontSize', 'color', 'paragraphStyle', 'paragraphFormat', 'align', 'formatOL', 'formatUL', 'insertLink', 'undo']
+      });
+
 	    editorInitialized();
 	};
 
@@ -803,7 +808,9 @@
 	                        setCurrentVersion(itemCopy.version);
 	                        isBlankPageItem = false;
 	                        doneEditing();
-	                    }
+	                    } else {
+													alert(data.err);
+											}
 	                },
 	                timeout: 30000
 	            });
@@ -832,7 +839,9 @@
 	                        setCurrentVersion(itemCopy.version);
 	                        isBlankPageItem = false;
 	                        doneEditing();
-	                    }
+	                    } else {
+                          alert(data.err);
+                      }
 	                },
 	                timeout: 30000
 	            });
@@ -948,7 +957,9 @@
 	                    doneEditing();
 	                });
 	                $thisEditor.froalaEditor('html.set', "");
-	            }
+	            } else {
+									alert(data.err);
+							}
 	        }, 'json');
 	    }
 	};
@@ -980,7 +991,9 @@
 	                $comment.find('.commentLastUpdateTime').html(lastUpdateTime);
 	                $comment.find('.commentLastUpdateTimeRow').removeClass('hidden');
 	                doneEditing();
-	            }
+	            } else {
+									alert(data.err);
+							}
 	        }, 'json');
 	    }
 	}
@@ -1178,8 +1191,9 @@
                                 	console.log('postS3Upload_ok');
                                     fn(null);
                                 } else {
+																		alert(data.err);
                                     fn("postS3Upload failed");
-                                }
+                                } 
                             },
                             error: function(data, textStatus, errorThrown) {
                                 fn("postS3Upload failed");
@@ -1354,7 +1368,9 @@
 			                        setCurrentVersion(itemCopy.version);
 			                        isBlankPageItem = false;
 			                        //doneEditing();
-			                    }
+			                    } else {
+                          		alert(data.err);
+                      		}
 			                },
 			                timeout: 30000
 			            });
@@ -1386,7 +1402,9 @@
 			                        setCurrentVersion(itemCopy.version);
 			                        isBlankPageItem = false;
 			                        //doneEditing();
-			                    }
+			                    } else {
+                          		alert(data.err);
+                      		}
 			                },
 			                timeout: 30000
 			            });
@@ -1517,7 +1535,9 @@
 	                        setCurrentVersion(itemCopy.version);
 	                        isBlankPageItem = false;
 	                        doneEditing();
-	                    }
+	                    } else {
+                          alert(data.err);
+                      }
 	                },
 	                timeout: 30000
 	            });
@@ -1547,7 +1567,9 @@
 	                        setCurrentVersion(itemCopy.version);
 	                        isBlankPageItem = false;
 	                        doneEditing();
-	                    }
+	                    } else {
+                          alert(data.err);
+                      }
 	                },
 	                timeout: 30000
 	            });
@@ -2257,7 +2279,7 @@
 	                                            $('.attachmentProgressRow').remove();
 	                                            enableDownload();
 	                                        } else {
-	                                            alert('error');
+	                                            alert(data.err);
 	                                        }
 	                                    }, 'json');
 	                            }
@@ -2605,6 +2627,7 @@
 	                                        if (data.status === 'ok') {
 	                                            fn(null);
 	                                        } else {
+																							alert(data.err);
 	                                            fn("postS3Upload failed");
 	                                        }
 	                                    },
@@ -2856,7 +2879,9 @@
 	                    var $thisImagePanel = $imagePanel;
 	                    buildUploadImageElements($thisImagePanel);
 	                    startUploadingImages();
-	                }
+	                } else {
+                      alert(data.err);
+                  }
 	            }, 'json');
 	        } else if (itemContainer.substring(0, 1) === 'd') {
 	            $.post('/memberAPI/createADiaryPage', {
@@ -2873,7 +2898,9 @@
 	                    var $thisImagePanel = $imagePanel;
 	                    buildUploadImageElements($thisImagePanel);
 	                    startUploadingImages();
-	                }
+	                } else {
+                      alert(data.err);
+                  }
 	            }, 'json');
 	        }
 	    } else {

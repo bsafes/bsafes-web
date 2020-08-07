@@ -95,26 +95,8 @@
 						}, 'json');
 					}
 
-					if(!data.searchKeyEnvelope) {
-          	var salt = forge.random.getBytesSync(128);
-          	var randomKey = forge.random.getBytesSync(32);
-          	var searchKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
-          	searchKeyIV = forge.random.getBytesSync(16);
-          	searchKeyEnvelope = encryptBinaryString(searchKey, expandedKey, searchKeyIV);
-						searchKeyIV = forge.util.encode64(searchKeyIV);
-						searchKeyEnvelope = forge.util.encode64(searchKeyEnvelope);
-						secondFactorAuth()
-						$.post('/memberAPI/setupSearchKey', {
-							searchKeyIV: searchKeyIV,
-							searchKeyEnvelope: searchKeyEnvelope
-						}, function(data , textStatus, jQxr) {
-							if(data.status === 'ok') {
-								secondFactorAuth();				
-							}
-						});	
-					} else {
-						secondFactorAuth();
-					}
+					secondFactorAuth();
+
 				} else {
 					console.log(data.error);
 					$('.reEnterHint').removeClass('hidden');
