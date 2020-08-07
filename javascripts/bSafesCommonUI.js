@@ -412,7 +412,8 @@ function createNewItemVersion(itemId, itemCopy, currentVersion, done) {
         success: function(data) {
             if (data.status === 'ok') {
                 done(null, data);
-            } else {
+            } else {	
+								alert(data.err);
                 done(data.err);
             }
         },
