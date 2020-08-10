@@ -46,28 +46,16 @@ $ ls
 ~~~~
  - Run a localhost web server to serve javascript and css files for this project
  
- There might be multiple ways to host this folder over http at port 8000. You
- may chose whatever is convenient for you. Two methods are defined here.
- ##### Using Chrome Extension
- Install [Web Server for Chrome](https://chrome.google.com/webstore/detail/web-server-for-chrome/ofhbbkphhbklhfoeikjpcbhemlocgigb?hl=en) app.
- Enter `chrome://apps` in chrome's address bar and launch the Web Server for Chrom app.
- 
- Chose your folder, specify the port `8000` and restart the web server by using
- the toggle switch under the chose folder button.
- 
- You can check the files hosted over http server at [http://localhost:8000](http://localhost:8000)
- 
- ![web server for chrome](https://i.ibb.co/mRNd4kS/screenshot-picture.png)
- ##### Using Python
- Or if you have already installed the python and want to run an http server through
- python, please run the following command.
-~~~~ 
-$ python -m SimpleHTTPServer 8000
-Serving HTTP on 0.0.0.0 port 8000 ...
-~~~~
+ ##### Using Python https server
+ 1. Download simple-https-server.py from https://gist.github.com/dergachev/7028596 to top directory of this project.
+ 2. Generate server.xml with the following command:  
+    $ openssl req -new -x509 -keyout server.pem -out server.pem -days 365 -nodes
+ 3. Run the script  
+    $ python simple-https-server.py
+
  - Now, open your browser, and go to test server, https://developer.openbsafes.com
-![https://developer.openbsafes.com](http://www.imareader.com/images/bsafes/developerOpenbsafes.png)
- - bsafes-web javascript and css files are now served from your local web. With Chrome developer tools opened, select sources tab, and expand localhost:8000, you would see javascripts and stylesheets.
-![enter image description here](http://www.imareader.com/images/bsafes/developerOpenbsafesDebug.png)
+![https://developer.openbsafes.com](https://statics.bsafes.com/openBSafes.png)
+ - bsafes-web javascript and css files are now served from your local web. With Chrome developer tools opened, select sources tab, and expand localhost:4443, you would see javascripts and stylesheets.
+![enter image description here](https://statics.bsafes.com/localHttps.png)
  - Now you could debug javascripts, add features and test.
  - Please don't hesitate to ask if you have any question.
