@@ -52,6 +52,7 @@
 	var contentsFromServer = null;
 	var pageLocalStorageKey = null;
 	var ifEdited = false; 
+	var ifUploading = false; 
 
 	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, Recording Audio, Recording Video, etc </a>';
 	
@@ -533,10 +534,6 @@
 	    $('.btnSave, .btnCancel').removeClass('hidden');
 	    $('.btnContentSave').addClass('hidden');
 	    editorStateChanged('Editor is initialized');	    
-	}
-
-	function getIfEdited(){
-		return ifEdited; 
 	}
 
 	function handleBtnWriteClicked(e) {
@@ -1981,6 +1978,7 @@
 	    var s3UploadingPromise;
 
 	    setStatusLock();
+	    ifUploading = true; 
 
 	    changeUploadingState($attachment, 'Uploading');
 	    var file = $attachment.data('file');
@@ -2330,12 +2328,13 @@
 	    };
 
 	    sliceEncryptAndUpload($attachment, file);
+	    ifUploading = false; 
 	};
 
 	function uploadImages(files, mode, $imagePanel) {
 	    var insertIndex;
-	    var uploadedImages = [];
-
+	    var uploadedImages = []; 
+	    ifUploading = true; 
 	    function buildUploadImageElements($imagePanel) {
 	        var $lastUploadImage = null;
 	        var startingUploadIndex;
@@ -3001,6 +3000,7 @@
 	        }
 	    });
 	    // ended by <Said M> for issue #25
+	    ifUploading = false; 
 	}
 
 	function isImageDisplayed(imageElement) {
@@ -4775,18 +4775,24 @@
         }
 	}
 
-	function checkIfEditing(){
+	function getIfEdited(){
 		return ifEdited; 
+	}
+	
+	function getIfUploading(){
+
+		return (ifUploading || isUploading); 
 	}
 
 	//prompt user to save before redirecting to other page
 	window.addEventListener('beforeunload', function(e){
 		//e.preventDefault(); //this forces firefox to pop up 
-		if(ifEdited == true){
+		if(ifEdited == true || ifUploading == true || isUploading){
 			e.returnValue = "Hello"; 
 		}
 
 	}); 
+
 
 	
 

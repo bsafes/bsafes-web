@@ -63,6 +63,11 @@ function loadPage() {
             alert("Please save before leaving this page.")
             return false; 
         }
+        var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+        }
         getNextItemInContainer(itemCopy.container, itemCopy.position, function(err, itemId) {
             if (err) {
 
@@ -77,6 +82,11 @@ function loadPage() {
         var ifEdited = getIfEdited();
         if(ifEdited){
             alert("Please save before leaving this page.")
+            return false; 
+        }
+        var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
             return false; 
         }
         getPreviousItemInContainer(itemCopy.container, itemCopy.position, function(err, itemId) {
@@ -96,6 +106,11 @@ function loadPage() {
             alert("Please save before leaving this page.")
             return false; 
         }
+        var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+        }
         goGetItemCover(itemCopy.container);
     });
     
@@ -105,6 +120,11 @@ function loadPage() {
             alert("Please save before leaving this page.")
             return false; 
         }
+        var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+        }
         goGetItemContents(itemCopy.container);
     });
 
@@ -112,6 +132,11 @@ function loadPage() {
         var ifEdited = getIfEdited();
         if(ifEdited){
             alert("Please save before any actions.")
+            return false; 
+        }
+        var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
             return false; 
         }
     	$(e.target).trigger('blur');
@@ -127,6 +152,11 @@ function loadPage() {
         var ifEdited = getIfEdited();
         if(ifEdited){
             alert("Please save before moving this item.")
+            return false; 
+        }
+        var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
             return false; 
         }
     	$(e.target).trigger('blur');

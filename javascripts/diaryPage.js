@@ -35,6 +35,11 @@ function loadPage(){
 			  	alert("Please save before leaving this page.")
 			    return false; 
 			}
+			var ifUploading = getIfUploading(); 
+    		if(ifUploading){
+        		alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        		return false; 
+    		}
 			var intendedItemId = diaryPageMajorPart + ":" + dateText;
 			getDiaryPageItem(intendedItemId, privateKeyPem, searchKey);
     }
@@ -173,6 +178,11 @@ function loadPage(){
 		alert("Please save before leaving this page.")
 		return false; 
 	}
+	var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
     $('#gotoContentsBtn').trigger('blur');
     window.location.href = '/diary/' + diaryId + '?initialDisplay=cover';
     return false;
@@ -185,7 +195,12 @@ function loadPage(){
 		alert("Please save before leaving this page.")
 		return false; 
 	}
-		$('#gotoContentsBtn').trigger('blur');
+	var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
+	$('#gotoContentsBtn').trigger('blur');
     window.location.href = '/diary/' + diaryId;
     return false;
   });
@@ -197,6 +212,11 @@ function loadPage(){
 		alert("Please save before leaving this page.")
 		return false; 
 	}
+	var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
     var intendedPageNumber = $('#pageNumberInput').val();
     var intendedItemId = diaryPageMajorPart + ':' + intendedPageNumber;
 
@@ -242,6 +262,11 @@ function loadPage(){
 			alert("Please save before leaving this page.")
 			return false; 
 		}
+		var ifUploading = getIfUploading(); 
+    	if(ifUploading){
+        	alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        	return false; 
+   		}
 		var intendedItemId = getNextPageItemId();
 
 		getDiaryPageItem(intendedItemId, privateKeyPem, searchKey);
@@ -257,6 +282,11 @@ function loadPage(){
 			alert("Please save before leaving this page.")
 			return false; 
 		}
+		var ifUploading = getIfUploading(); 
+    	if(ifUploading){
+        	alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        	return false; 
+   		}
 		var intendedItemId = getPreviousPageItemId();
 	
 		getDiaryPageItem(intendedItemId, privateKeyPem, searchKey);

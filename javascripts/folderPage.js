@@ -80,6 +80,11 @@ function loadPage(){
       alert("Please save before any action.")
         return false; 
     }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
 		handleAddAction(e);
 	});
 
@@ -88,6 +93,11 @@ function loadPage(){
     if(ifEdited){
       alert("Please save before any action.")
       return false; 
+    }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
     }
     $(e.target).trigger('blur');
     $('.itemBottomToolbar').removeClass('hidden');
@@ -153,6 +163,11 @@ function loadPage(){
       alert("Please save before any action.")
       return false; 
     }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
 		createANewFolderPage(e);	
 		return false;
   });
@@ -194,6 +209,11 @@ function loadPage(){
       alert("Please save before leaving this page.")
       return false; 
     }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
     window.location.href = '/folder/' + folderId + '?initialDisplay=cover';
     return false;
   });
@@ -205,6 +225,11 @@ function loadPage(){
       alert("Please save before leaving this page.")
       return false; 
     }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
     window.location.href = '/folder/' + folderId + '?initialDisplay=contents';
     return false;
   });
@@ -214,6 +239,11 @@ function loadPage(){
     if(ifEdited){
       alert("Please save before leaving this page.")
       return false; 
+    }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
     }
     $('#gotoFirstItemBtn').trigger('blur');
     getFirstItemInContainer(folderId, function(err, itemId) {
@@ -233,6 +263,11 @@ function loadPage(){
     if(ifEdited){
       alert("Please save before leaving this page.")
       return false; 
+    }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
     }
     $('#gotoLastItemBtn').trigger('blur');
     getLastItemInContainer(folderId, function(err, itemId) {
@@ -385,6 +420,11 @@ function loadPage(){
       alert("Please save before leaving this page.")
         return false; 
     }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
 		$.post('/memberAPI/getNextFolderPage', {
 			folderId: folderId,
 			itemId: itemId,
@@ -412,6 +452,11 @@ function loadPage(){
     var ifEdited = getIfEdited();
     if(ifEdited){
       alert("Please save before leaving this page.")
+        return false; 
+    }
+    var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
         return false; 
     }
     $.post('/memberAPI/getPreviousFolderPage', {
