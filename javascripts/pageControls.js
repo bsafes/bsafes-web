@@ -717,6 +717,7 @@
 	        default:
 	            if (currentEditorId.substring(0, 5) === "index") {
 	                saveImageWords();
+	                console.log("saving image words..."); 
 	            } else if (currentEditorId.substring(0, 7) === "comment") {
 	                updateComment();
 	            }
@@ -732,11 +733,11 @@
       createNewItemVersion(itemId, itemCopy, currentVersion, function(err, data) {
 	    	$('.btnContentSave').LoadingOverlay('hide');
 	        if (err) {
-	            if ((itemCopy.update === 'title') || (itemCopy.update === 'content')) {
+	            if ((itemCopy.update === 'title') || (itemCopy.update === 'content') || itemCopy.update === "image words") {
 	                $('.btnSave').LoadingOverlay('hide');
 	                $('.btnCancel').removeClass('hidden');
 	            }
-	            alert(err.code);
+	            alert("Trouble saving... Please try again...", err.code);
 	            return;
 	        }
           if(data.status === 'ok') {
@@ -1018,7 +1019,10 @@
 	    var tempElement = $('<div></div>');
 	    tempElement.html(content);
 
+	    console.log("Content: ", content, tempElement); 
 	    content = tempElement.html();
+	    console.log("New Content:", content ); 
+
 	    var encodedContent = forge.util.encodeUtf8(content);
 	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
 			encryptedContent = forge.util.encode64(encryptedContent);
@@ -1978,7 +1982,7 @@
 	    var s3UploadingPromise;
 
 	    setStatusLock();
-	    ifUploading = true; 
+	    //ifUploading = true; 
 
 	    changeUploadingState($attachment, 'Uploading');
 	    var file = $attachment.data('file');
@@ -2328,7 +2332,7 @@
 	    };
 
 	    sliceEncryptAndUpload($attachment, file);
-	    ifUploading = false; 
+	    //ifUploading = false; 
 	};
 
 	function uploadImages(files, mode, $imagePanel) {
@@ -2696,6 +2700,7 @@
 	                                            $uploadImage.before($imagePanel);
 	                                            $uploadImage.remove();
 	                                            doneUploadingAnImage(null);
+
 	                                        }
 	                                    });
 	                                }
@@ -2717,6 +2722,7 @@
 	                            uploadAnImage($($uploadImagesList[index]));
 	                        } else {
 	                            doneUploadingImages(null);
+	                            ifUploading = false; 
 	                        }
 	                    }
 	                };
@@ -2910,6 +2916,7 @@
 	        buildUploadImageElements($imagePanel);
 	        startUploadingImages();
 	    }
+
 	}
 
 	function initializeImageButton() {
@@ -3000,7 +3007,6 @@
 	        }
 	    });
 	    // ended by <Said M> for issue #25
-	    ifUploading = false; 
 	}
 
 	function isImageDisplayed(imageElement) {
