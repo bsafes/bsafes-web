@@ -52,6 +52,7 @@
 	var contentsFromServer = null;
 	var pageLocalStorageKey = null;
 	var ifEdited = false; 
+	var ifUploading = false; 
 
 	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, Recording Audio, Recording Video, etc </a>';
 	
@@ -540,10 +541,6 @@
 	    editorStateChanged('Editor is initialized');	    
 	}
 
-	function getIfEdited(){
-		return ifEdited; 
-	}
-
 	function handleBtnWriteClicked(e) {
 	    e.preventDefault();
 	    ifEdited = true; 
@@ -725,6 +722,7 @@
 	        default:
 	            if (currentEditorId.substring(0, 5) === "index") {
 	                saveImageWords();
+	                console.log("saving image words..."); 
 	            } else if (currentEditorId.substring(0, 7) === "comment") {
 	                updateComment();
 	            }
@@ -740,11 +738,11 @@
       createNewItemVersion(itemId, itemCopy, currentVersion, function(err, data) {
 	    	$('.btnContentSave').LoadingOverlay('hide');
 	        if (err) {
-	            if ((itemCopy.update === 'title') || (itemCopy.update === 'content')) {
+	            if ((itemCopy.update === 'title') || (itemCopy.update === 'content') || itemCopy.update === "image words") {
 	                $('.btnSave').LoadingOverlay('hide');
 	                $('.btnCancel').removeClass('hidden');
 	            }
-	            alert(err.code);
+	            alert("Trouble saving... Please try again...", err.code);
 	            return;
 	        }
           if(data.status === 'ok') {
@@ -1034,7 +1032,10 @@
 	    var tempElement = $('<div></div>');
 	    tempElement.html(content);
 
+	    console.log("Content: ", content, tempElement); 
 	    content = tempElement.html();
+	    console.log("New Content:", content ); 
+
 	    var encodedContent = forge.util.encodeUtf8(content);
 	    var encryptedContent = encryptBinaryString(encodedContent, itemKey, itemIV);
 			encryptedContent = forge.util.encode64(encryptedContent);
@@ -2003,6 +2004,7 @@
 	    var s3UploadingPromise;
 
 	    setStatusLock();
+	    //ifUploading = true; 
 
 	    changeUploadingState($attachment, 'Uploading');
 	    var file = $attachment.data('file');
@@ -2352,12 +2354,13 @@
 	    };
 
 	    sliceEncryptAndUpload($attachment, file);
+	    //ifUploading = false; 
 	};
 
 	function uploadImages(files, mode, $imagePanel) {
 	    var insertIndex;
-	    var uploadedImages = [];
-
+	    var uploadedImages = []; 
+	    ifUploading = true; 
 	    function buildUploadImageElements($imagePanel) {
 	        var $lastUploadImage = null;
 	        var startingUploadIndex;
@@ -2720,6 +2723,7 @@
 	                                            $uploadImage.before($imagePanel);
 	                                            $uploadImage.remove();
 	                                            doneUploadingAnImage(null);
+
 	                                        }
 	                                    });
 	                                }
@@ -2741,6 +2745,7 @@
 	                            uploadAnImage($($uploadImagesList[index]));
 	                        } else {
 	                            doneUploadingImages(null);
+	                            ifUploading = false; 
 	                        }
 	                    }
 	                };
@@ -2938,6 +2943,7 @@
 	        buildUploadImageElements($imagePanel);
 	        startUploadingImages();
 	    }
+
 	}
 
 	function initializeImageButton() {
@@ -4802,18 +4808,24 @@
         }
 	}
 
-	function checkIfEditing(){
+	function getIfEdited(){
 		return ifEdited; 
+	}
+	
+	function getIfUploading(){
+
+		return (ifUploading || isUploading); 
 	}
 
 	//prompt user to save before redirecting to other page
 	window.addEventListener('beforeunload', function(e){
 		//e.preventDefault(); //this forces firefox to pop up 
-		if(ifEdited == true){
+		if(ifEdited == true || ifUploading == true || isUploading){
 			e.returnValue = "Hello"; 
 		}
 
 	}); 
+
 
 	
 
