@@ -408,6 +408,7 @@ function createNewItemVersion(itemId, itemCopy, currentVersion, done) {
         },
         error: function(jqXHR, textStatus, errorThrown) {
             done({ code: textStatus });
+            console.log("Error: ", textStatus); 
         },
         success: function(data) {
             if (data.status === 'ok') {
@@ -415,6 +416,7 @@ function createNewItemVersion(itemId, itemCopy, currentVersion, done) {
             } else {	
 								alert(data.err);
                 done(data.err);
+                console.log("Error: ", data.err); 
             }
         },
         timeout: 30000 // sets timeout to 3 seconds      

@@ -109,7 +109,11 @@
 	    	alert("Please save before leaving this page.")
 	    	return false; 
 	  }
-    
+      var ifUploading = getIfUploading(); 
+      if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+      }
       $('#gotoContentsBtn').trigger('blur');
       window.location.href = '/notebook/' + notebookId + '?initialDisplay=cover';
    	  return false;
@@ -121,6 +125,11 @@
 	    	alert("Please save before leaving this page.")
 	    	return false; 
 	  	}
+	  	var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+        }
 		$('#gotoFirstItemBtn').trigger('blur');
 		getFirstItemInContainer(notebookId, function(err, itemId) {
 			if(err) {
@@ -140,6 +149,11 @@
 	    	alert("Please save before leaving this page.")
 	    	return false; 
 	  	}
+	  	var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+        }
 		$('#gotoLastItemBtn').trigger('blur');
 		getLastItemInContainer(notebookId, function(err, itemId) {
       if(err) {
@@ -160,7 +174,12 @@
 	  alert("Please save before leaving this page.")
 	  return false; 
 	}
-		$('#gotoContentsBtn').trigger('blur');
+	var ifUploading = getIfUploading(); 
+    if(ifUploading){
+        alert("Uploading Image(s) or Attachment(s) still in progress"); 
+        return false; 
+    }
+	$('#gotoContentsBtn').trigger('blur');
     window.location.href = '/notebook/' + notebookId;
     return false;
   });
@@ -173,6 +192,11 @@
 	    	alert("Please save before leaving this page.")
 	    	return false; 
 	    }
+	    var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+        }
 	    var intendedPageNumber = $('#pageNumberInput').val();
 	    var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
 
@@ -194,6 +218,11 @@
 	    	alert("Please save before leaving this page.")
 	    	return false; 
 	    }
+	    var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+        }
 		var intendedPageNumber = currentPageNumber + 1;
 		var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
 
@@ -210,6 +239,11 @@
 	    	alert("Please save before leaving this page.")
 	    	return false; 
 	    }
+	    var ifUploading = getIfUploading(); 
+        if(ifUploading){
+            alert("Uploading Image(s) or Attachment(s) still in progress"); 
+            return false; 
+        }
 	    var intendedPageNumber = currentPageNumber - 1;
 			if(intendedPageNumber > 0) {
 	    	var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
