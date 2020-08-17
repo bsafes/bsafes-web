@@ -53,6 +53,7 @@
 	var pageLocalStorageKey = null;
 	var ifEdited = false; 
 	var ifUploading = false; 
+	var latestVersionNumStored = 0; 
 
 	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, Recording Audio, Recording Video, etc </a>';
 	
@@ -4808,6 +4809,10 @@
         }
 	}
 
+	function getCurrentVersionNum(){
+		return currentVersion; 
+	}
+
 	function getIfEdited(){
 		return ifEdited; 
 	}
@@ -4817,6 +4822,13 @@
 		return (ifUploading || isUploading); 
 	}
 
+	function setLatestVersNumStored(version){
+		latestVersionNumStored = version; 
+	}
+
+	function getLatestVersNumStored(){
+		return latestVersionNumStored; 
+	}
 	//prompt user to save before redirecting to other page
 	window.addEventListener('beforeunload', function(e){
 		//e.preventDefault(); //this forces firefox to pop up 
