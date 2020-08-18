@@ -142,7 +142,8 @@ function loadPage(){
       "envelopeIV": forge.util.encode64(envelopeIV),
 			"ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
       "title": forge.util.encode64(encryptedTitle),
-      "titleTokens": JSON.stringify(titleTokens)
+      "titleTokens": JSON.stringify(titleTokens),
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     };		
 		
 		var thisAddAction = addAction;
@@ -430,7 +431,8 @@ function loadPage(){
 		$.post('/memberAPI/getNextFolderPage', {
 			folderId: folderId,
 			itemId: itemId,
-			itemPosition: itemPosition
+			itemPosition: itemPosition,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
 		}, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
 				var itemId = data.itemId;
@@ -464,7 +466,8 @@ function loadPage(){
     $.post('/memberAPI/getPreviousFolderPage', {
       folderId: folderId,
       itemId: itemId,
-      itemPosition: itemPosition
+      itemPosition: itemPosition,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
         var itemId = data.itemId;

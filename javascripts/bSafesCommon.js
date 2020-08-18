@@ -51,7 +51,8 @@ function bSafesPreflight(fn) {
 		sessionResetRequired = true
 	}
 	$.post('/memberAPI/preflight',{
-		sessionResetRequired: sessionResetRequired
+		sessionResetRequired: sessionResetRequired,
+		antiCSRF: bSafesCommonUIObj.antiCSRF
 	}, function(data, textStatus, jQxhr ){
 		if(data.status === 'ok'){
 			var sessionKey = data.sessionKey;

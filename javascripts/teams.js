@@ -73,7 +73,7 @@ function loadPage(){
 			addActionOptions.targetPosition = $addTargetTeam.data('position');
 		} 
 		addActionOptions.addAction = addAction;
-	
+		addActionOptions.antiCSRF = bSafesCommonUIObj.antiCSRF;	
     $.post('/memberAPI/createANewTeam',
 			addActionOptions, 
      	function(data, textStatus, jQxhr) {
@@ -157,7 +157,8 @@ function loadPage(){
 			dropAction: dropAction,
       teams: JSON.stringify(selectedTeams),
       targetTeam: targetTeamId,
-      targetPosition: targetPosition 
+      targetPosition: targetPosition,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
         selectedTeams.length = 0;
@@ -267,7 +268,8 @@ function loadPage(){
 					$.post('/memberAPI/cacheTeamNameForTeamMember', {
           	teamId: teamId,
           	memberId: memberId,
-          	cachedTeamName: forge.util.encode64(cachedTeamName)
+          	cachedTeamName: forge.util.encode64(cachedTeamName),
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         	}, function(data, textStatus, jQxhr) {
           	if(data.status === 'ok') {
             	i++;
@@ -296,7 +298,8 @@ function loadPage(){
 				$.post('/memberAPI/updateTeamNameForTeamMember', {
       		teamId: teamId,
       		memberId: memberId,
-					encryptedTeamName: forge.util.encode64(encryptedTeamName)
+					encryptedTeamName: forge.util.encode64(encryptedTeamName),
+					antiCSRF: bSafesCommonUIObj.antiCSRF
     		}, function(data, textStatus, jQxhr) {
       		if(data.status === 'ok') {
 						i++;
@@ -359,7 +362,8 @@ function loadPage(){
 		$('.resultItems').empty();
 		$.post('/memberAPI/listTeams', {
 			size: itemsPerPage,
-			from: (pageNumber -1) * itemsPerPage
+			from: (pageNumber -1) * itemsPerPage,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
 			if(data.status === 'ok') {
 				currentContentsPage = pageNumber;

@@ -5,7 +5,8 @@ function loadPage(){
 		event.preventDefault();
 		var pin = $("#resetPIN").val();
 		$.post('/verifyAndResetAccountMFA', {
-			pin: pin 
+			pin: pin,
+			antiCSRF: bSafesCommonUIObj.antiCSRF 
 		}, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
 				window.location.href = '/member';		

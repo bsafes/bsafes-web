@@ -29,7 +29,8 @@
 		$('#confirmBtn').click(function(e) {
 			var packs = $('#packs').val();
 			$.post('/memberAPI/buyingQuotas', {
-				packs: qupacksantity
+				packs: qupacksantity,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
 			}, function(data, textStatus, jQxhr ){
       	if(data.status === 'ok') {
 	

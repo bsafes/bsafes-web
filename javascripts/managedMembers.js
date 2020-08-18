@@ -25,7 +25,8 @@ function loadPage(){
 			return false;
 		}
 		$.post('/memberAPI/createNickname', {
-			nickname: nickname
+			nickname: nickname,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
 		}, function(data, textStatus, jQxhr ){
 			hideLoadingIn($('#accountNickname'));
 			if(data.status ===  'ok') {
@@ -54,6 +55,7 @@ function loadPage(){
 		showLoadingIn($('#accountNickname'));
 		$('#clearNicknameWarning').addClass('hidden');
 		$.post('/memberAPI/clearNickname', {
+			antiCSRF: bSafesCommonUIObj.antiCSRF
 		}, function(data, textStatus, jQxhr ){
 			hideLoadingIn($('#accountNickname'));
 			if(data.status ===  'ok') {
@@ -189,7 +191,7 @@ function loadPage(){
 			thisMember.initialLetter = $('#memberName').val().charAt(0);
 			thisMember.memberName = forge.util.encodeUtf8($('#memberName').val());	
   		thisMember.password = newManagedMemberPassword;
-	
+			thisMember.antiCSRF = bSafesCommonUIObj.antiCSRF;	
 			$.post('/memberAPI/addAManagedMember',
 				thisMember,
 				function(data, textStatus, jQxhr) {
@@ -257,7 +259,8 @@ function loadPage(){
       showLoadingInDeleteModal(); 
       $.post('/memberAPI/deleteAManagedMember', { 
 				memberId: memberId,
-				memberName: memberName   
+				memberName: memberName,
+				antiCSRF: bSafesCommonUIObj.antiCSRF   
       }, function(data, textStatus, jQxhr) { 
         hideLoadingInDeleteModal(); 
         $('#deleteModal').modal('hide'); 
@@ -303,7 +306,8 @@ function loadPage(){
       	showLoadingInExtraMFAModal(); 
       	$.post('/memberAPI/resetManagedMemberMFA', { 
 					memberId: memberId,
-					memberName: memberName   
+					memberName: memberName,
+					antiCSRF: bSafesCommonUIObj.antiCSRF
       	}, function(data, textStatus, jQxhr) { 
        		hideLoadingInExtraMFAModal(); 
        		$('#extraMFAModal').modal('hide'); 
@@ -331,7 +335,8 @@ function loadPage(){
 
 		$.post('/memberAPI/isManagedMemberMFAEnabled', {
         memberId: memberId,
-        memberName: memberName
+        memberName: memberName,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
       }, function(data, textStatus, jQxhr) {
         hideLoadingInExtraMFAModal();
         if(data.status === 'ok') {
@@ -392,7 +397,8 @@ function loadPage(){
 		$('.resultItems').empty();
 		$.post('/memberAPI/listManagedMembers', {
       size: 20,
-      from: 0
+      from: 0,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
 			if(data.status === 'ok') {
 				var total = data.hits.total;
