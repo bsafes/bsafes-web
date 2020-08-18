@@ -6,7 +6,8 @@ function loadPage(){
 		event.preventDefault();
 		var token = $("#token1").val();
 		$.post('/safeAPI/verifyMFASetupToken', {
-			token: token 
+			token: token,
+			antiCSRF: bSafesCommonUIObj.antiCSRF 
 		}, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
       	$('#setupExtraMFA').addClass('hidden');
@@ -44,6 +45,7 @@ function loadPage(){
       if(!goDeleteEnabled) return false;
       showLoadingInDeleteModal();
       $.post('/safeAPI/deleteExtraMFA', {
+				antiCSRF: bSafesCommonUIObj.antiCSRF
       }, function(data, textStatus, jQxhr) {
         hideLoadingInDeleteModal();
         $('#deleteModal').modal('hide');

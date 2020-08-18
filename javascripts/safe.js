@@ -165,7 +165,8 @@ function loadPage() {
             teamSpace: currentSpace,
             searchTokens: searchTokensStr,
             size: itemsPerPage,
-            from: (pageNumber - 1) * itemsPerPage
+            from: (pageNumber - 1) * itemsPerPage,
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
             if (data.status === 'ok') {
                 currentContentsPage = pageNumber;
@@ -282,7 +283,8 @@ function loadPage() {
         $.post('/memberAPI/listItems', {
             container: currentSpace,
             size: itemsPerPage,
-            from: (pageNumber - 1) * itemsPerPage
+            from: (pageNumber - 1) * itemsPerPage,
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
             if (data.status === 'ok') {
                 currentContentsPage = pageNumber;

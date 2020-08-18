@@ -396,7 +396,8 @@
 	                    "envelopeIV": forge.util.encode64(envelopeIV),
 	                    "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                    tags: JSON.stringify(encryptedTags),
-	                    tagsTokens: JSON.stringify(tagsTokens)
+	                    tagsTokens: JSON.stringify(tagsTokens),
+											antiCSRF: bSafesCommonUIObj.antiCSRF
 	                }
 	                $.post('/memberAPI/addAnItemAfter',
 	                    addActionOptions,
@@ -421,7 +422,8 @@
 	                    "envelopeIV": forge.util.encode64(envelopeIV),
 	                    "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                    tags: JSON.stringify(encryptedTags),
-	                    tagsTokens: JSON.stringify(tagsTokens)
+	                    tagsTokens: JSON.stringify(tagsTokens),
+											antiCSRF: bSafesCommonUIObj.antiCSRF
 	                }, function(data, textStatus, jQxhr) {
 	                    if (data.status === 'ok') {
 	                        itemCopy = data.item;
@@ -440,7 +442,8 @@
 	                    "envelopeIV": forge.util.encode64(envelopeIV),
 	                    "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                    tags: JSON.stringify(encryptedTags),
-	                    tagsTokens: JSON.stringify(tagsTokens)
+	                    tagsTokens: JSON.stringify(tagsTokens),
+											antiCSRF: bSafesCommonUIObj.antiCSRF
 	                }, function(data, textStatus, jQxhr) {
 	                    if (data.status === 'ok') {
 	                        itemCopy = data.item;
@@ -779,7 +782,8 @@
 	                "envelopeIV": forge.util.encode64(envelopeIV),
 	                "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                "title": forge.util.encode64(encryptedTitle),
-	                "titleTokens": JSON.stringify(titleTokens)
+	                "titleTokens": JSON.stringify(titleTokens),
+									antiCSRF: bSafesCommonUIObj.antiCSRF
 	            }
 
 	            $.ajax({
@@ -823,7 +827,8 @@
 	                    "envelopeIV": forge.util.encode64(envelopeIV),
 	                    "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                    "title": forge.util.encode64(encryptedTitle),
-	                    "titleTokens": JSON.stringify(titleTokens)
+	                    "titleTokens": JSON.stringify(titleTokens),
+											antiCSRF: bSafesCommonUIObj.antiCSRF
 	                },
 	                error: function(jqXHR, textStatus, errorThrown) {
 	                    $('.btnSave').LoadingOverlay('hide');
@@ -854,7 +859,8 @@
 	                    "envelopeIV": forge.util.encode64(envelopeIV),
 	                    "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                    "title": forge.util.encode64(encryptedTitle),
-	                    "titleTokens": JSON.stringify(titleTokens)
+	                    "titleTokens": JSON.stringify(titleTokens),
+											antiCSRF: bSafesCommonUIObj.antiCSRF
 	                },
 	                error: function(jqXHR, textStatus, errorThrown) {
 	                    $('.btnSave').LoadingOverlay('hide');
@@ -960,7 +966,8 @@
 	        itemCopy.content = encryptedContent;
 	        $.post('/memberAPI/saveNewPageComment', {
 	            itemId: itemId,
-	            content: encryptedContent
+	            content: encryptedContent,
+							antiCSRF: bSafesCommonUIObj.antiCSRF
 	        }, function(data, textStatus, jQxhr) {
 	            if (data.status === 'ok') {
 
@@ -995,7 +1002,8 @@
 
 	function updateComment() {
 	    var id = currentEditor.closest('.comment').data("id");
-	    var commentId = id.split("-")[1];
+			var idParts = id.split(itemId + "-");
+	    var commentId = idParts[idParts.length-1];
 	    if (isBlankPageItem) {
 	        return;
 	    }
@@ -1013,7 +1021,8 @@
 	        $.post('/memberAPI/updatePageComment', {
 	            itemId: itemId,
 	            commentId: commentId,
-	            content: encryptedContent
+	            content: encryptedContent,
+							antiCSRF: bSafesCommonUIObj.antiCSRF
 	        }, function(data, textStatus, jQxhr) {
 	            if (data.status === 'ok') {
 	                var lastUpdateTime = "Updated, " + formatTimeDisplay(data.lastUpdateTime);
@@ -1117,7 +1126,7 @@
                         timeout: 7000,
                         url: "/memberAPI/preS3Upload",
                         dataType: "json",
-                        data: {},
+                        data: {antiCSRF: bSafesCommonUIObj.antiCSRF},
                         success: function(data) {
                             if (data.status === 'ok') {
                             	console.log('preS3Upload_ok', data);
@@ -1216,7 +1225,8 @@
                                 "ivEnvelope": forge.util.encode64(ivEnvelope),
                                 "envelopeIV": forge.util.encode64(envelopeIV),
                                 "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
-                                "size": s3ObjectSize
+                                "size": s3ObjectSize,
+																antiCSRF: bSafesCommonUIObj.antiCSRF
                             },
                             success: function(data) {
                                 if (data.status === 'ok') {
@@ -1340,7 +1350,8 @@
 			                "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
 			                "s3ObjectsSizeInContent": s3ObjectsSize,
 			                tags: JSON.stringify(encryptedTags),
-	                   	tagsTokens: JSON.stringify(tagsTokens)
+	                   	tagsTokens: JSON.stringify(tagsTokens),
+											antiCSRF: bSafesCommonUIObj.antiCSRF
 			            }
 
 			            $.ajax({
@@ -1387,7 +1398,8 @@
 			                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
 			                    "s3ObjectsSizeInContent": s3ObjectsSize,
 			                    tags: JSON.stringify(encryptedTags),
-	                    		tagsTokens: JSON.stringify(tagsTokens)
+	                    		tagsTokens: JSON.stringify(tagsTokens),
+													antiCSRF: bSafesCommonUIObj.antiCSRF
 			                },
 			                error: function(jqXHR, textStatus, errorThrown) {
 			                    $('.btnSave').LoadingOverlay('hide');
@@ -1421,7 +1433,8 @@
 			                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
 			                    "s3ObjectsSizeInContent": s3ObjectsSize,
 			                    tags: JSON.stringify(encryptedTags),
-	                    		tagsTokens: JSON.stringify(tagsTokens)
+	                    		tagsTokens: JSON.stringify(tagsTokens),
+													antiCSRF: bSafesCommonUIObj.antiCSRF
 			                },
 			                error: function(jqXHR, textStatus, errorThrown) {
 			                    $('.btnSave').LoadingOverlay('hide');
@@ -1509,7 +1522,8 @@
 	                "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                "content": forge.util.encode64(encryptedContent),
 	                "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-	                "s3ObjectsSizeInContent": s3ObjectsSize
+	                "s3ObjectsSizeInContent": s3ObjectsSize,
+									antiCSRF: bSafesCommonUIObj.antiCSRF
 	            }
 
 	            $.ajax({
@@ -1554,7 +1568,8 @@
 	                    "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                    "content": forge.util.encode64(encryptedContent),
 	                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-	                    "s3ObjectsSizeInContent": s3ObjectsSize
+	                    "s3ObjectsSizeInContent": s3ObjectsSize,
+											antiCSRF: bSafesCommonUIObj.antiCSRF
 	                },
 	                error: function(jqXHR, textStatus, errorThrown) {
 	                    $('.btnSave').LoadingOverlay('hide');
@@ -1586,7 +1601,8 @@
 	                    "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
 	                    "content": forge.util.encode64(encryptedContent),
 	                    "s3ObjectsInContent": JSON.stringify(s3ObjectsInContent),
-	                    "s3ObjectsSizeInContent": s3ObjectsSize
+	                    "s3ObjectsSizeInContent": s3ObjectsSize,
+											antiCSRF: bSafesCommonUIObj.antiCSRF
 	                },
 	                error: function(jqXHR, textStatus, errorThrown) {
 	                    $('.btnSave').LoadingOverlay('hide');
@@ -1931,7 +1947,8 @@
 	        $.post('/memberAPI/preS3ChunkDownload', {
 	                itemId: itemId,
 	                chunkIndex: chunkIndex.toString(),
-	                s3KeyPrefix: id
+	                s3KeyPrefix: id,
+									antiCSRF: bSafesCommonUIObj.antiCSRF
 	            }, function(data, textStatus, jQxhr) {
 	                if (data.status === 'ok') {
 	                    console.log(data);
@@ -2046,7 +2063,8 @@
 	                $.post('/memberAPI/preS3ChunkUpload', {
 	                        itemId: itemId,
 	                        chunkIndex: chunkIndex.toString(),
-	                        timeStamp: timeStamp
+	                        timeStamp: timeStamp,
+													antiCSRF: bSafesCommonUIObj.antiCSRF
 	                    }, function(data, textStatus, jQxhr) {
 	                        if (data.status === 'ok') {
 	                            s3Key = data.s3Key;
@@ -2189,7 +2207,8 @@
 	                                        "fileName": forge.util.encode64(encryptedFileName),
 	                                        "fileType": file.type,
 	                                        "size": file.size,
-	                                        "numberOfChunks": numberOfChunks
+	                                        "numberOfChunks": numberOfChunks,
+																					antiCSRF: bSafesCommonUIObj.antiCSRF
 	                                    }
 	                                    $.post('/memberAPI/addAnItemAfter',
 	                                        addActionOptions,
@@ -2228,7 +2247,8 @@
 	                                        "fileName": forge.util.encode64(encryptedFileName),
 	                                        "fileType": file.type,
 	                                        "size": file.size,
-	                                        "numberOfChunks": numberOfChunks
+	                                        "numberOfChunks": numberOfChunks,
+																					antiCSRF: bSafesCommonUIObj.antiCSRF
 	                                    }, function(data, textStatus, jQxhr) {
 	                                        if (data.status === 'ok') {
 	                                            itemCopy = data.item;
@@ -2259,7 +2279,8 @@
 	                                        "fileName": forge.util.encode64(encryptedFileName),
 	                                        "fileType": file.type,
 	                                        "size": file.size,
-	                                        "numberOfChunks": numberOfChunks
+	                                        "numberOfChunks": numberOfChunks,
+																					antiCSRF: bSafesCommonUIObj.antiCSRF
 	                                    }, function(data, textStatus, jQxhr) {
 	                                        if (data.status === 'ok') {
 	                                            itemCopy = data.item;
@@ -2297,7 +2318,8 @@
 	                                    "fileName": forge.util.encode64(encryptedFileName),
 	                                    "fileType": file.type ? file.type : "unknown",
 	                                    "size": file.size,
-	                                    "numberOfChunks": numberOfChunks
+	                                    "numberOfChunks": numberOfChunks,
+																			antiCSRF: bSafesCommonUIObj.antiCSRF
 	                                };
 
 	                                uploadedAttachments.push(uploadedAttachment);
@@ -2454,7 +2476,7 @@
 	                                timeout: 7000,
 	                                url: "/memberAPI/preS3Upload",
 	                                dataType: "json",
-	                                data: {},
+	                                data: {antiCSRF: bSafesCommonUIObj.antiCSRF},
 	                                success: function(data) {
 	                                    if (data.status === 'ok') {
 	                                        s3Key = data.s3Key;
@@ -2655,7 +2677,8 @@
 	                                        "ivEnvelope": forge.util.encode64(ivEnvelope),
 	                                        "envelopeIV": forge.util.encode64(envelopeIV),
 	                                        "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
-	                                        "size": s3ObjectSize
+	                                        "size": s3ObjectSize,
+																					antiCSRF: bSafesCommonUIObj.antiCSRF
 	                                    },
 	                                    success: function(data) {
 	                                        if (data.status === 'ok') {
@@ -2881,7 +2904,8 @@
 	                "keyEnvelope": forge.util.encode64(keyEnvelope),
 	                "ivEnvelope": forge.util.encode64(ivEnvelope),
 	                "envelopeIV": forge.util.encode64(envelopeIV),
-	                "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV)
+	                "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
+									antiCSRF: bSafesCommonUIObj.antiCSRF
 	            }
 	            $.post('/memberAPI/addAnItemAfter',
 	                addActionOptions,
@@ -2906,7 +2930,8 @@
 	                "keyEnvelope": forge.util.encode64(keyEnvelope),
 	                "ivEnvelope": forge.util.encode64(ivEnvelope),
 	                "envelopeIV": forge.util.encode64(envelopeIV),
-	                "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV)
+	                "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
+									antiCSRF: bSafesCommonUIObj.antiCSRF
 	            }, function(data, textStatus, jQxhr) {
 	                if (data.status === 'ok') {
 	                    itemCopy = data.item;
@@ -2925,7 +2950,8 @@
 	                "keyEnvelope": forge.util.encode64(keyEnvelope),
 	                "ivEnvelope": forge.util.encode64(ivEnvelope),
 	                "envelopeIV": forge.util.encode64(envelopeIV),
-	                "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV)
+	                "ivEnvelopeIV": forge.util.encode64(ivEnvelopeIV),
+									antiCSRF: bSafesCommonUIObj.antiCSRF
 	            }, function(data, textStatus, jQxhr) {
 	                if (data.status === 'ok') {
 	                    itemCopy = data.item;
@@ -3136,7 +3162,8 @@
 
 	    $.post('/memberAPI/preS3Download', {
 	        itemId: itemId,
-	        s3Key: s3Key
+	        s3Key: s3Key,
+					antiCSRF: bSafesCommonUIObj.antiCSRF
 	    }, function(data, textStatus, jQxhr) {
 	        if (data.status === 'ok') {
 	            var signedURL = data.signedURL;
@@ -3184,7 +3211,8 @@
 
 	    $.post('/memberAPI/preS3Download', {
 	        itemId: itemId,
-	        s3Key: s3Key
+	        s3Key: s3Key,
+					antiCSRF: bSafesCommonUIObj.antiCSRF
 	    }, function(data, textStatus, jQxhr) {
 	        if (data.status === 'ok') {
 	            var signedURL = data.signedURL;
@@ -3339,7 +3367,8 @@
 	        $.post('/memberAPI/getPageComments', {
 	            itemId: itemId,
 	            size: 10,
-	            from: 0
+	            from: 0,
+							antiCSRF: bSafesCommonUIObj.antiCSRF
 	        }, function(data, textStatus, jQxhr) {
 	        	$('.commentsSearchResults').removeClass('loading col-xs-12 col-xs-offset-0 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2');
 	            if (data.status === "ok") {	            	
@@ -3354,6 +3383,7 @@
 	    if (thisVersion) {
 	        options.oldVersion = thisVersion;
 	    }
+			options.antiCSRF = bSafesCommonUIObj.antiCSRF;
 	    $.post('/memberAPI/getPageItem',
 	        options,
 	        function(data, textStatus, jQxhr) {
@@ -3526,7 +3556,8 @@
 
 	                                        $.post('/memberAPI/preS3Download', {
 	                                            itemId: itemId,
-	                                            s3Key: s3Key
+	                                            s3Key: s3Key,
+																							antiCSRF: bSafesCommonUIObj.antiCSRF
 	                                        }, function(data, textStatus, jQxhr) {
                                             if (data.status === 'ok') {
                                               var signedURL = data.signedURL;
@@ -4731,7 +4762,8 @@
 
                 $.post('/memberAPI/preS3Download', {
                     itemId: itemId,
-                    s3Key: s3Key
+                    s3Key: s3Key,
+										antiCSRF: bSafesCommonUIObj.antiCSRF
                 }, function(data, textStatus, jQxhr) {
                 	console.log('call_preS3Download = ', data.status);
                     if (data.status === 'ok') {

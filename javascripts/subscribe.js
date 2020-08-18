@@ -22,7 +22,8 @@
           	console.log(payload.nonce);
           	$.post('/memberAPI/subscribe', {
 							plan: plan,
-            	paymentMethodNonce: payload.nonce
+            	paymentMethodNonce: payload.nonce,
+							antiCSRF: bSafesCommonUIObj.antiCSRF
           	}, function(data, textStatus, jQxhr) {
 							if(data.status === "error") {
 								$('#payAgain').removeClass('hidden');
@@ -84,7 +85,8 @@
             	console.log(payload.nonce);
             	$.post('/memberAPI/subscribe', {
               	plan: plan,
-              	paymentMethodNonce: payload.nonce
+              	paymentMethodNonce: payload.nonce,
+								antiCSRF: bSafesCommonUIObj.antiCSRF
             	}, function(data, textStatus, jQxhr) {
               	if(data.status === "error") {
                 	$('#payAgain').removeClass('hidden');

@@ -5,7 +5,8 @@ function loadPage(){
 		event.preventDefault();
 		var token = $("#token1").val();
 		$.post('/verifyMFAToken', {
-			token: token 
+			token: token,
+			antiCSRF: bSafesCommonUIObj.antiCSRF 
 		}, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
 				window.location.href = '/member';		
@@ -28,6 +29,7 @@ function loadPage(){
 	$('#emailHelp').click(function(event) {
 		event.preventDefault();
 		$.post('/accountMFAHelp', {
+			antiCSRF: bSafesCommonUIObj.antiCSRF
 		}, function(data, textStatus, jQxhr) {
 			if(data.status === 'ok') {
 				$("#emailSent").removeClass('hidden');

@@ -102,7 +102,8 @@ function loadPage(){
 			teamSpace: currentSpace,
       searchTokens: searchTokensStr,
 			size: itemsPerPage,
-      from: (pageNumber -1) * itemsPerPage
+      from: (pageNumber -1) * itemsPerPage,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
 				currentContentsPage = pageNumber;
@@ -120,7 +121,8 @@ function loadPage(){
 			teamId: teamId,
 			memberId: memberId,
 			teamKeyEnvelope: encryptedTeamKey,
-			encryptedTeamName: encryptedTeamName
+			encryptedTeamName: encryptedTeamName,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
 		}, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
 				console.log("A new member is added.");
@@ -180,7 +182,8 @@ function loadPage(){
 
 			$.post("/memberAPI/isAMemberInTeam", {
 				teamId: teamId,
-				memberId: memberId
+				memberId: memberId,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
 			}, function(data, textStatus, jQxhr) {
 				if(data.status === 'ok') {
 					if(data.result === "true") {
@@ -239,7 +242,8 @@ function loadPage(){
       	teamId: teamId,
       	memberId: memberId,
 				encryptedTeamName: encryptedTeamName,
-      	teamKeyEnvelope: encryptedTeamKey
+      	teamKeyEnvelope: encryptedTeamKey,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     	}, function(data, textStatus, jQxhr) {
       	if(data.status === 'ok') {
 					hideLoadingInManagedMember($managedMember);
@@ -266,7 +270,8 @@ function loadPage(){
 		showLoading();
 		$.post('/memberAPI/listManagedMembers', {
       size: 20,
-      from: startIndex 
+      from: startIndex,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
         var total = data.hits.total;
@@ -353,7 +358,8 @@ function loadPage(){
 
 		console.log("finding a  member");
 		$.post('/memberAPI/findMemberByEmail', {
-			email: email 
+			email: email,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
 		}, function(data, textStatus, jQxhr) {
 			if(data.status === 'ok') {
 				var total = data.hits.total;
@@ -459,7 +465,8 @@ function loadPage(){
 			showLoadingInDeleteModal();
 			$.post('/memberAPI/deleteATeamMember', {
 				teamId: teamId,
-				memberId: memberId	
+				memberId: memberId,
+				antiCSRF: bSafesCommonUIObj.antiCSRF	
 			}, function(data, textStatus, jQxhr) {
 				hideLoadingInDeleteModal();
 				$('#deleteModal').modal('hide');
@@ -529,7 +536,8 @@ function loadPage(){
 		$.post('/memberAPI/listTeamMembers', {
       teamId: teamId,
 			size: itemsPerPage,
-			from: (pageNumber -1) * itemsPerPage
+			from: (pageNumber -1) * itemsPerPage,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
 			if(data.status === 'ok') {
 				currentContentsPage = pageNumber;

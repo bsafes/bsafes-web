@@ -38,15 +38,26 @@ function formatTimeDisplay(timeValue) {
     return dateStr;
 }
 
+function getAntiCSRF() {
+	var $antiCSRF = $("#antiCSRF");
+	var antiCSRF = null;
+	if($antiCSRF.length) {
+		antiCSRF =  $antiCSRF.text();
+	}
+	return antiCSRF; 
+}
+
 var bSafesCommonUIObj = {
   currentItem: {
     path:[]
-  }
+  },
+	antiCSRF: getAntiCSRF()
 }
 
 function getPath(itemId, pageId, done) {
     $.post('/memberAPI/getItemPath', {
-        itemId: itemId
+        itemId: itemId,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             var path = data.itemPath;
@@ -163,7 +174,8 @@ function showPath(teamName, itemPath, itemId, envelopeKey, pageId, endItemTitle)
 
 function getAndShowPath(itemId, envelopeKey, teamName, endItemTitle) {
     $.post('/memberAPI/getItemPath', {
-        itemId: itemId
+        itemId: itemId,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             showPath(teamName, data.itemPath, itemId, envelopeKey, null, endItemTitle);
@@ -404,7 +416,8 @@ function createNewItemVersion(itemId, itemCopy, currentVersion, done) {
         dataType: 'json',
         data: {
             itemId: itemId,
-						itemVersion: JSON.stringify(itemCopy)
+						itemVersion: JSON.stringify(itemCopy),
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         },
         error: function(jqXHR, textStatus, errorThrown) {
             done({ code: textStatus });
@@ -429,7 +442,8 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
         $.post('/memberAPI/getItemVersionsHistory', {
             itemId: itemId,
             size: 20,
-            from: 0
+            from: 0,
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
             if (data.status === 'ok') {
                 var total = data.hits.total;
@@ -651,7 +665,8 @@ function goGetItemContents(id) {
 function getNextItemInContainer(container, position, done) {
     $.post('/memberAPI/getNextItemInContainer', {
         container: container,
-        position: position
+        position: position,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             var itemId = data.itemId;
@@ -667,7 +682,8 @@ function getNextItemInContainer(container, position, done) {
 function getPreviousItemInContainer(container, position, done) {
     $.post('/memberAPI/getPreviousItemInContainer', {
         container: container,
-        position: position
+        position: position,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             var itemId = data.itemId;
@@ -682,7 +698,8 @@ function getPreviousItemInContainer(container, position, done) {
 
 function getFirstItemInContainer(container, done) {
     $.post('/memberAPI/getFirstItemInContainer', {
-        container: container
+        container: container,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             var itemId = null;
@@ -699,7 +716,8 @@ function getFirstItemInContainer(container, done) {
 
 function getLastItemInContainer(container, done) {
     $.post('/memberAPI/getLastItemInContainer', {
-        container: container
+        container: container,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             var itemId = null;
@@ -721,7 +739,8 @@ function listItemsCloseToAndAfterItem($targetItem) {
     $('.resultItems').empty();
     $.post('/memberAPI/listItemsCloseToAndAfterItem', {
         container: targetContainer,
-        position: targetPosition
+        position: targetPosition,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             var hits = data.hits;
@@ -806,7 +825,7 @@ var handleDropAction = function(e) {
       options.targetContainersPath =  JSON.stringify(targetContainersPath);
       options.totalUsage = JSON.stringify(totalUsage);
     }
-
+		options.antiCSRF = bSafesCommonUIObj.antiCSRF;
     $.post('/memberAPI/' + dropAction,
       options,
       function(data, textStatus, jQxhr) {
@@ -1132,6 +1151,7 @@ function createANewItem(currentContainer, selectedItemType, addAction, $addTarge
     };
 
     var thisAddAction = addAction;
+		addActionOptions.antiCSRF = bSafesCommonUIObj.antiCSRF;
     $.post('/memberAPI/' + addAction,
         addActionOptions,
         function(data, textStatus, jQxhr) {
@@ -1190,7 +1210,8 @@ function listContainers(itemId, itemTitle) {
     $.post('/memberAPI/listContainers', {
         container: itemId,
         size: containersPerPage,
-        from: (containersPageNumber - 1) * containersPerPage
+        from: (containersPageNumber - 1) * containersPerPage,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             var containers = data.hits.hits;
@@ -1223,7 +1244,8 @@ function listContainers(itemId, itemTitle) {
                 $.post('/memberAPI/listContainers', {
                     container: thisItemId,
                     size: containersPerPage,
-                    from: 0
+                    from: 0,
+										antiCSRF: bSafesCommonUIObj.antiCSRF
                 }, function(data, textStatus, jQxhr) {
                     if (data.status === 'ok') {
                         currentTargetContainer = thisItemId;
@@ -1354,7 +1376,8 @@ function showMoveItemsModal(thisSpace) {
             targetItem: currentTargetContainer,
             sourceContainersPath: JSON.stringify(bSafesCommonUIObj.currentItem.path),
             targetContainersPath: JSON.stringify(moveItemsModalObj.targetContainersPath),
-            totalUsage: JSON.stringify(totalUsage)
+            totalUsage: JSON.stringify(totalUsage),
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
             hideLoadingInMoveItemsModal();
             if (data.status === 'ok') {
@@ -1442,7 +1465,8 @@ function showMoveAnItemModal(thisItem, thisSpace) {
             targetItem: currentTargetContainer,
             sourceContainersPath: JSON.stringify(sourceContainersPath),
             targetContainersPath: JSON.stringify(moveItemsModalObj.targetContainersPath),
-            totalUsage: JSON.stringify(totalUsage)
+            totalUsage: JSON.stringify(totalUsage),
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
             hideLoadingInMoveAnItemModal(); 
             if (data.status === 'ok') {
@@ -1483,7 +1507,8 @@ function showTrashItemsModal(thisSpace, originalContainer) {
             targetSpace: thisSpace,
             originalContainer: originalContainer,
             sourceContainersPath: JSON.stringify(bSafesCommonUIObj.currentItem.path),
-            totalUsage: JSON.stringify(totalUsage)
+            totalUsage: JSON.stringify(totalUsage),
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
             hideLoadingInTrashModal();
             if (data.status === 'ok') {
@@ -1557,7 +1582,8 @@ function showTrashAnItemModal(thisSpace, originalContainer) {
             targetSpace: thisSpace,
             originalContainer: itemInfo[0].container,
             sourceContainersPath: JSON.stringify(sourceContainersPath),
-            totalUsage: JSON.stringify(totalUsage)
+            totalUsage: JSON.stringify(totalUsage),
+						antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
             hideLoadingInTrashModal();
             if (data.status === 'ok') {
@@ -1591,7 +1617,8 @@ function hideTrashItemsModal() {
 /*-- Commons for Team */
 function getTeamData(teamId, done) {
     $.post('/memberAPI/getTeamData', {
-        teamId: teamId
+        teamId: teamId,
+				antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
         if (data.status === 'ok') {
             done(null, data.team);
@@ -1662,7 +1689,8 @@ function positionItemNavigationControls() {
 
 function postDownloadS3Object(s3Key) {
   $.post('/memberAPI/postS3Download', {
-    s3Key: s3Key
+    s3Key: s3Key,
+		antiCSRF: bSafesCommonUIObj.antiCSRF
   }, function(data, textStatus, jQxhr) {
     if (data.status === 'ok') {
 

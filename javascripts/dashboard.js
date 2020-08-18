@@ -20,7 +20,8 @@ function loadPage(){
 		showLoadingIn($('#quotasHistoryTableBody'));
 		$.post('/memberAPI/getQuotasHistory',
       {
-				LastEvaluatedKey: JSON.stringify(quotaLastEvaluatedKey)
+				LastEvaluatedKey: JSON.stringify(quotaLastEvaluatedKey),
+				antiCSRF: bSafesCommonUIObj.antiCSRF
 			}, function(data, textStatus, jQxhr) {
         if(data.status === 'ok') {
 					if(data.LastEvaluatedKey) {
@@ -61,7 +62,8 @@ function loadPage(){
 		showLoadingIn($('#paymentsHistoryTableBody'));
 		$.post('/memberAPI/getPaymentsHistory',
     	{
-				LastEvaluatedKey: JSON.stringify(paymentLastEvaluatedKey)
+				LastEvaluatedKey: JSON.stringify(paymentLastEvaluatedKey),
+				antiCSRF: bSafesCommonUIObj.antiCSRF
 			}, function(data, textStatus, jQxhr) {
         if(data.status === 'ok') {
           if(data.LastEvaluatedKey) {

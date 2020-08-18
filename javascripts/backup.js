@@ -17,7 +17,7 @@ function loadPage(){
 	$( "#getCredential" ).click(function(event) {
 		event.preventDefault();
 		$.post('/safeAPI/getDesktopCredential', {
-
+			antiCSRF: bSafesCommonUIObj.antiCSRF
 		}, function(data, textStatus, jQxhr) {
 			if(data.status === 'ok') {
 				$('#memberName').val(data.memberName);

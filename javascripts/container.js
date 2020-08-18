@@ -297,6 +297,7 @@ function loadPage(){
 		if(thisVersion) {
       options.oldVersion = thisVersion;
     }	
+		options.antiCSRF = bSafesCommonUIObj.antiCSRF;
     $.post('/memberAPI/getItemData',
    		options 
     , function(data, textStatus, jQxhr ){
@@ -819,7 +820,8 @@ function loadPage(){
 			container: itemId,
       searchTokens: searchTokensStr,
       size: itemsPerPage,
-      from: (pageNumber -1) * itemsPerPage
+      from: (pageNumber -1) * itemsPerPage,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if(data.status === 'ok') {
         currentContentsPage = pageNumber;
@@ -923,7 +925,8 @@ function loadPage(){
 		$.post('/memberAPI/getContainerContents',{
 			itemId: itemId,
 			size: itemsPerPage,
-			from:	(pageNumber -1) * itemsPerPage 
+			from:	(pageNumber -1) * itemsPerPage,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
 		}, function(data, textStatus, jQxhr ){
 				hideLoadingContents();
 			if(data.status === 'ok') {
@@ -1053,7 +1056,8 @@ function loadPage(){
       size: 31,
       from: 0,
 			selectedDiaryContentStartPosition: selectedDiaryContentStartPosition,
-			selectedDiaryContentEndPosition: selectedDiaryContentEndPosition 
+			selectedDiaryContentEndPosition: selectedDiaryContentEndPosition,
+			antiCSRF: bSafesCommonUIObj.antiCSRF 
     }, function(data, textStatus, jQxhr ){
 			hideLoadingContents();
       if(data.status === 'ok') {

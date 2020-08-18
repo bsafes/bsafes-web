@@ -167,7 +167,8 @@ function loadPage(){
 						"privateKeyEnvelope": encodedPrivateKeyEnvelope,
 						"envelopeIV": encodedEnvelopeIV,
 						"searchKeyEnvelope": encodedSearchKeyEnvelope,
-						"searchKeyIV": encodedSearchKeyIV
+						"searchKeyIV": encodedSearchKeyIV,
+						antiCSRF: bSafesCommonUIObj.antiCSRF
       		},function(data, textStatus, jQxhr ){
         		console.log(data);
 						hideLoadingIn($('.enterYourKeyRow'));

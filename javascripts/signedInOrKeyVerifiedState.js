@@ -50,6 +50,7 @@
   });
 
 	$.post('/isMemberSignedIn', {
+		antiCSRF: bSafesCommonUIObj.antiCSRF
 	}, function(data, textStatus, jQxhr ){
 		if(data.status === 'yes') {
 			localStorage.setItem("isSignedIn", "true");
