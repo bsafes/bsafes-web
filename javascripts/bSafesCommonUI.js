@@ -425,12 +425,12 @@ function createNewItemVersion(itemId, itemCopy, currentVersion, done) {
 
 function initializeItemVersionsHistory(itemId, getItemVersion) {
     $('#itemVersionsHistory').off();
-    //console.log("Get Item version history: ", getItemVersion); 
-    //checking if loading version list is needed
-    var currentVersionNum = getCurrentVersionNum(); 
     var latestVersionNumStored = 0; 
-    
-    //$(".itemVersionItemsList").empty();
+    var currentVersionNum; 
+    try{
+        currentVersionNum = getCurrentVersionNum();
+    } catch(e){}
+
     $('#itemVersionsHistory').click(function(e) {
         e.preventDefault(); 
         if(currentVersionNum == latestVersionNumStored) {
@@ -487,8 +487,6 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
                     });
                 }
 
-                //setLatestVersNumStored(hits.length); 
-
                 $('#moreVersions').on('click', function (e){
                     e.preventDefault(); 
                     getMoreVersions(startIndex); 
@@ -517,7 +515,7 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
                                 $itemVersionItem.find('.itemVersion').html("V." + hits[i]._source.version);
                                 latestVersion = hits[i]._source.version;
                                 latestVersionNumStored++;  
-                                //setLatestVersNumStored(latestVersion); 
+                                
                                 var updatedText;
                                 if (hits[i]._source.version === 1) {
                                     updatedText = "Creation";
