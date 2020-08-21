@@ -1,41 +1,41 @@
-function loadPage(){
-	var memberId = $('.loginUserId').text();
+function loadPage() {
+  var memberId = $('.loginUserId').text();
 
-	$("#verifyToken").click(function(event) {
-		event.preventDefault();
-		var token = $("#token1").val();
-		$.post('/verifyMFAToken', {
-			token: token,
-			antiCSRF: bSafesCommonUIObj.antiCSRF 
-		}, function(data, textStatus, jQxhr) {
-      if(data.status === 'ok') {
-				window.location.href = '/member';		
-			} else {
+  $("#verifyToken").click(function(event) {
+    event.preventDefault();
+    var token = $("#token1").val();
+    $.post('/verifyMFAToken', {
+      token: token,
+      antiCSRF: bSafesCommonUIObj.antiCSRF
+    }, function(data, textStatus, jQxhr) {
+      if (data.status === 'ok') {
+        window.location.href = '/member';
+      } else {
         alert(data.err);
-				$("#token1").val("");
+        $("#token1").val("");
       }
     }, 'json');
-	});
+  });
 
-	$('#getHelp').click(function(event) {
-		event.preventDefault();
-		if(memberId.charAt(0) === 'm') {
-			$('#memberMFAHelp').removeClass('hidden');
-		} else {
-			$('#accountMFAHelp').removeClass('hidden');
-		}
-	});
+  $('#getHelp').click(function(event) {
+    event.preventDefault();
+    if (memberId.charAt(0) === 'm') {
+      $('#memberMFAHelp').removeClass('hidden');
+    } else {
+      $('#accountMFAHelp').removeClass('hidden');
+    }
+  });
 
-	$('#emailHelp').click(function(event) {
-		event.preventDefault();
-		$.post('/accountMFAHelp', {
-			antiCSRF: bSafesCommonUIObj.antiCSRF
-		}, function(data, textStatus, jQxhr) {
-			if(data.status === 'ok') {
-				$("#emailSent").removeClass('hidden');
-			} else {
-				alert(data.err);
-			}
-		}, 'json');
-	});
+  $('#emailHelp').click(function(event) {
+    event.preventDefault();
+    $.post('/accountMFAHelp', {
+      antiCSRF: bSafesCommonUIObj.antiCSRF
+    }, function(data, textStatus, jQxhr) {
+      if (data.status === 'ok') {
+        $("#emailSent").removeClass('hidden');
+      } else {
+        alert(data.err);
+      }
+    }, 'json');
+  });
 }

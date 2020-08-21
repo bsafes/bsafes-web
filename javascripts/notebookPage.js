@@ -1,275 +1,274 @@
- function loadPage(){
-  var pki = forge.pki;
-  var rsa = forge.pki.rsa;
-	
-	var expandedKey;
-	var teamKey;
-  var teamSearchKey;
-  var publicKeyPem;
-  var privateKeyPem;
-	var searchKey;
+ function loadPage() {
+   var pki = forge.pki;
+   var rsa = forge.pki.rsa;
 
-	var itemId = $('#itemId').text();
-	var notebookId;
-	var itemPosition;
-	var notebookPageParts = itemId.split(':');
-  notebookPageParts.splice(-1, 1);
-	var notebookPageMajorPart = notebookPageParts.join(':');
-	var isBlankPage = false;
+   var expandedKey;
+   var teamKey;
+   var teamSearchKey;
+   var publicKeyPem;
+   var privateKeyPem;
+   var searchKey;
 
-	notebookId = notebookPageMajorPart.replace("np","n");
+   var itemId = $('#itemId').text();
+   var notebookId;
+   var itemPosition;
+   var notebookPageParts = itemId.split(':');
+   notebookPageParts.splice(-1, 1);
+   var notebookPageMajorPart = notebookPageParts.join(':');
+   var isBlankPage = false;
 
-	//setTimeout(backupContentsInLocalStorage, 3000);
+   notebookId = notebookPageMajorPart.replace("np", "n");
 
-  function setIsATeamItem(thisTeamKey ,thisTeamSearchKey) {
-    isATeamItem = true;
-    teamKey = thisTeamKey;
-    teamSearchKey = thisTeamSearchKey;
-  };
+   //setTimeout(backupContentsInLocalStorage, 3000);
 
-	function getNotebookPageNumberFromId(thisItemId) {
-		var itemIdParts = thisItemId.split(':');
-		pageNumber = parseInt(itemIdParts[itemIdParts.length-1]);
-		return pageNumber;
-	}
+   function setIsATeamItem(thisTeamKey, thisTeamSearchKey) {
+     isATeamItem = true;
+     teamKey = thisTeamKey;
+     teamSearchKey = thisTeamSearchKey;
+   };
 
-	var currentPageNumber = getNotebookPageNumberFromId(itemId); 
+   function getNotebookPageNumberFromId(thisItemId) {
+     var itemIdParts = thisItemId.split(':');
+     pageNumber = parseInt(itemIdParts[itemIdParts.length - 1]);
+     return pageNumber;
+   }
 
-	$('#pageNumberInput').val(currentPageNumber);
-	setTimeout(checkUploadDownlodQueue, 1000);
+   var currentPageNumber = getNotebookPageNumberFromId(itemId);
 
-  function setupContainerPageKeyValue(key, value) {
-    switch(key) {
-      case 'itemId':
-        itemId = value;
-        break;
-			case 'itemPosition':
-				itemPosition = value;
-				break;
-      default:
-    }
-  };
+   $('#pageNumberInput').val(currentPageNumber);
+   setTimeout(checkUploadDownlodQueue, 1000);
 
-  var handleEditorStateChanged = function(event){
-    console.log(event);
-    if(event === 'Editor is initialized') {
-      $('.pageNavigation').addClass('hidden');
-    } else if(event === 'Editor is destroyed'){
-     $('.pageNavigation').removeClass('hidden');
-    }
-  };
+   function setupContainerPageKeyValue(key, value) {
+     switch (key) {
+       case 'itemId':
+         itemId = value;
+         break;
+       case 'itemPosition':
+         itemPosition = value;
+         break;
+       default:
+     }
+   };
 
-  var pkiDecrypt = function(encryptedData) {
-    var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-    var decryptedData = privateKeyFromPem.decrypt(encryptedData);
-    var decodedData = forge.util.decodeUtf8(decryptedData);
-    return decodedData;
-  };
+   var handleEditorStateChanged = function(event) {
+     console.log(event);
+     if (event === 'Editor is initialized') {
+       $('.pageNavigation').addClass('hidden');
+     } else if (event === 'Editor is destroyed') {
+       $('.pageNavigation').removeClass('hidden');
+     }
+   };
 
-  initializePageControlsCallback({
-    handleEditorStateChanged:handleEditorStateChanged,
-    setupContainerPageKeyValue: setupContainerPageKeyValue,
-		pkiDecrypt: pkiDecrypt,
-		setIsATeamItem: setIsATeamItem
+   var pkiDecrypt = function(encryptedData) {
+     var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
+     var decryptedData = privateKeyFromPem.decrypt(encryptedData);
+     var decodedData = forge.util.decodeUtf8(decryptedData);
+     return decodedData;
+   };
 
-  });
+   initializePageControlsCallback({
+     handleEditorStateChanged: handleEditorStateChanged,
+     setupContainerPageKeyValue: setupContainerPageKeyValue,
+     pkiDecrypt: pkiDecrypt,
+     setIsATeamItem: setIsATeamItem
 
-	function getNotebookPageItem(thisItemId, thisPrivateKey, thisSearchKey) {
-		prepareSkeletonScreen();
-		history.pushState({},"","/notebook/p/"+thisItemId);
-    getPageItem(thisItemId, expandedKey, thisPrivateKey, thisSearchKey, function(err, item){
-    	clearSkeletonScreen();
-      if(err) {
-				currentPageNumber = getNotebookPageNumberFromId(thisItemId);
-				$('#pageNumberInput').val(currentPageNumber);
-        alert(err);
-      } else {
-				itemId = thisItemId;
-				currentPageNumber = getNotebookPageNumberFromId(itemId);
-				
-				if((currentPageNumber % 2) === 0){
-					$('.notebookPagePanel').css('border-radius', '0 20px 20px 0');
-				} else {
-					$('.notebookPagePanel').css('border-radius', '20px 0 0 20px');
-				}
-				$('#pageNumberInput').val(currentPageNumber);	
-       	if(!item) {
-          console.log('Empty Page');
-          isBlankPage = true;
-         // initializePageControls();
-        }
-      }
-    });
-	}
+   });
 
-  $('#gotoCoverBtn').click(function(e){
-  	  e.preventDefault();
-  	  var ifEdited = getIfEdited(); 
-	  if(ifEdited){
-	    	alert("Please save before leaving this page.")
-	    	return false; 
-	  }
-      var ifUploading = getIfUploading(); 
-      if(ifUploading){
-            alert("Uploading Image(s) or Attachment(s) still in progress"); 
-            return false; 
-      }
-      $('#gotoContentsBtn').trigger('blur');
-      window.location.href = '/notebook/' + notebookId + '?initialDisplay=cover';
-   	  return false;
-  });
+   function getNotebookPageItem(thisItemId, thisPrivateKey, thisSearchKey) {
+     prepareSkeletonScreen();
+     history.pushState({}, "", "/notebook/p/" + thisItemId);
+     getPageItem(thisItemId, expandedKey, thisPrivateKey, thisSearchKey, function(err, item) {
+       clearSkeletonScreen();
+       if (err) {
+         currentPageNumber = getNotebookPageNumberFromId(thisItemId);
+         $('#pageNumberInput').val(currentPageNumber);
+         alert(err);
+       } else {
+         itemId = thisItemId;
+         currentPageNumber = getNotebookPageNumberFromId(itemId);
 
-	$('#gotoFirstItemBtn').click(function(e){
-		var ifEdited = getIfEdited(); 
-	  	if(ifEdited){
-	    	alert("Please save before leaving this page.")
-	    	return false; 
-	  	}
-	  	var ifUploading = getIfUploading(); 
-        if(ifUploading){
-            alert("Uploading Image(s) or Attachment(s) still in progress"); 
-            return false; 
-        }
-		$('#gotoFirstItemBtn').trigger('blur');
-		getFirstItemInContainer(notebookId, function(err, itemId) {
-			if(err) {
+         if ((currentPageNumber % 2) === 0) {
+           $('.notebookPagePanel').css('border-radius', '0 20px 20px 0');
+         } else {
+           $('.notebookPagePanel').css('border-radius', '20px 0 0 20px');
+         }
+         $('#pageNumberInput').val(currentPageNumber);
+         if (!item) {
+           console.log('Empty Page');
+           isBlankPage = true;
+           // initializePageControls();
+         }
+       }
+     });
+   }
 
-			} else {
-				if(itemId) {
-					getNotebookPageItem(itemId, privateKeyPem, searchKey);
-				}
-			}
-		});
-		return false;
-	});
+   $('#gotoCoverBtn').click(function(e) {
+     e.preventDefault();
+     var ifEdited = getIfEdited();
+     if (ifEdited) {
+       alert("Please save before leaving this page.")
+       return false;
+     }
+     var ifUploading = getIfUploading();
+     if (ifUploading) {
+       alert("Uploading Image(s) or Attachment(s) still in progress");
+       return false;
+     }
+     $('#gotoContentsBtn').trigger('blur');
+     window.location.href = '/notebook/' + notebookId + '?initialDisplay=cover';
+     return false;
+   });
 
-	$('#gotoLastItemBtn').click(function(e){
-		var ifEdited = getIfEdited(); 
-	  	if(ifEdited){
-	    	alert("Please save before leaving this page.")
-	    	return false; 
-	  	}
-	  	var ifUploading = getIfUploading(); 
-        if(ifUploading){
-            alert("Uploading Image(s) or Attachment(s) still in progress"); 
-            return false; 
-        }
-		$('#gotoLastItemBtn').trigger('blur');
-		getLastItemInContainer(notebookId, function(err, itemId) {
-      if(err) {
+   $('#gotoFirstItemBtn').click(function(e) {
+     var ifEdited = getIfEdited();
+     if (ifEdited) {
+       alert("Please save before leaving this page.")
+       return false;
+     }
+     var ifUploading = getIfUploading();
+     if (ifUploading) {
+       alert("Uploading Image(s) or Attachment(s) still in progress");
+       return false;
+     }
+     $('#gotoFirstItemBtn').trigger('blur');
+     getFirstItemInContainer(notebookId, function(err, itemId) {
+       if (err) {
 
-      } else {
-        if(itemId) {
-          getNotebookPageItem(itemId, privateKeyPem, searchKey);
-        }
-      }
-    });
-		return false;
-	});
+       } else {
+         if (itemId) {
+           getNotebookPageItem(itemId, privateKeyPem, searchKey);
+         }
+       }
+     });
+     return false;
+   });
 
-  $('#gotoContentsBtn').click(function(e){
-  	e.preventDefault();
-  	var ifEdited = getIfEdited(); 
-	if(ifEdited){
-	  alert("Please save before leaving this page.")
-	  return false; 
-	}
-	var ifUploading = getIfUploading(); 
-    if(ifUploading){
-        alert("Uploading Image(s) or Attachment(s) still in progress"); 
-        return false; 
-    }
-	$('#gotoContentsBtn').trigger('blur');
-    window.location.href = '/notebook/' + notebookId;
-    return false;
-  });
+   $('#gotoLastItemBtn').click(function(e) {
+     var ifEdited = getIfEdited();
+     if (ifEdited) {
+       alert("Please save before leaving this page.")
+       return false;
+     }
+     var ifUploading = getIfUploading();
+     if (ifUploading) {
+       alert("Uploading Image(s) or Attachment(s) still in progress");
+       return false;
+     }
+     $('#gotoLastItemBtn').trigger('blur');
+     getLastItemInContainer(notebookId, function(err, itemId) {
+       if (err) {
 
-	var goToPage = function(e) {
-	    e.preventDefault();
+       } else {
+         if (itemId) {
+           getNotebookPageItem(itemId, privateKeyPem, searchKey);
+         }
+       }
+     });
+     return false;
+   });
 
-	    var ifEdited = getIfEdited(); 
-	    if(ifEdited){
-	    	alert("Please save before leaving this page.")
-	    	return false; 
-	    }
-	    var ifUploading = getIfUploading(); 
-        if(ifUploading){
-            alert("Uploading Image(s) or Attachment(s) still in progress"); 
-            return false; 
-        }
-	    var intendedPageNumber = $('#pageNumberInput').val();
-	    var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
+   $('#gotoContentsBtn').click(function(e) {
+     e.preventDefault();
+     var ifEdited = getIfEdited();
+     if (ifEdited) {
+       alert("Please save before leaving this page.")
+       return false;
+     }
+     var ifUploading = getIfUploading();
+     if (ifUploading) {
+       alert("Uploading Image(s) or Attachment(s) still in progress");
+       return false;
+     }
+     $('#gotoContentsBtn').trigger('blur');
+     window.location.href = '/notebook/' + notebookId;
+     return false;
+   });
 
-	    getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
+   var goToPage = function(e) {
+     e.preventDefault();
 
-	    $('#gotoPageBtn').trigger('blur');
-		$('#pageNumberInput').trigger('blur');
+     var ifEdited = getIfEdited();
+     if (ifEdited) {
+       alert("Please save before leaving this page.")
+       return false;
+     }
+     var ifUploading = getIfUploading();
+     if (ifUploading) {
+       alert("Uploading Image(s) or Attachment(s) still in progress");
+       return false;
+     }
+     var intendedPageNumber = $('#pageNumberInput').val();
+     var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
 
-	    return false;
-	};
-	
-	$('#gotoPageBtn').click(goToPage);
-	$('#pageNumberInput').on('change', goToPage);
+     getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
 
-	$('#nextPageBtn').click(function(e){
-		e.preventDefault();
-		var ifEdited = getIfEdited(); 
-	    if(ifEdited){
-	    	alert("Please save before leaving this page.")
-	    	return false; 
-	    }
-	    var ifUploading = getIfUploading(); 
-        if(ifUploading){
-            alert("Uploading Image(s) or Attachment(s) still in progress"); 
-            return false; 
-        }
-		var intendedPageNumber = currentPageNumber + 1;
-		var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
+     $('#gotoPageBtn').trigger('blur');
+     $('#pageNumberInput').trigger('blur');
 
-		getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
- 
-		$(e.target).trigger('blur');
-		return false;
-	});
+     return false;
+   };
 
-	$('#previousPageBtn').click(function(e){
-    	e.preventDefault();
-    	var ifEdited = getIfEdited(); 
-	    if(ifEdited){
-	    	alert("Please save before leaving this page.")
-	    	return false; 
-	    }
-	    var ifUploading = getIfUploading(); 
-        if(ifUploading){
-            alert("Uploading Image(s) or Attachment(s) still in progress"); 
-            return false; 
-        }
-	    var intendedPageNumber = currentPageNumber - 1;
-			if(intendedPageNumber > 0) {
-	    	var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
-	    	getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
-			} else {
-				window.location.href = '/notebook/' + notebookId;
-			}
-			$(e.target).trigger('blur');
-			return false;
-	});
+   $('#gotoPageBtn').click(goToPage);
+   $('#pageNumberInput').on('change', goToPage);
 
-	//prepareSkeletonScreen();
+   $('#nextPageBtn').click(function(e) {
+     e.preventDefault();
+     var ifEdited = getIfEdited();
+     if (ifEdited) {
+       alert("Please save before leaving this page.")
+       return false;
+     }
+     var ifUploading = getIfUploading();
+     if (ifUploading) {
+       alert("Uploading Image(s) or Attachment(s) still in progress");
+       return false;
+     }
+     var intendedPageNumber = currentPageNumber + 1;
+     var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
+
+     getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
+
+     $(e.target).trigger('blur');
+     return false;
+   });
+
+   $('#previousPageBtn').click(function(e) {
+     e.preventDefault();
+     var ifEdited = getIfEdited();
+     if (ifEdited) {
+       alert("Please save before leaving this page.")
+       return false;
+     }
+     var ifUploading = getIfUploading();
+     if (ifUploading) {
+       alert("Uploading Image(s) or Attachment(s) still in progress");
+       return false;
+     }
+     var intendedPageNumber = currentPageNumber - 1;
+     if (intendedPageNumber > 0) {
+       var intendedItemId = notebookPageMajorPart + ':' + intendedPageNumber;
+       getNotebookPageItem(intendedItemId, privateKeyPem, searchKey);
+     } else {
+       window.location.href = '/notebook/' + notebookId;
+     }
+     $(e.target).trigger('blur');
+     return false;
+   });
+
+   //prepareSkeletonScreen();
 
 
-	bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
-			if(err) {
-				alert(err);
-			} else {
-				expandedKey = key;
-				publicKeyPem = thisPublicKey;
-        		privateKeyPem = thisPrivateKey;
-				searchKey = thisSearchKey;
-				getNotebookPageItem(itemId, thisPrivateKey, thisSearchKey); 
-				positionPageNavigationControls();
-			}
-	});
+   bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
+     if (err) {
+       alert(err);
+     } else {
+       expandedKey = key;
+       publicKeyPem = thisPublicKey;
+       privateKeyPem = thisPrivateKey;
+       searchKey = thisSearchKey;
+       getNotebookPageItem(itemId, thisPrivateKey, thisSearchKey);
+       positionPageNavigationControls();
+     }
+   });
 
-};
-
+ };

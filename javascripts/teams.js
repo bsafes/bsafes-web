@@ -1,41 +1,41 @@
-function loadPage(){
-	var pki = forge.pki;
+function loadPage() {
+  var pki = forge.pki;
   var rsa = forge.pki.rsa;
 
-	var currentKeyVersion = 1;
+  var currentKeyVersion = 1;
 
-	var pki = forge.pki;
-	var rsa = forge.pki.rsa;
+  var pki = forge.pki;
+  var rsa = forge.pki.rsa;
 
-	var memberId = $('.loginUserId').text();
-	var expandedKey;
-	var publicKeyPem;
-	var privateKeyPem;
-	var searchKey;
+  var memberId = $('.loginUserId').text();
+  var expandedKey;
+  var publicKeyPem;
+  var privateKeyPem;
+  var searchKey;
 
-	var addAction = 'addATeamOnTop';
-	var $addTargetTeam;
+  var addAction = 'addATeamOnTop';
+  var $addTargetTeam;
 
-	var currentContentsPage = 1;
-	var itemsPerPage = 20;
+  var currentContentsPage = 1;
+  var itemsPerPage = 20;
 
-	var selectedTeams = [];
+  var selectedTeams = [];
 
-	$('#personalBtn').click(function(e){
-		window.location.href = '/safe/';
-	});
+  $('#personalBtn').click(function(e) {
+    window.location.href = '/safe/';
+  });
 
-/***  Creating a team ***/
+  /***  Creating a team ***/
 
-	function generateTeamKey() {
-		var salt = forge.random.getBytesSync(32);
-		var randomKey = forge.random.getBytesSync(32);
-		var teamKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
-		console.log("keyLength: ", teamKey.length);
-		return teamKey;
-	}
+  function generateTeamKey() {
+    var salt = forge.random.getBytesSync(32);
+    var randomKey = forge.random.getBytesSync(32);
+    var teamKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
+    console.log("keyLength: ", teamKey.length);
+    return teamKey;
+  }
 
-	function createANewTeam() {
+  function createANewTeam() {
     console.log('createATeam');
 
     var teamKey = generateTeamKey();
@@ -54,12 +54,12 @@ function loadPage(){
     var searchKey = forge.pkcs5.pbkdf2(randomKey, salt, 10000, 32);
     var searchKeyIV = forge.random.getBytesSync(16);
     var searchKeyEnvelope = encryptBinaryString(searchKey, teamKey, searchKeyIV);
-   
+
     $('#nameModal').modal('toggle');
-		$('.nameInput').val("");
-		showLoading();
-		var addActionOptions;
-		addActionOptions = {
+    $('.nameInput').val("");
+    showLoading();
+    var addActionOptions;
+    addActionOptions = {
       name: forge.util.encode64(encryptedTeamName),
       IV: forge.util.encode64(teamIV),
       teamKeyEnvelope: forge.util.encode64(encryptedTeamKey),
@@ -68,116 +68,117 @@ function loadPage(){
       encryptedTeamNameByMemberPublic: forge.util.encode64(encryptedTeamNameByMemberPublic)
     };
 
-		if(addAction !== "addATeamOnTop") {
-			addActionOptions.targetTeam = $addTargetTeam.attr('id');
-			addActionOptions.targetPosition = $addTargetTeam.data('position');
-		} 
-		addActionOptions.addAction = addAction;
-		addActionOptions.antiCSRF = bSafesCommonUIObj.antiCSRF;	
+    if (addAction !== "addATeamOnTop") {
+      addActionOptions.targetTeam = $addTargetTeam.attr('id');
+      addActionOptions.targetPosition = $addTargetTeam.data('position');
+    }
+    addActionOptions.addAction = addAction;
+    addActionOptions.antiCSRF = bSafesCommonUIObj.antiCSRF;
     $.post('/memberAPI/createANewTeam',
-			addActionOptions, 
-     	function(data, textStatus, jQxhr) {
-      if(data.status === 'ok') {
-        var thisTeamKey = teamKey;
-        var team = data.team;
-        var decryptedTeamName = decryptBinaryString(team.name, thisTeamKey, team.IV);
-				hideLoading();
-        listTeams(1);
-      } else {
-				alert(data.err);
-			}
-    }, 'json');
-		addAction = "addATeamOnTop";
-	};
+      addActionOptions,
+      function(data, textStatus, jQxhr) {
+        if (data.status === 'ok') {
+          var thisTeamKey = teamKey;
+          var team = data.team;
+          var decryptedTeamName = decryptBinaryString(team.name, thisTeamKey, team.IV);
+          hideLoading();
+          listTeams(1);
+        } else {
+          alert(data.err);
+        }
+      }, 'json');
+    addAction = "addATeamOnTop";
+  };
 
-	$('#createATeam').click(function(e) {
-		e.preventDefault();
-			createANewTeam();
-		return false;
-	});
+  $('#createATeam').click(function(e) {
+    e.preventDefault();
+    createANewTeam();
+    return false;
+  });
 
-	$('.closeTitleModal').click(function(e) {
-		e.preventDefault();
+  $('.closeTitleModal').click(function(e) {
+    e.preventDefault();
     addAction = 'addATeamOnTop';
-		return false;
-	});
+    return false;
+  });
 
-/*** End of creating an team ***/
+  /*** End of creating an team ***/
 
   var handleAddAction = function(e) {
     $addTargetTeam = $(e.target).closest('.resultItem');
 
-    if($(e.target).hasClass('addBefore')) {
+    if ($(e.target).hasClass('addBefore')) {
       addAction = 'addATeamBefore';
-    } else if($(e.target).hasClass('addAfter')) {
+    } else if ($(e.target).hasClass('addAfter')) {
       addAction = 'addATeamAfter';
     }
     console.log(addAction);
-		$('#nameModal').modal('toggle');
+    $('#nameModal').modal('toggle');
   }
 
   var handleDropAction = function(e) {
     var $targetTeam = $(e.target).closest('.resultItem');
-		function showLoadingInTarget() {
-    	$targetTeam.LoadingOverlay("show", {
-      	image       : "",
-      	fontawesome : "fa fa-circle-o-notch fa-spin",
-      	maxSize     : "38px",
-      	minSize      : "36px",
-      	background: "rgba(255, 255, 255, 0.0)"
-    	});
-		}
-		
-		function hideLoadingInTarget() {
-    	$targetTeam.LoadingOverlay("hide");
-  	};
 
-		showLoadingInTarget();
- 
+    function showLoadingInTarget() {
+      $targetTeam.LoadingOverlay("show", {
+        image: "",
+        fontawesome: "fa fa-circle-o-notch fa-spin",
+        maxSize: "38px",
+        minSize: "36px",
+        background: "rgba(255, 255, 255, 0.0)"
+      });
+    }
+
+    function hideLoadingInTarget() {
+      $targetTeam.LoadingOverlay("hide");
+    };
+
+    showLoadingInTarget();
+
     var targetTeamId = $targetTeam.attr('id');
-		var targetPosition = $targetTeam.data('position');
+    var targetPosition = $targetTeam.data('position');
     var dropAction;
-    if($(e.target).hasClass('dropBefore')) {
+    if ($(e.target).hasClass('dropBefore')) {
       dropAction = 'dropTeamsBefore';
-      selectedTeams.sort(function(a,b){
-        if(a.position < b.position) return -1;
-        if(a.position > b.position) return 1;
+      selectedTeams.sort(function(a, b) {
+        if (a.position < b.position) return -1;
+        if (a.position > b.position) return 1;
         return 0;
       });
-    }  else if($(e.target).hasClass('dropAfter')) {
+    } else if ($(e.target).hasClass('dropAfter')) {
       dropAction = 'dropTeamsAfter';
-      selectedTeams.sort(function(a,b){
-        if(a.position < b.position) return 1;
-        if(a.position > b.position) return -1;
+      selectedTeams.sort(function(a, b) {
+        if (a.position < b.position) return 1;
+        if (a.position > b.position) return -1;
         return 0;
       });
     }
     console.log(dropAction);
     $.post('/memberAPI/dropTeams', {
-			dropAction: dropAction,
+      dropAction: dropAction,
       teams: JSON.stringify(selectedTeams),
       targetTeam: targetTeamId,
       targetPosition: targetPosition,
-			antiCSRF: bSafesCommonUIObj.antiCSRF
+      antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
-      if(data.status === 'ok') {
+      if (data.status === 'ok') {
         selectedTeams.length = 0;
 
         setTimeout(function() {
-					hideLoadingInTarget();
-         	listTeams(1); 
+          hideLoadingInTarget();
+          listTeams(1);
         }, 1500);
       } else {
-				hideLoadingInTarget();
-			}
+        hideLoadingInTarget();
+      }
     }, 'json');
   }
 
-	function updateToolbar(selectedTeams) {
+  function updateToolbar(selectedTeams) {
     var $checkedItems = $('input:checked');
     var numberOfSelectedItems = selectedTeams.length;
     console.log('Selected Items:', numberOfSelectedItems);
-    if(numberOfSelectedItems) {
+    if (numberOfSelectedItems) {
       $('.itemActionBtn').removeClass('hidden disabled');
       $('.addItemBtn').addClass('hidden');
       $checkedItems.each(function(index, element) {
@@ -185,137 +186,141 @@ function loadPage(){
       });
     } else {
       $('.itemActionBtn').addClass('hidden');
-			$('.addItemBtn').removeClass('hidden');
+      $('.addItemBtn').removeClass('hidden');
     }
-	}
-	
-	function displayTeams(teams) {
-		var i = 0;
-	  function isTeamSelected(teamId) {
-    	for(var i=0; i<selectedTeams.length; i++) {
-      	if(selectedTeams[i].id === teamId) return true;
-    	}
-    	return false;
-  	}
-		function displayATeam() {
-			var team = teams[i];
-			var teamId = team._source.teamId;
-			var teamPosition = team._source.position;
+  }
 
-			function appendResult(thisTeamName) {
-      	var $resultItem = $('.resultItemTemplate').clone().removeClass('resultItemTemplate hidden').addClass('resultItem');
-      	$resultItem.attr('id', teamId);
-				$resultItem.data('position', teamPosition);
-				thisTeamName = DOMPurify.sanitize(thisTeamName);
-      	$resultItem.find('.itemTitle').html(thisTeamName);
-      	var link = '/team/' + teamId;
-      	$resultItem.find('.itemTitle').attr('href', link);
-				if(isTeamSelected(teamId)) {
-    			$resultItem.find('.selectItemBox').prop('checked', true);
-  			}   
- 
-  			$resultItem.find('.selectItemBox').click(function(e) {
-    			var teamPosition = $(e.target).closest('.resultItem').data('position');
-    			var teamId = $(e.target).closest('.resultItem').attr('id');
-    			var team = {id:teamId, position:teamPosition};
+  function displayTeams(teams) {
+    var i = 0;
 
-    			if(e.target.checked){
-      			selectedTeams.push(team);
-    			} else {
-      			for(var i=0; i< selectedItemsInContainer.length; i++)
-      			{
-        			if(selectedTeams[i].id === itemId) break;
-      			}
-      			selectedTeams.splice(i, 1);
-    			}
-    			updateToolbar(selectedTeams);
-  			});
+    function isTeamSelected(teamId) {
+      for (var i = 0; i < selectedTeams.length; i++) {
+        if (selectedTeams[i].id === teamId) return true;
+      }
+      return false;
+    }
 
- 
-				$resultItem.find('.addAction').click(function(e) {
-    			e.preventDefault();
-    			$(e.target).closest('.resultItem').find('.addItemBtn').dropdown('toggle');
-    			handleAddAction(e);
-    			return false;
-  			});
+    function displayATeam() {
+      var team = teams[i];
+      var teamId = team._source.teamId;
+      var teamPosition = team._source.position;
 
-  			$resultItem.find('.dropAction').click(function(e) {
-    			e.preventDefault();
-    			handleDropAction(e);
-    			$(e.target).closest('.resultItem').find('.itemActionBtn').dropdown('toggle');
-    			return false;
-  			});
- 
-      	$('.resultItems').append($resultItem);
-			}
+      function appendResult(thisTeamName) {
+        var $resultItem = $('.resultItemTemplate').clone().removeClass('resultItemTemplate hidden').addClass('resultItem');
+        $resultItem.attr('id', teamId);
+        $resultItem.data('position', teamPosition);
+        thisTeamName = DOMPurify.sanitize(thisTeamName);
+        $resultItem.find('.itemTitle').html(thisTeamName);
+        var link = '/team/' + teamId;
+        $resultItem.find('.itemTitle').attr('href', link);
+        if (isTeamSelected(teamId)) {
+          $resultItem.find('.selectItemBox').prop('checked', true);
+        }
 
-			if(team._source.encryptedTeamName) {
-				if(team._source.cachedTeamName) {
-					var encodedTeamName = ECBDecryptBinaryString(forge.util.decode64(team._source.cachedTeamName), searchKey);
-					var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
+        $resultItem.find('.selectItemBox').click(function(e) {
+          var teamPosition = $(e.target).closest('.resultItem').data('position');
+          var teamId = $(e.target).closest('.resultItem').attr('id');
+          var team = {
+            id: teamId,
+            position: teamPosition
+          };
+
+          if (e.target.checked) {
+            selectedTeams.push(team);
+          } else {
+            for (var i = 0; i < selectedItemsInContainer.length; i++) {
+              if (selectedTeams[i].id === itemId) break;
+            }
+            selectedTeams.splice(i, 1);
+          }
+          updateToolbar(selectedTeams);
+        });
+
+
+        $resultItem.find('.addAction').click(function(e) {
+          e.preventDefault();
+          $(e.target).closest('.resultItem').find('.addItemBtn').dropdown('toggle');
+          handleAddAction(e);
+          return false;
+        });
+
+        $resultItem.find('.dropAction').click(function(e) {
+          e.preventDefault();
+          handleDropAction(e);
+          $(e.target).closest('.resultItem').find('.itemActionBtn').dropdown('toggle');
+          return false;
+        });
+
+        $('.resultItems').append($resultItem);
+      }
+
+      if (team._source.encryptedTeamName) {
+        if (team._source.cachedTeamName) {
+          var encodedTeamName = ECBDecryptBinaryString(forge.util.decode64(team._source.cachedTeamName), searchKey);
+          var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
           appendResult(teamName);
-					i++;
-          if(i < teams.length) {
+          i++;
+          if (i < teams.length) {
             displayATeam();
-          }			
-				} else {
-					var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-					var encodedTeamName = privateKeyFromPem.decrypt(forge.util.decode64(team._source.encryptedTeamName));
-					var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
-					appendResult(teamName);
-			
-					var cachedTeamName = ECBEncryptBinaryString(encodedTeamName, searchKey);	
-					$.post('/memberAPI/cacheTeamNameForTeamMember', {
-          	teamId: teamId,
-          	memberId: memberId,
-          	cachedTeamName: forge.util.encode64(cachedTeamName),
-						antiCSRF: bSafesCommonUIObj.antiCSRF
-        	}, function(data, textStatus, jQxhr) {
-          	if(data.status === 'ok') {
-            	i++;
-            	if(i < teams.length) {
-              	displayATeam();
-            	}
-          	} else {
-							alert("data.err");
-						}
-        	}, 'json');	
-				}
-			} else {
-				var teamKeyEnvelope = team._source.teamKeyEnvelope;
-				var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-				var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
-				var teamKey = forge.util.decodeUtf8(encodedTeamKey);
-				var encryptedTeamName = team.team._source.name;
-				var teamIV = team.team._source.IV;
-				var encodedTeamName = decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV));
-				var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
-				appendResult(teamName);
+          }
+        } else {
+          var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
+          var encodedTeamName = privateKeyFromPem.decrypt(forge.util.decode64(team._source.encryptedTeamName));
+          var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
+          appendResult(teamName);
 
-				var publicKeyFromPem = pki.publicKeyFromPem(publicKeyPem);
-				var encryptedTeamName = publicKeyFromPem.encrypt(encodedTeamName);		
-	
-				$.post('/memberAPI/updateTeamNameForTeamMember', {
-      		teamId: teamId,
-      		memberId: memberId,
-					encryptedTeamName: forge.util.encode64(encryptedTeamName),
-					antiCSRF: bSafesCommonUIObj.antiCSRF
-    		}, function(data, textStatus, jQxhr) {
-      		if(data.status === 'ok') {
-						i++;
-      			if(i < teams.length) {
-        			displayATeam();
-      			}	
-      		} else {
-						alert(data.err);
-					}
-    		}, 'json');
-			}
-		}
-		if(i < teams.length) {
-			displayATeam();
-		}
-	}
+          var cachedTeamName = ECBEncryptBinaryString(encodedTeamName, searchKey);
+          $.post('/memberAPI/cacheTeamNameForTeamMember', {
+            teamId: teamId,
+            memberId: memberId,
+            cachedTeamName: forge.util.encode64(cachedTeamName),
+            antiCSRF: bSafesCommonUIObj.antiCSRF
+          }, function(data, textStatus, jQxhr) {
+            if (data.status === 'ok') {
+              i++;
+              if (i < teams.length) {
+                displayATeam();
+              }
+            } else {
+              alert("data.err");
+            }
+          }, 'json');
+        }
+      } else {
+        var teamKeyEnvelope = team._source.teamKeyEnvelope;
+        var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
+        var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
+        var teamKey = forge.util.decodeUtf8(encodedTeamKey);
+        var encryptedTeamName = team.team._source.name;
+        var teamIV = team.team._source.IV;
+        var encodedTeamName = decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV));
+        var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
+        appendResult(teamName);
+
+        var publicKeyFromPem = pki.publicKeyFromPem(publicKeyPem);
+        var encryptedTeamName = publicKeyFromPem.encrypt(encodedTeamName);
+
+        $.post('/memberAPI/updateTeamNameForTeamMember', {
+          teamId: teamId,
+          memberId: memberId,
+          encryptedTeamName: forge.util.encode64(encryptedTeamName),
+          antiCSRF: bSafesCommonUIObj.antiCSRF
+        }, function(data, textStatus, jQxhr) {
+          if (data.status === 'ok') {
+            i++;
+            if (i < teams.length) {
+              displayATeam();
+            }
+          } else {
+            alert(data.err);
+          }
+        }, 'json');
+      }
+    }
+    if (i < teams.length) {
+      displayATeam();
+    }
+  }
 
   function resetPagination() {
     currentContentsPage = 1;
@@ -323,26 +328,26 @@ function loadPage(){
     $('.containerContentsPagination').addClass('hidden');
   }
 
-	function updatePagination(currentContentsPage, total, sizePerPage) {
+  function updatePagination(currentContentsPage, total, sizePerPage) {
     var $containerContentsPagination = $('.containerContentsPagination');
-    if($containerContentsPagination.hasClass('hidden')) {
+    if ($containerContentsPagination.hasClass('hidden')) {
       var $leftArrowPagingItem = $('<li><a href="#">&laquo;</a></li>');
       var $rightArrowPagingItem = $('<li><a href="#">&raquo;</a></li>');
       var $numberPagingItem = $('<li><a href="#">1</a></li>');
 
       var numberOfContentsPages;
-      var tempNumber = total/sizePerPage;
-      if((tempNumber)%1 === 0) {
+      var tempNumber = total / sizePerPage;
+      if ((tempNumber) % 1 === 0) {
         numberOfContentsPages = tempNumber;
       } else {
         numberOfContentsPages = Math.floor(tempNumber) + 1;
       }
 
-      for(var i=0; i< numberOfContentsPages; i++) {
+      for (var i = 0; i < numberOfContentsPages; i++) {
         var $newItem = $numberPagingItem.clone();
-        $newItem.attr('id', i+1);
-        $newItem.find('a').text(i+1);
-        $newItem.find('a').click(function(e){
+        $newItem.attr('id', i + 1);
+        $newItem.find('a').text(i + 1);
+        $newItem.find('a').click(function(e) {
           e.preventDefault();
           var intendedPageNumber = parseInt($(e.target).parent().attr('id'));
           listTeams(intendedPageNumber);
@@ -353,41 +358,41 @@ function loadPage(){
       $('.containerContentsPagination').removeClass('hidden');
     }
     $('.containerContentsPagination').find('li.disabled').removeClass('disabled');
-    $('.containerContentsPagination').find('li#'+ (currentContentsPage)).addClass('disabled');
+    $('.containerContentsPagination').find('li#' + (currentContentsPage)).addClass('disabled');
   }
 
-	/* List Section */
-	var listTeams = function (pageNumber) {
-		showLoading();
-		$('.resultItems').empty();
-		$.post('/memberAPI/listTeams', {
-			size: itemsPerPage,
-			from: (pageNumber -1) * itemsPerPage,
-			antiCSRF: bSafesCommonUIObj.antiCSRF
+  /* List Section */
+  var listTeams = function(pageNumber) {
+    showLoading();
+    $('.resultItems').empty();
+    $.post('/memberAPI/listTeams', {
+      size: itemsPerPage,
+      from: (pageNumber - 1) * itemsPerPage,
+      antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
-			if(data.status === 'ok') {
-				currentContentsPage = pageNumber;
-				var total = data.hits.total;
+      if (data.status === 'ok') {
+        currentContentsPage = pageNumber;
+        var total = data.hits.total;
         var hits = data.hits.hits;
-				if(hits.length) displayTeams(hits);
-				updatePagination(currentContentsPage, total, itemsPerPage);
-			}
-			hideLoading();	
-		}, 'json'); 
-	}
+        if (hits.length) displayTeams(hits);
+        updatePagination(currentContentsPage, total, itemsPerPage);
+      }
+      hideLoading();
+    }, 'json');
+  }
 
   bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
-      if(err) {
-        alert(err);
-      } else {
-        expandedKey = key;
-				publicKeyPem = thisPublicKey;
-				privateKeyPem = thisPrivateKey;
-				searchKey = thisSearchKey;
+    if (err) {
+      alert(err);
+    } else {
+      expandedKey = key;
+      publicKeyPem = thisPublicKey;
+      privateKeyPem = thisPrivateKey;
+      searchKey = thisSearchKey;
 
-				resetPagination();
+      resetPagination();
 
-				listTeams(1);
-      }
+      listTeams(1);
+    }
   });
 };

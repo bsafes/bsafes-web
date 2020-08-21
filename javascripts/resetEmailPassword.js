@@ -1,41 +1,41 @@
 /* global $, window */
-function loadPage(){
-	'use strict';
-	var email;
-	var password;
+function loadPage() {
+  'use strict';
+  var email;
+  var password;
 
-	$('#sendCodeBtn').click(function(e) {
-		var verificationCode = $('#verificationCode').val();
-		$.post('/resetEmailPasswordVerifyCode', {
-			verificationCode: verificationCode
-		}, function(data, textStatus, jQxhr ){
-      if(data.status === 'ok') {
+  $('#sendCodeBtn').click(function(e) {
+    var verificationCode = $('#verificationCode').val();
+    $.post('/resetEmailPasswordVerifyCode', {
+      verificationCode: verificationCode
+    }, function(data, textStatus, jQxhr) {
+      if (data.status === 'ok') {
         $('.emailVerificationForm').addClass('hidden');
         $('.passwordSetupForm').removeClass('hidden');
       } else {
-				$('#verificationFailed').removeClass('hidden');
-			}
+        $('#verificationFailed').removeClass('hidden');
+      }
     }, 'json');
-    return false;	
-	});
+    return false;
+  });
 
   function checkPasswordStrength(key) {
     var strengthLevel = 'Invalid';
     var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
     var mediumRegex = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})");
     var isMedium = mediumRegex.test(key);
-    if(isMedium){
+    if (isMedium) {
       strengthLevel = 'Medium';
       var isStrong = strongRegex.test(key);
-      if(isStrong) {
+      if (isStrong) {
         strengthLevel = 'Strong';
       }
     }
-    var strengthProgress = key.length/8 * 100;
+    var strengthProgress = key.length / 8 * 100;
     $('#strengthProgress').css("width", strengthProgress + "%");
     var progressClass = "progress-bar-danger";
     var strengthColor = "red";
-    switch(strengthLevel) {
+    switch (strengthLevel) {
       case 'Invalid':
         progressClass = "progress-bar-danger";
         strengthColor = "red";
@@ -56,7 +56,7 @@ function loadPage(){
     $('#strengthText').text(strengthLevel);
   }
 
-  $('#password').on('input', function(){
+  $('#password').on('input', function() {
     $('.progress, #strengthText').removeClass('hidden');
     $('#sendPasswordBtn').addClass('disabled');
     $('#retypePassword').val('');
@@ -65,10 +65,10 @@ function loadPage(){
     checkPasswordStrength(password);
   });
 
-  $('#retypePassword').on('input', function(){
+  $('#retypePassword').on('input', function() {
     var retypePassword = $(this).val();
     console.log(retypePassword);
-    if(retypePassword === password){
+    if (retypePassword === password) {
       $('#sendPasswordBtn').removeClass('disabled');
     } else {
       $('#sendPasswordBtn').addClass('disabled');
@@ -77,13 +77,12 @@ function loadPage(){
 
   $('#sendPasswordBtn').click(function(e) {
     $.post('/resetEmailPassword', {
-			password: password 
-    }, function(data, textStatus, jQxhr ){
-      if(data.status === 'ok') {
-				window.location.href = "/member/";
+      password: password
+    }, function(data, textStatus, jQxhr) {
+      if (data.status === 'ok') {
+        window.location.href = "/member/";
       }
     }, 'json');
     return false;
   });
 };
-
