@@ -202,7 +202,7 @@ function loadPage() {
             $('.nicknameWarning').addClass('hidden');
             $('.addingMode').addClass('hidden');
             clearMemberForm();
-            listManagedMembers();
+            listManagedMembers(1);
             hideLoadingIn($('.newManagedMemberForm'));
           }
         }, 'json');
