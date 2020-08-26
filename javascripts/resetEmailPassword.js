@@ -7,12 +7,14 @@ function loadPage() {
   $('#sendCodeBtn').click(function(e) {
     var verificationCode = $('#verificationCode').val();
     $.post('/resetEmailPasswordVerifyCode', {
-      verificationCode: verificationCode
+      verificationCode: verificationCode,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         $('.emailVerificationForm').addClass('hidden');
         $('.passwordSetupForm').removeClass('hidden');
       } else {
+				alert(data.err);
         $('#verificationFailed').removeClass('hidden');
       }
     }, 'json');
@@ -77,11 +79,13 @@ function loadPage() {
 
   $('#sendPasswordBtn').click(function(e) {
     $.post('/resetEmailPassword', {
-      password: password
+      password: window.btoa(password),
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
-        window.location.href = "/member/";
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
     return false;
   });

@@ -5,7 +5,7 @@ function loadPage() {
     event.preventDefault();
     var pin = $("#resetPIN").val();
     $.post('/verifyAndResetAccountMFA', {
-      pin: pin,
+      pin: window.btoa(pin),
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {

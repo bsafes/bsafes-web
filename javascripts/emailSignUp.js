@@ -14,12 +14,15 @@ function loadPage() {
 
     showLoadingIn($('.emailSignUpForm'));
     $.post('/registerEmail', {
-      email: email
+      email: window.btoa(email),
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         $('.emailSignUpForm').addClass('hidden');
         $('.emailVerificationForm').removeClass('hidden');
-      }
+      } else {
+				alert(data.err);
+			}
       hideLoadingIn($('.emailSignUpForm'));
     }, 'json');
     return false;
@@ -29,12 +32,15 @@ function loadPage() {
     var verificationCode = $('#verificationCode').val();
     showLoadingIn($('.emailVerificationForm'));
     $.post('/verifyCode', {
-      verificationCode: verificationCode
+      verificationCode: verificationCode,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         $('.emailVerificationForm').addClass('hidden');
         $('.passwordSetupForm').removeClass('hidden');
-      }
+      } else {
+				alert(data.err);
+			}
       hideLoadingIn($('.emailVerificationForm'));
     }, 'json');
     return false;
@@ -103,12 +109,15 @@ function loadPage() {
     }
     showLoadingIn($('.passwordSetupForm'));
     $.post('/setupPassword', {
-      displayName: displayName,
-      password: password
+      displayName: window.btoa(displayName),
+      password: window.btoa(password),
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         window.location.href = "/member/";
-      }
+      } else {
+				alert(data.err);
+			}
       hideLoadingIn($('.passwordSetupForm'));
     }, 'json');
     return false;

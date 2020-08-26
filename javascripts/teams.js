@@ -84,7 +84,7 @@ function loadPage() {
           hideLoading();
           listTeams(1);
         } else {
-          alert(data.err);
+					alert("data.err");
         }
       }, 'json');
     addAction = "addATeamOnTop";
@@ -170,6 +170,7 @@ function loadPage() {
         }, 1500);
       } else {
         hideLoadingInTarget();
+				alert(data.err);
       }
     }, 'json');
   }
@@ -272,7 +273,6 @@ function loadPage() {
           var cachedTeamName = ECBEncryptBinaryString(encodedTeamName, searchKey);
           $.post('/memberAPI/cacheTeamNameForTeamMember', {
             teamId: teamId,
-            memberId: memberId,
             cachedTeamName: forge.util.encode64(cachedTeamName),
             antiCSRF: bSafesCommonUIObj.antiCSRF
           }, function(data, textStatus, jQxhr) {
@@ -286,35 +286,6 @@ function loadPage() {
             }
           }, 'json');
         }
-      } else {
-        var teamKeyEnvelope = team._source.teamKeyEnvelope;
-        var privateKeyFromPem = pki.privateKeyFromPem(privateKeyPem);
-        var encodedTeamKey = privateKeyFromPem.decrypt(forge.util.decode64(teamKeyEnvelope));
-        var teamKey = forge.util.decodeUtf8(encodedTeamKey);
-        var encryptedTeamName = team.team._source.name;
-        var teamIV = team.team._source.IV;
-        var encodedTeamName = decryptBinaryString(forge.util.decode64(encryptedTeamName), teamKey, forge.util.decode64(teamIV));
-        var teamName = "<h2>" + forge.util.decodeUtf8(encodedTeamName) + "</h2>";
-        appendResult(teamName);
-
-        var publicKeyFromPem = pki.publicKeyFromPem(publicKeyPem);
-        var encryptedTeamName = publicKeyFromPem.encrypt(encodedTeamName);
-
-        $.post('/memberAPI/updateTeamNameForTeamMember', {
-          teamId: teamId,
-          memberId: memberId,
-          encryptedTeamName: forge.util.encode64(encryptedTeamName),
-          antiCSRF: bSafesCommonUIObj.antiCSRF
-        }, function(data, textStatus, jQxhr) {
-          if (data.status === 'ok') {
-            i++;
-            if (i < teams.length) {
-              displayATeam();
-            }
-          } else {
-            alert(data.err);
-          }
-        }, 'json');
       }
     }
     if (i < teams.length) {
@@ -376,7 +347,9 @@ function loadPage() {
         var hits = data.hits.hits;
         if (hits.length) displayTeams(hits);
         updatePagination(currentContentsPage, total, itemsPerPage);
-      }
+      } else {
+				alert(data.err);
+			}
       hideLoading();
     }, 'json');
   }

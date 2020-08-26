@@ -25,26 +25,6 @@ window.fbAsyncInit = function() {
     return false;
   });
 
-  $('#tryMe').click(function(e) {
-    var $target = $('#tryMe');
-    showV5LoadingIn($target);
-    $('.errorMessage').addClass('hidden');
-    $.post('/tryWithoutSignUp', {}, function(data, textStatus, jQxhr) {
-      hideV5LoadingIn($target);
-      $('#tryWithoutSignUpModal').modal('show');
-      if (data.status === 'ok') {
-        $('#goBtn').attr('disabled', false);
-        $('#goBtn').click(function(e) {
-          window.location.href = "/member/";
-          return false;
-        });
-      } else {
-        $('.errorMessage').removeClass('hidden');
-      }
-    }, 'json');
-    return false;
-  });
-
   $('#sendMessage').click(function(e) {
     var senderName = $("input[name='name']").val();
     senderName = DOMPurify.sanitize(senderName);
@@ -61,9 +41,10 @@ window.fbAsyncInit = function() {
       return false;
     }
     $.post('/sendGuestMessage', {
-      senderName: encodeURI(senderName),
-      senderEmail: encodeURI(senderEmail),
-      message: encodeURI(message)
+      senderName: window.btoa(senderName),
+      senderEmail: window.btoa(senderEmail),
+      message: widnow.btoa(message),
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         $("#messageSent").removeClass("hidden");
@@ -71,7 +52,7 @@ window.fbAsyncInit = function() {
         $("input[name='email']").val("");
         $("textarea[name='message']").val("");
       } else {
-
+				alert(data.err);
       }
     }, 'json');
 

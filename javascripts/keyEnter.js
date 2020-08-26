@@ -88,6 +88,7 @@
           var md = forge.md.sha1.create();
           md.update(randomMessage, 'utf8');
           var signature = privateKeyFromPem.sign(md);
+					signature = forge.util.encode64(signature);
           $.post('/memberAPI/secondFactorAuth', {
             signature: signature,
             antiCSRF: bSafesCommonUIObj.antiCSRF
@@ -96,6 +97,8 @@
               localStorage.setItem("encodedSearchKeyEnvelope", searchKeyEnvelope);
               localStorage.setItem("encodedSearchKeyIV", searchKeyIV);
               window.location.replace(redirectURL);
+            } else {
+              alert(data.err);
             }
           }, 'json');
         }

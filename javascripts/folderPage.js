@@ -427,7 +427,6 @@ function loadPage() {
     }
     $.post('/memberAPI/getNextFolderPage', {
       folderId: folderId,
-      itemId: itemId,
       itemPosition: itemPosition,
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
@@ -441,7 +440,9 @@ function loadPage() {
           itemPosition = 0;
           $('#nextPageBtn').addClass('hidden');
         }
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
 
     $(e.target).trigger('blur');
@@ -462,7 +463,6 @@ function loadPage() {
     }
     $.post('/memberAPI/getPreviousFolderPage', {
       folderId: folderId,
-      itemId: itemId,
       itemPosition: itemPosition,
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
@@ -473,7 +473,9 @@ function loadPage() {
         } else {
           window.location.href = '/folder/' + folderId + '?initialDisplay=contents';
         }
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
 
     $(e.target).trigger('blur');

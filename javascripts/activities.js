@@ -252,6 +252,8 @@ function loadPage() {
         var total = data.hits.total;
         var hits = data.hits.hits;
         activitiesFunctions.groupAcitivities(hits);
+      } else {
+        alert(data.err);
       }
     }, 'json');
   };

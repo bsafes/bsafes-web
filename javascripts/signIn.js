@@ -15,11 +15,14 @@ window.fbAsyncInit = function() {
     }
     showV5LoadingIn($('.emailSignInForm'));
     $.post('/signInWithEmail', {
-      email: email
+      email: window.btoa(email),
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         $('.emailSignInForm, .oauthSignIn, .newSignUp').addClass('hidden');
         $('.passwordForm').removeClass('hidden');
+      } else {
+        alert(data.err);
       }
       hideV5LoadingIn($('.emailSignInForm'));
     }, 'json');
@@ -31,11 +34,13 @@ window.fbAsyncInit = function() {
     showV5LoadingIn($('.passwordForm'));
     password = $('#password').val();
     $.post('/authenticateEmailMember', {
-      password: password
+      password: window.btoa(password),
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         window.location.href = "/member/";
       } else {
+				alert(data.err);
         $('#invalidMember').removeClass('hidden');
       }
       hideV5LoadingIn($('.passwordForm'));

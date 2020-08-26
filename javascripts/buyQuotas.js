@@ -2,8 +2,9 @@
   var $body = $("body");
   var button = document.querySelector('#submit-button');
   var confirmEnabled = false;
+	var packs = 0;
   $('#packs').on('input', function() {
-    var packs = $(this).val();
+    packs = $(this).val();
     var total = packs * 9.99;
     $('#total').text("pack(s), $" + total + " usd");
   });
@@ -29,7 +30,7 @@
   $('#confirmBtn').click(function(e) {
     var packs = $('#packs').val();
     $.post('/memberAPI/buyingQuotas', {
-      packs: qupacksantity,
+      packs: packs,
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {

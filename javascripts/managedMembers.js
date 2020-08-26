@@ -69,6 +69,7 @@ function loadPage() {
         $('#createNicknameBtn').removeClass('hidden');
       } else {
         $('#nicknameOtherWarning').removeClass('hidden');
+				alert(data.err);
       }
     });
   });
@@ -204,7 +205,9 @@ function loadPage() {
             clearMemberForm();
             listManagedMembers(1);
             hideLoadingIn($('.newManagedMemberForm'));
-          }
+          } else {
+						alert(data.err);
+					}
         }, 'json');
     };
 
@@ -348,6 +351,7 @@ function loadPage() {
           resetMFA();
         } else {
           $('#noMFA').removeClass('hidden');
+					alert(data.err);
         }
       } else {
         alert(data.err);
@@ -384,7 +388,9 @@ function loadPage() {
         currentContentsPage = pageNumber; 
         console.log(total);
         if (hits.length) displayManagedMembers(hits);
-      }
+      } else {
+				alert(data.err);
+			}
       hideLoadingIn($('#addAManagedMemberBtn'));
       updatePagination(currentMode, currentContentsPage, total, itemsPerPage, "");
     }, 'json');

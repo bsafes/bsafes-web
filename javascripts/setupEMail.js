@@ -14,12 +14,15 @@ function loadPage() {
 
     showLoadingIn($('.emailSignUpForm'));
     $.post('/memberAPI/verifyEMail', {
-      email: email
+      email: window.btoa(email),
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         $('.emailSetupForm').addClass('hidden');
         $('.emailVerificationForm').removeClass('hidden');
-      }
+      } else{
+				alert(data.err);
+			}
       hideLoadingIn($('.emailSignUpForm'));
     }, 'json');
     return false;
@@ -29,7 +32,8 @@ function loadPage() {
     var verificationCode = $('#verificationCode').val();
     showLoadingIn($('.emailVerificationForm'));
     $.post('/memberAPI/verifySetupEMailCode', {
-      verificationCode: verificationCode
+      verificationCode: verificationCode,
+			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
         $('.emailVerificationForm').addClass('hidden');
@@ -39,6 +43,7 @@ function loadPage() {
         $('#invalidCode').removeClass('hidden');
         $('.emailVerificationForm').addClass('hidden');
         $('#verificationCode').val("");
+				alert(data.err);
       }
       hideLoadingIn($('.emailVerificationForm'));
     }, 'json');

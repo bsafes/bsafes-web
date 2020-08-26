@@ -28,6 +28,7 @@
             if (data.status === "error") {
               $('#payAgain').removeClass('hidden');
               $('#submit-button').removeClass('hidden');
+							alert(data.err);
             } else {
               $('#subscribe').addClass('hidden');
               $('#thankYouForSubscription').removeClass('hidden');
