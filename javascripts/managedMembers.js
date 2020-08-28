@@ -27,7 +27,7 @@ function loadPage() {
       return false;
     }
     $.post('/memberAPI/createNickname', {
-      nickname: nickname,
+      nickname: window.btoa(nickname),
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       hideLoadingIn($('#accountNickname'));
@@ -191,9 +191,9 @@ function loadPage() {
     function addAManagedMember() {
       showLoadingIn($('.newManagedMemberForm'));
       var thisMember = {};
-      thisMember.initialLetter = $('#memberName').val().charAt(0);
-      thisMember.memberName = forge.util.encodeUtf8($('#memberName').val());
-      thisMember.password = newManagedMemberPassword;
+      thisMember.initialLetter = window.btoa($('#memberName').val().charAt(0));
+      thisMember.memberName = window.btoa(forge.util.encodeUtf8($('#memberName').val()));
+      thisMember.password = window.btoa(newManagedMemberPassword);
       thisMember.antiCSRF = bSafesCommonUIObj.antiCSRF;
       $.post('/memberAPI/addAManagedMember',
         thisMember,
@@ -265,7 +265,7 @@ function loadPage() {
       showLoadingInDeleteModal();
       $.post('/memberAPI/deleteAManagedMember', {
         memberId: memberId,
-        memberName: memberName,
+        memberName: window.btoa(memberName),
         antiCSRF: bSafesCommonUIObj.antiCSRF
       }, function(data, textStatus, jQxhr) {
         hideLoadingInDeleteModal();
@@ -312,7 +312,7 @@ function loadPage() {
         showLoadingInExtraMFAModal();
         $.post('/memberAPI/resetManagedMemberMFA', {
           memberId: memberId,
-          memberName: memberName,
+          memberName: window.btoa(memberName),
           antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
           hideLoadingInExtraMFAModal();
@@ -341,7 +341,7 @@ function loadPage() {
 
     $.post('/memberAPI/isManagedMemberMFAEnabled', {
       memberId: memberId,
-      memberName: memberName,
+      memberName: window.btoa(memberName),
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       hideLoadingInExtraMFAModal();
@@ -351,7 +351,6 @@ function loadPage() {
           resetMFA();
         } else {
           $('#noMFA').removeClass('hidden');
-					alert(data.err);
         }
       } else {
         alert(data.err);

@@ -95,6 +95,7 @@ function bSafesPreflight(fn) {
     } else if (data.status === 'MFA_required') {
       window.location.replace('/extraMFA');
     } else {
+			alert(data.err);
       window.location.replace('/');
     }
   }, 'json');

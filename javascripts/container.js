@@ -831,6 +831,8 @@ function loadPage() {
         var hits = data.hits.hits;
         displayHits(currentMode, hits);
         updatePagination(currentMode, currentContentsPage, total, itemsPerPage, lastSearchTokensStr);
+      } else {
+        alert(data.err);
       }
     }, 'json');
   }
@@ -956,7 +958,9 @@ function loadPage() {
             updatePagination(currentMode, currentContentsPage, total, itemsPerPage, lastSearchTokensStr);
           }
         }
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
   };
 

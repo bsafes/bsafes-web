@@ -48,7 +48,9 @@ function loadPage() {
           $quotasHistoryRow.find('bandwidth').text(data.items[i].bandwidth);
           $('#quotasHistoryTableBody').append($quotasHistoryRow)
         }
-      }
+      } else {
+				alert(data.err);
+			}
       hideLoadingIn($('#quotasHistoryTableBody'));
     }, 'json');
     return false;
@@ -82,7 +84,9 @@ function loadPage() {
           $paymentsHistoryRow.find('#event').text(data.items[i].recurring ? "Subscription" : "Bought Quotas");
           $('#paymentsHistoryTableBody').append($paymentsHistoryRow)
         }
-      }
+      } else {
+				alert(data.err);
+			}
       hideLoadingIn($('#paymentsHistoryTableBody'));
     }, 'json');
     return false;

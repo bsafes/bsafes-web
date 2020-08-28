@@ -112,7 +112,9 @@ function loadPage() {
         var hits = data.hits.hits;
         displayHits(currentMode, hits);
         updatePagination(currentMode, currentContentsPage, total, itemsPerPage, lastSearchTokensStr);
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
   }
 
@@ -129,6 +131,7 @@ function loadPage() {
         isNewMembersAdded = true;
         done(null);
       } else {
+				alert(data.err);
         done(data.err);
       }
     }, 'json');
@@ -195,6 +198,7 @@ function loadPage() {
             $managedMember.find('.managedMemberSelectBox').prop('checked', true);
           }
         } else {
+					alert(data.err);
           console.log(data.err);
         }
         $('.managedMembers').append($managedMember);
@@ -295,7 +299,9 @@ function loadPage() {
             return false;
           });
         }
-      }
+      } else {
+				alert(data.err);
+			}
       hideLoading();
     }, 'json');
   }
@@ -362,7 +368,7 @@ function loadPage() {
 
     console.log("finding a  member");
     $.post('/memberAPI/findMemberByEmail', {
-      email: email,
+      email: window.btoa(email),
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
@@ -383,7 +389,9 @@ function loadPage() {
           $findResult.find('.addAMemberBtn').click(addAMember);
           $('.findAMemberResults').append($findResult);
         }
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
 
     $('#findAMemberInput').on('change', search);
@@ -550,7 +558,9 @@ function loadPage() {
         var members = data.hits.hits;
         displayMembers(currentMode, members, total);
         updatePagination(currentMode, currentContentsPage, total, itemsPerPage, lastSearchTokensStr);
-      }
+      } else {
+				alert(data.err);
+			}
     }, 'json');
   }
 
