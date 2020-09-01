@@ -53,7 +53,11 @@
 	var pageLocalStorageKey = null;
 	var ifEdited = false;
 	var ifUploading = false;
+
+	var totalVersions = 0; 
 	var latestVersionNumStored = 0;
+	var inTimeMachine = false; 
+	var versionSelected = null; 
 
 	var html_selectContentType = '<a href="" class="selectContentType"> Write, Draw, Spreadsheet, Doc, Diagram, Recording Audio, Recording Video, etc </a>';
 
@@ -241,6 +245,10 @@
 
 	  deleteAttachmentOnPage: function(e) {
 	    e.preventDefault();
+	    if(inTimeMachine){
+	    	alert("Cannot Remove Items in Time Machine. What is done is done"); 
+	    	return false; 
+	    }
 	    var confirmDelete = confirm('Are you sure you want to delete this attachment?');
 	    if (confirmDelete) {
 	      var $this = $(this);
@@ -300,21 +308,41 @@
 	};
 
 	function initializePageItemVersionsHistory() {
-	  initializeItemVersionsHistory(itemId, function(thisItemVersion) {
-	    if (thisItemVersion !== currentVersion || thisItemVersion !== oldVersion) {
-	      getPageItem(itemId, expandedKey, privateKey, searchKey, function(err, item) {
-	        if (err) {
-	          alert(err);
-	        } else {}
-	      }, thisItemVersion);
-	    }
-	  });
+		//add here
+		if(inTimeMachine) return; 
+		var selectedVersion = getTMSelectedVersionNum(); 
+		
+		if(selectedVersion == currentVersion && selectedVersion != null){
+			inTimeMachine = false;
+			setTMSelectedVersionNum(null); 
+		}
+		
+		else {
+			initializeItemVersionsHistory(itemId, function(thisItemVersion) {
+		  	console.log("initialized version history"); 
+		    if (thisItemVersion !== currentVersion || thisItemVersion !== oldVersion) {
+		    	//if(thisItemVersion === currentVersion) inTimeMachine = false; 
+		      getPageItem(itemId, expandedKey, privateKey, searchKey, function(err, item) {
+		        if (err) {
+		          alert(err);
+		        } else {}
+		      }, thisItemVersion);
+		    }
+	  	});
+		}
 	};
 
 	function disableTagsInput() {
 	  $('#tagsInput').off();
 	  $('#confirmTagsInputBtn').off();
+	  $('.token-input').addClass('hidden');
+	  $('.close').addClass('hidden'); 
 	};
+
+	function enableTagsInput() {
+		$('.token-input').removeClass('hidden'); 
+	  $('.close').removeClass('hidden'); 
+	}
 
 	function disableEditControls() {
 	  $('.editControl').addClass('hidden');
@@ -758,6 +786,7 @@
 	      return;
 	    }
 	    if (data.status === 'ok') {
+	    	$('#moreVersions').off(); 
 	      var usage = JSON.parse(data.usage);
 	      itemCopy.usage = usage;
 
@@ -2433,7 +2462,7 @@
 
 	    for (var i = 0; i < files.length; i++) {
 	      var file = files[i];
-	      var $uploadImage = $('.uploadImageTemplate').clone().removeClass('uploadImageTemplate hidden').addClass('uploadImage');
+	      var $uploadImage = $('.uploadImageTemplate').clone().removeClass('uploadImageTemplate hidden').removeClass('downloadImage').addClass('uploadImage');
 	      var id = 'index-' + (startingUploadIndex + i);
 	      $uploadImage.attr('id', id);
 	      $uploadImage.data('file', file);
@@ -3409,6 +3438,13 @@
 	          $commentsSearchResults.append($comment);
 	        }
 	      }
+	      if(inTimeMachine){
+	      	$('.commentTemplate').addClass('hidden'); 
+	      	$('.btnWrite').addClass('hidden'); 
+	      }else{
+	      	$('.commentTemplate').removeClass('hidden'); 
+	      	$('.btnWrite').removeClass('hidden'); 
+	      }
 	    }
 	  };
 
@@ -3509,8 +3545,9 @@
 	            };
 
 
-	            if (!thisVersion) {
+	            if (!thisVersion || thisVersion === currentVersion) {
 	              initializeTagsInput();
+	              enableTagsInput(); 
 	            } else {
 	              disableTagsInput();
 	            }
@@ -3575,13 +3612,13 @@
 
 	            if (item.images && item.images.length) {
 	              function downloadAndDisplayImages() {
-	                $('.imageBtnRow').addClass('hidden');
+	                //$('.imageBtnRow').addClass('hidden');
 
 	                function buildDownloadImagesList() {
 	                  var images = item.images;
 	                  var $lastElement = $('.imageBtnRow');
 	                  for (var i = 0; i < images.length; i++) {
-	                    $downloadImage = $('.downloadImageTemplate').clone().removeClass('downloadImageTemplate hidden').addClass('downloadImage');
+	                    $downloadImage = $('.uploadImageTemplate').clone().removeClass('uploadImageTemplate hidden').addClass('downloadImage');
 	                    var id = 'index-' + i;
 	                    $downloadImage.attr('id', id);
 	                    var s3Key = images[i].s3Key;
@@ -3640,6 +3677,9 @@
 	                            $thisImg.data('height', $thisImg[0].height);
 
 	                            var $imagePanel = $('.imagePanelTemplate').clone().removeClass('imagePanelTemplate hidden').addClass('imagePanel');
+	                            if(inTimeMachine){
+	                            	$imagePanel.find('.pull-right').addClass('hidden'); 
+	                            }
 	                            $imagePanel.find('.deleteImageBtn').attr('data-key', s3CommonKey).on('click', pageControlFunctions.deleteImageOnPage);
 	                            $imagePanel.attr('id', id);
 	                            $imagePanel.find('.image').append($thisImg);
@@ -3694,7 +3734,10 @@
 	                  if (err) {
 	                    console.log(err);
 	                  } else {
-	                    $('.imageBtnRow').removeClass('hidden');
+	                  	try{
+	                  		$('.imageBtnRow').removeClass('hidden');
+	                  	}catch{}
+	                  	
 	                  }
 	                });
 
@@ -4886,10 +4929,32 @@
 	}
 
 	function getIfUploading() {
-
 	  return (ifUploading || isUploading);
 	}
 
+	function getIfTimeMachine(){
+		return inTimeMachine; 
+	}
+
+	function setIfTimeMachine(bool){
+		inTimeMachine = bool; 
+	}
+
+	function setTotalVersionsOfPage(num){
+		totalVersions = num; 
+	}
+
+	function getTotalVersionsOfPage(){
+		return totalVersions; 
+	}
+
+	function setTMSelectedVersionNum(num){
+		versionSelected = num; 
+	}
+
+	function getTMSelectedVersionNum(num){
+		return versionSelected; 
+	}
 	//prompt user to save before redirecting to other page
 	window.addEventListener('beforeunload', function(e) {
 	  //e.preventDefault(); //this forces firefox to pop up 
