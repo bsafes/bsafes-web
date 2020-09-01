@@ -446,12 +446,9 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
   $('#itemVersionsHistory').off();
   $('#moreVersions').off(); 
   var latestVersionNumStored = 0;
-  var latestVersionNumStoredTemp = 0; 
   var currentVersionNum;
-  var versionsList; 
   var startIndex = 0; 
 
-  //fetch local storage if latest version
   try {
     currentVersionNum = getCurrentVersionNum();
   } catch (e) {}
@@ -506,7 +503,6 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
             $itemVersionItem.attr('id', hits[i]._source.version);
             $itemVersionItem.find('.itemVersion').html("V." + hits[i]._source.version);
             latestVersion = hits[i]._source.version;
-            //latestVersionNumStored++;
             var updatedText;
             if (hits[i]._source.version === 1) {
               updatedText = "Creation";
@@ -523,7 +519,6 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
               $itemVersionItem.find('.itemVersionUpdatedTimeStamp').text(timeToString(hits[i]._source.createdTime));
             }
            
-            var $temp = $(".itemVersionItemsList").html();
             $itemVersionItem.click(function(e) {
               $('#itemVersionsModal').modal('hide');
               var $thisItemVersionItem = $(e.target).closest('.itemVersionItem');
@@ -566,7 +561,6 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
             }, function(data, textStatus, jQxhr) {
               if (data.status === 'ok') {
                 var hits = data.hits.hits;
-                //latestVersionNumStored += hits.length; 
                 for (var i = 0; i < hits.length; i++) {
                   var $itemVersionItem = $('.itemVersionItemTemplate').clone().removeClass('itemVersionItemTemplate hidden').addClass('itemVersionItem');
                   $itemVersionItem.attr('id', hits[i]._source.version);
