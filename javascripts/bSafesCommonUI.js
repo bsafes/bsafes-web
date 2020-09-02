@@ -440,22 +440,45 @@ function createNewItemVersion(itemId, itemCopy, currentVersion, done) {
   });
 };
 
+
+
 function initializeItemVersionsHistory(itemId, getItemVersion) {
   $('#itemVersionsHistory').off();
+  $('#moreVersions').off(); 
   var latestVersionNumStored = 0;
   var currentVersionNum;
+  var startIndex = 0; 
+
   try {
     currentVersionNum = getCurrentVersionNum();
   } catch (e) {}
 
   $('#itemVersionsHistory').click(function(e) {
     e.preventDefault();
-    console.log("Hello");
+    console.log("Hello"); 
+
+    $('#goToTopBtn').off(); 
+    $('#goToTopBtn').click(function(e){
+      e.preventDefault(); 
+      console.log("GO to top"); 
+      $('.modal-body').animate({scrollTop: 0}, 1000);
+      return false; 
+    })
+
     if (currentVersionNum == latestVersionNumStored) {
       $('#itemVersionsModal').modal('show');
-      //$('#itemVersionsHistory').off();
-      $('#moreVersions').off();
-    } else {
+      $('#moreVersions').addClass("hidden");
+    }
+    else if(currentVersionNum > latestVersionNumStored && latestVersionNumStored >= 20){
+      $('#itemVersionsModal').modal('show');
+      $('#moreVersions').off(); 
+      $('#moreVersions').on('click', function(e) {
+        e.preventDefault();
+        getMoreVersions(startIndex);
+        return false;
+      });
+      var totalVersionsNum = getTotalVersionsOfPage(); 
+    }else {
       $.post('/memberAPI/getItemVersionsHistory', {
         itemId: itemId,
         size: 20,
@@ -466,21 +489,20 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
         if (data.status === 'ok') {
           var total = data.hits.total;
           var hits = data.hits.hits;
+          setTotalVersionsOfPage(total); 
           $(".itemVersionItemsList").empty();
           console.log("Total Versions: ", total);
-          var startIndex = 0;
 
           if (total > 20) {
             $("#moreVersions").removeClass('hidden');
             startIndex = 20;
           }
-
+          latestVersionNumStored = hits.length; 
           for (var i = 0; i < hits.length; i++) {
             var $itemVersionItem = $('.itemVersionItemTemplate').clone().removeClass('itemVersionItemTemplate hidden').addClass('itemVersionItem');
             $itemVersionItem.attr('id', hits[i]._source.version);
             $itemVersionItem.find('.itemVersion').html("V." + hits[i]._source.version);
             latestVersion = hits[i]._source.version;
-            latestVersionNumStored++;
             var updatedText;
             if (hits[i]._source.version === 1) {
               updatedText = "Creation";
@@ -496,14 +518,19 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
             if (updatedTime.charAt(updatedTime.length - 1) === 'o') {
               $itemVersionItem.find('.itemVersionUpdatedTimeStamp').text(timeToString(hits[i]._source.createdTime));
             }
-            $(".itemVersionItemsList").append($itemVersionItem);
-            var $temp = $(".itemVersionItemsList").html();
+           
             $itemVersionItem.click(function(e) {
               $('#itemVersionsModal').modal('hide');
               var $thisItemVersionItem = $(e.target).closest('.itemVersionItem');
               var thisItemVersion = parseInt($thisItemVersionItem.attr('id'));
+              setIfTimeMachine(true); 
+              if(thisItemVersion == currentVersionNum){
+                setIfTimeMachine(false); 
+              }
+              setTMSelectedVersionNum(thisItemVersion); 
               getItemVersion(thisItemVersion);
             });
+            $(".itemVersionItemsList").append($itemVersionItem);
           }
 
           $('#moreVersions').on('click', function(e) {
@@ -513,13 +540,18 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
           });
 
           $('#itemVersionsModal').modal('show');
+        }
+      }, 'json');
+    }
 
-          function changeStartIndex(value) {
-            startIndex += value;
-            return false;
-          }
-          //function that gets more versions on click
-          function getMoreVersions(startIndex) {
+    function changeStartIndex(value) {
+      startIndex += value;
+      return false;
+    }
+
+    //function that gets more versions on click
+    function getMoreVersions(startIndex) {
+            $('#moreVersions').addClass('hidden'); 
             console.log("More....");
             $.post('/memberAPI/getItemVersionsHistory', {
               itemId: itemId,
@@ -551,32 +583,30 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
                   if (updatedTime.charAt(updatedTime.length - 1) === 'o') {
                     $itemVersionItem.find('.itemVersionUpdatedTimeStamp').text(timeToString(hits[i]._source.createdTime));
                   }
-                  $(".itemVersionItemsList").append($itemVersionItem);
+
                   $itemVersionItem.click(function(e) {
                     $('#itemVersionsModal').modal('hide');
                     var $thisItemVersionItem = $(e.target).closest('.itemVersionItem');
                     var thisItemVersion = parseInt($thisItemVersionItem.attr('id'));
+                    setIfTimeMachine(true); 
+                    setTMSelectedVersionNum(thisItemVersion); 
                     getItemVersion(thisItemVersion);
                   });
+
+                  $(".itemVersionItemsList").append($itemVersionItem);
                 }
                 if (hits.length < 20) {
                   $('#moreVersions').addClass("hidden");
-                  //startIndex = 20;
                   $('#moreVersions').off();
                   return false;
 
                 } else {
                   changeStartIndex(20);
                 }
-
+                $('#moreVersions').removeClass('hidden'); 
               }
             }, 'json');
           }
-
-        }
-      }, 'json');
-    }
-
   });
 };
 
