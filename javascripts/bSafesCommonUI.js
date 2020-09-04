@@ -383,11 +383,14 @@ function setBoxControlsPanel(containerId) {
     $('.boxControlsPanel').removeClass('hidden');
     $('#gotoTeamSpaceBtn').removeClass('hidden');
     $('#gotoTeamSpaceBtn').click(function(e) {
-      var ifEdited = getIfEdited();
-      if (ifEdited) {
-        alert("Please save before leaving this page.")
-        return false;
-      }
+      try{
+        var ifEdited = getIfEdited();
+        if (ifEdited) {
+          alert("Please save before leaving this page.")
+          return false;
+        }
+      } catch{}
+      
       var link = '/team/' + teamId;
       window.location.href = link;
     });
@@ -489,7 +492,10 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
         if (data.status === 'ok') {
           var total = data.hits.total;
           var hits = data.hits.hits;
-          setTotalVersionsOfPage(total); 
+          try{
+             setTotalVersionsOfPage(total); 
+          }catch{console.log("setTotalVersionsOfPage function not in scope");  }
+         
           $(".itemVersionItemsList").empty();
           console.log("Total Versions: ", total);
 
@@ -626,6 +632,17 @@ var itemInfo = [];
 function initCurrentSpace(thisSpace) {
   currentSpace = thisSpace;
   bSafesCommonUIObj.currentItem.path = [currentSpace];
+}
+
+function initContainerOtherFunctions(getCurrentVersion, getIfEdited, getIfTM, setIfTM, getTotalVersions, setTotalVersions, getSelectedVersion, setSelectedVersion){
+  getCurrentVersionNum = getCurrentVersion; 
+  getIfEdited = getIfEdited; 
+  getIfTimeMachine = getIfTM; 
+  setIfTimeMachine = setIfTM; 
+  getTotalVersionsOfPage = getTotalVersions; 
+  setTotalVersionsOfPage = setTotalVersions; 
+  getTMSelectedVersionNum = getSelectedVersion; 
+  setTMSelectedVersionNum = setSelectedVersion; 
 }
 
 function initContainerFunctions(listItems, searchByTokens, decryptResult, updateToolbar, updateKeyValue, showLoading, hideLoading) {

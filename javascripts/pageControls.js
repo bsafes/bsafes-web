@@ -2449,6 +2449,17 @@
 	  var insertIndex;
 	  var uploadedImages = [];
 	  ifUploading = true;
+	  var sortedFiles = sortFilesByTime(files);  
+
+	  function sortFilesByTime(files) {
+	  	var arr = Array.from(files); 
+	  	arr.sort(function(a, b){
+	  		var n1 = a.lastModified; 
+	  		var n2 = b.lastModified; 
+	  		return n1 - n2; 
+	  	}); 
+	  	return arr; 
+	  }
 
 	  function buildUploadImageElements($imagePanel) {
 	    var $lastUploadImage = null;
@@ -2460,8 +2471,8 @@
 	      startingUploadIndex = parseInt(thisIndex) + 1;
 	    }
 
-	    for (var i = 0; i < files.length; i++) {
-	      var file = files[i];
+	    for (var i = 0; i < sortedFiles.length; i++) {
+	      var file = sortedFiles[i];
 	      var $uploadImage = $('.uploadImageTemplate').clone().removeClass('uploadImageTemplate hidden').removeClass('downloadImage').addClass('uploadImage');
 	      var id = 'index-' + (startingUploadIndex + i);
 	      $uploadImage.attr('id', id);
@@ -3618,7 +3629,8 @@
 	                  var images = item.images;
 	                  var $lastElement = $('.imageBtnRow');
 	                  for (var i = 0; i < images.length; i++) {
-	                    $downloadImage = $('.uploadImageTemplate').clone().removeClass('uploadImageTemplate hidden').addClass('downloadImage');
+	                    //$downloadImage = $('.uploadImageTemplate').clone().removeClass('uploadImageTemplate hidden').addClass('downloadImage');
+	                    $downloadImage = $('.downloadImageTemplate').clone().removeClass('downloadImageTemplate uploadImageTemplate hidden').addClass('downloadImage');
 	                    var id = 'index-' + i;
 	                    $downloadImage.attr('id', id);
 	                    var s3Key = images[i].s3Key;

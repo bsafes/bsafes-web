@@ -41,6 +41,14 @@ function loadPage() {
   var lastSearchTime;
   var lastSearchTokensStr;
 
+  var ifEdited = false; 
+  var inTimeMachine = false; 
+
+  var totalVersions = 0; 
+  var latestVersionNumStored = 0;
+  var inTimeMachine = false; 
+  var versionSelected = null; 
+
   var initialDispaly = $('#initialDisplay').text();
   var isCover = false;
   if (initialDispaly === "cover") {
@@ -65,6 +73,14 @@ function loadPage() {
   };
 
   function initializeContainerItemVersionsHistory() {
+    if(inTimeMachine) return; 
+    var selectedVersion = getTMSelectedVersionNum(); 
+    
+    if(selectedVersion == currentVersion && selectedVersion != null){
+      inTimeMachine = false;
+      setTMSelectedVersionNum(null); 
+    }
+
     initializeItemVersionsHistory(itemId, function(thisItemVersion) {
       if (thisItemVersion !== currentVersion || thisItemVersion !== oldVersion) {
         getItem(function(err, item) {
@@ -220,6 +236,7 @@ function loadPage() {
       setCurrentVersion(itemCopy.version);
       if ((itemCopy.update !== "tags") && currentEditor) doneEditing();
       if ((itemCopy.update === "tags") && (!$('.tagsConfirmRow').hasClass('hidden'))) $('.tagsConfirmRow').addClass('hidden');
+      $('.btnSave').LoadingOverlay('hide', true);
     });
   };
 
@@ -252,7 +269,10 @@ function loadPage() {
 
   $('#gotoCoverBtn').click(function(e) {
     isCover = true;
-
+    if(ifEdited){
+      alert("Please save any changes before leaving this page."); 
+      return false; 
+    }
     $('.contentsControlsPanel').addClass("hidden");
     $(".nextPageBtn").removeClass("hidden");
     $('#gotoCoverBtn').trigger('blur');
@@ -275,6 +295,10 @@ function loadPage() {
 
   $('#moreActionsBtn').click(function(e) {
     $(e.target).trigger('blur');
+    if(ifEdited){
+      alert("Please save any changes before using more actions"); 
+      return false; 
+    }
 
     if ($('.itemBottomToolbar').length == 0) {
       addItemBottomToolbar();
@@ -286,6 +310,18 @@ function loadPage() {
     }
 
   });
+
+  function disableTagsInput() {
+    $('#tagsInput').off();
+    $('#confirmTagsInputBtn').off();
+    $('.token-input').addClass('hidden');
+    $('.close').addClass('hidden'); 
+  };
+
+  function enableTagsInput() {
+    $('.token-input').removeClass('hidden'); 
+    $('.close').removeClass('hidden'); 
+  }
 
   function getItem(done, thisVersion) {
     oldVersion = "undefined";
@@ -322,6 +358,7 @@ function loadPage() {
             } else {
               setOldVersion(thisVersion);
             }
+
             console.log(data.item);
 
             var item = data.item;
@@ -349,6 +386,11 @@ function loadPage() {
               $('#tagsInput').tokenfield('setTokens', itemTags);
 
               initializeTagsInput();
+              if(inTimeMachine){
+                disableTagsInput(); 
+              }else{
+                enableTagsInput(); 
+              }
 
               $('.container').data('itemId', itemId);
               $('.container').data('itemKey', itemKey);
@@ -471,11 +513,16 @@ function loadPage() {
   };
 
   function editorInitialized() {
-    $('.btnSave, .btnCancel').removeClass('hidden');
+    $('.btnSave').removeClass('hidden');
+    $('.btnCancel').removeClass('hidden');
+    $('.btnCancel').show(); 
   }
 
   function handleBtnWriteClicked(e) {
     e.preventDefault();
+    initializeEditorButtons();
+    ifEdited = true; 
+    $('#itemVersionsHistory').addClass('hidden');  
     var downloadingImageContainers = $('.downloadingImageContainer');
     downloadingImageContainers.each(function() {
       var imageElement = $(this).find('img');
@@ -511,6 +558,8 @@ function loadPage() {
     currentEditor.froalaEditor('destroy');
 
     currentEditor = null;
+    ifEdited = false; 
+    $('#itemVersionsHistory').removeClass('hidden');  
     $('.btnSave, .btnCancel').addClass('hidden');
     $('.navbar-fixed-top, .btnWrite, .pathRow').removeClass('hidden');
   }
@@ -519,6 +568,15 @@ function loadPage() {
     e.preventDefault();
     var tempOriginalElement = $('<div></div>');
     tempOriginalElement.html(originalEditorContent);
+    var currentEditorContent = currentEditor.froalaEditor('html.get');
+
+    if(currentEditorContent !== originalEditorContent){
+      var v = confirm("Title is edited. Cancel any changes?"); 
+      if(v == false){
+        return false; 
+      }
+    }
+
     var displayedImages = $('.bSafesDisplayed');
     displayedImages.each(function() {
       var id = $(this).attr('id');
@@ -541,8 +599,13 @@ function loadPage() {
 
   function handleBtnSaveClicked(e) {
     e.preventDefault();
+    var currentEditorContent = currentEditor.froalaEditor('html.get');
+    if(currentEditorContent == originalEditorContent){
+      doneEditing(); 
+      return false; 
+    }
 
-    $('.btnCancel').addClass('hide');
+    $('.btnCancel').addClass('hidden');
     $('.btnSave').LoadingOverlay('show', {
       background: "rgba(255, 255, 255, 0.0)"
     });
@@ -587,6 +650,11 @@ function loadPage() {
   }
 
   function initializeEditorButtons() {
+    if(inTimeMachine){
+      $('.btnWrite').addClass('hidden'); 
+    } else{
+      $('.btnWrite').removeClass('hidden');
+    }
     $('.btnWrite').off();
     $('.btnWrite').on('click', handleBtnWriteClicked);
     $('.btnSave').off();
@@ -1128,10 +1196,18 @@ function loadPage() {
   });
 
   $('#openBtn').click(function(e) {
+    if(ifEdited){
+      alert("Please save any changes before leaving this page."); 
+      return false; 
+    }
     $('#gotoContentsBtn').trigger('click');
   });
 
   $('#nextPageBtn').click(function(e) {
+    if(ifEdited){
+      alert("Please save any changes before leaving this page."); 
+      return false; 
+    }
     if (isCover) {
       getNextItemInContainer(itemCopy.container, itemCopy.position, function(err, itemId) {
         if (err) {
@@ -1147,6 +1223,10 @@ function loadPage() {
   });
 
   $('#previousPageBtn').click(function(e) {
+    if(ifEdited){
+      alert("Please save any changes before leaving this page."); 
+      return false; 
+    }
     if (!isCover) {
       $('#gotoCoverBtn').trigger('click');
     } else {
@@ -1162,18 +1242,67 @@ function loadPage() {
   });
 
   $('#gotoContainerCoverBtn').click(function(e) {
+    if(ifEdited){
+      alert("Please save any changes before leaving this page."); 
+      return false; 
+    }
     goGetItemCover(itemCopy.container);
   });
 
   $('#gotoContainerContentsBtn').click(function(e) {
+    if(ifEdited){
+      alert("Please save any changes before leaving this page."); 
+      return false; 
+    }
     goGetItemContents(itemCopy.container);
   });
 
+  initContainerOtherFunctions(getCurrentVersionNum, getIfEdited, getIfTimeMachine, setIfTimeMachine, getTotalVersionsOfPage, setTotalVersionsOfPage, getTMSelectedVersionNum, setTMSelectedVersionNum); 
   initContainerFunctions(listItems, searchByTokens, decryptResult, updateToolbar, updateKeyValue, showLoadingContents, hideLoadingContents);
 
   $("#deselectItems").click(function(e) {
     deselectItems(e);
   });
+
+  function getCurrentVersionNum() {
+    return currentVersion;
+  }
+
+  function getIfEdited() {
+    return ifEdited;
+  }
+
+  function getIfTimeMachine(){
+    return inTimeMachine; 
+  }
+
+  function setIfTimeMachine(bool){
+    inTimeMachine = bool; 
+  }
+
+  function setTotalVersionsOfPage(num){
+    totalVersions = num; 
+  }
+
+  function getTotalVersionsOfPage(){
+    return totalVersions; 
+  }
+
+  function setTMSelectedVersionNum(num){
+    versionSelected = num; 
+  }
+
+  function getTMSelectedVersionNum(num){
+    return versionSelected; 
+  }
+
+  window.addEventListener('beforeunload', function(e) {
+    //e.preventDefault(); //this forces firefox to pop up 
+    if (ifEdited) {
+      e.returnValue = "Hello";
+    }
+  });
+
 
   bSafesPreflight(function(err, key, thisPublicKey, thisPrivateKey, thisSearchKey) {
     if (itemId.substring(0, 1) === 'b') {
