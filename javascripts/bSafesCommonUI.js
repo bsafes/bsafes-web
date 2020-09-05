@@ -383,13 +383,12 @@ function setBoxControlsPanel(containerId) {
     $('.boxControlsPanel').removeClass('hidden');
     $('#gotoTeamSpaceBtn').removeClass('hidden');
     $('#gotoTeamSpaceBtn').click(function(e) {
-      try{
-        var ifEdited = getIfEdited();
-        if (ifEdited) {
-          alert("Please save before leaving this page.")
-          return false;
-        }
-      } catch{}
+
+      var ifEdited = getIfEdited();
+      if (ifEdited) {
+        alert("Please save before leaving this page."); 
+        return false;
+      }
       
       var link = '/team/' + teamId;
       window.location.href = link;
@@ -492,10 +491,9 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
         if (data.status === 'ok') {
           var total = data.hits.total;
           var hits = data.hits.hits;
-          try{
-             setTotalVersionsOfPage(total); 
-          }catch{console.log("setTotalVersionsOfPage function not in scope");  }
-         
+
+          setTotalVersionsOfPage(total);
+          
           $(".itemVersionItemsList").empty();
           console.log("Total Versions: ", total);
 
@@ -634,9 +632,9 @@ function initCurrentSpace(thisSpace) {
   bSafesCommonUIObj.currentItem.path = [currentSpace];
 }
 
-function initContainerOtherFunctions(getCurrentVersion, getIfEdited, getIfTM, setIfTM, getTotalVersions, setTotalVersions, getSelectedVersion, setSelectedVersion){
+function initContainerOtherFunctions(getCurrentVersion, getIfEdit, getIfTM, setIfTM, getTotalVersions, setTotalVersions, getSelectedVersion, setSelectedVersion){
   getCurrentVersionNum = getCurrentVersion; 
-  getIfEdited = getIfEdited; 
+  getIfEdited = getIfEdit; 
   getIfTimeMachine = getIfTM; 
   setIfTimeMachine = setIfTM; 
   getTotalVersionsOfPage = getTotalVersions; 

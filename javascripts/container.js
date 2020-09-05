@@ -479,11 +479,13 @@ function loadPage() {
       e.preventDefault();
       console.log('confirmTagsInputBtn');
       var tags = $('#tagsInput').tokenfield('getTokens');
+      console.log(tags); 
+      itemTags.push(tags[tags.length - 1].value); 
       var encryptedTags = tokenfieldToEncryptedArray(tags, itemKey, itemIV);
       encryptedTags.push('null');
       var thisSearchKey = isATeamItem ? teamSearchKey : searchKey;
       var tagsTokens = tokenfieldToEncryptedTokens(tags, thisSearchKey);
-
+      //itemTags
       itemCopy.tags = encryptedTags;
       itemCopy.tagsTokens = tagsTokens;
       itemCopy.update = "tags";
@@ -513,9 +515,7 @@ function loadPage() {
   };
 
   function editorInitialized() {
-    $('.btnSave').removeClass('hidden');
-    $('.btnCancel').removeClass('hidden');
-    $('.btnCancel').show(); 
+    $('.btnSave, .btnCancel').removeClass('hidden');
   }
 
   function handleBtnWriteClicked(e) {

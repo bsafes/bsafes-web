@@ -3629,7 +3629,6 @@
 	                  var images = item.images;
 	                  var $lastElement = $('.imageBtnRow');
 	                  for (var i = 0; i < images.length; i++) {
-	                    //$downloadImage = $('.uploadImageTemplate').clone().removeClass('uploadImageTemplate hidden').addClass('downloadImage');
 	                    $downloadImage = $('.downloadImageTemplate').clone().removeClass('downloadImageTemplate uploadImageTemplate hidden').addClass('downloadImage');
 	                    var id = 'index-' + i;
 	                    $downloadImage.attr('id', id);
