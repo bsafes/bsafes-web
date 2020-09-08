@@ -677,6 +677,7 @@
 	  }
 
 	  editorStateChanged('Editor is destroyed');
+	  ifEdited = false; 
 	}
 
 	function setStatusLock() {
