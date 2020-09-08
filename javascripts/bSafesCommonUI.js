@@ -457,7 +457,7 @@ function initializeItemVersionsHistory(itemId, getItemVersion) {
 
   $('#itemVersionsHistory').click(function(e) {
     e.preventDefault();
-    console.log("Hello"); 
+    console.log("Item Versions list opened"); 
 
     $('#goToTopBtn').off(); 
     $('#goToTopBtn').click(function(e){
