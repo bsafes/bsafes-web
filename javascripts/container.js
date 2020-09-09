@@ -373,13 +373,18 @@ function loadPage() {
               itemTags = [];
               if (item.tags && item.tags.length > 1) {
                 var encryptedTags = item.tags;
-                encryptedTags.splice(-1, 1);
+                //encryptedTags.splice(-1, 1);
                 for (var i = 0; i < item.tags.length; i++) {
-                  var encryptedTag = encryptedTags[i];
-                  encryptedTag = forge.util.decode64(encryptedTag);
-                  var encodedTag = decryptBinaryString(encryptedTag, itemKey, itemIV);
-                  var tag = forge.util.decodeUtf8(encodedTag);
-                  itemTags.push(tag);
+                  try{
+                    var encryptedTag = encryptedTags[i];
+                    encryptedTag = forge.util.decode64(encryptedTag);
+                    var encodedTag = decryptBinaryString(encryptedTag, itemKey, itemIV);
+                    var tag = forge.util.decodeUtf8(encodedTag);
+                    itemTags.push(tag);
+                  }catch{
+                    console.log("Error decrypting tag with index: ", i); 
+                  }
+                  
                 }
               }
 
@@ -569,8 +574,10 @@ function loadPage() {
     var tempOriginalElement = $('<div></div>');
     tempOriginalElement.html(originalEditorContent);
     var currentEditorContent = currentEditor.froalaEditor('html.get');
+    var currentEditorContentText = $('<textarea />').html(currentEditorContent).text(); 
 
-    if(currentEditorContent !== originalEditorContent){
+
+    if(currentEditorContentText !== originalEditorContent){
       var v = confirm("Title is edited. Cancel any changes?"); 
       if(v == false){
         return false; 
@@ -600,7 +607,8 @@ function loadPage() {
   function handleBtnSaveClicked(e) {
     e.preventDefault();
     var currentEditorContent = currentEditor.froalaEditor('html.get');
-    if(currentEditorContent == originalEditorContent){
+    var currentEditorContentText = $('<textarea />').html(currentEditorContent).text(); 
+    if(currentEditorContentText === originalEditorContent){
       doneEditing(); 
       return false; 
     }

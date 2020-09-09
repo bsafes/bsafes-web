@@ -677,6 +677,7 @@
 	  }
 
 	  editorStateChanged('Editor is destroyed');
+	  ifEdited = false; 
 	}
 
 	function setStatusLock() {
@@ -701,10 +702,11 @@
 	  //alert("Are you sure you want to cancel any changes?");
 	  var tempOriginalElement = $('<div></div>');
 	  var currentEditorContent = currentEditor.froalaEditor('html.get');
+	  var currentEditorContentText = $('<textarea />').html(currentEditorContent).text(); 
 	  tempOriginalElement.html(originalEditorContent);
 	  //console.log(originalEditorContent);  
 	  //console.log(currentEditorContent); 
-	  if (originalEditorContent !== currentEditorContent) {
+	  if (originalEditorContent !== currentEditorContentText) {
 	    //alert("Are you sure you want to cancel any changes?");
 	    var r = confirm("Are you sure you want to delete all changes?");
 	    if (r == false) {
@@ -743,6 +745,16 @@
 
 	function handleBtnSaveClicked(e) {
 	  e.preventDefault();
+	  var currentEditorContent = currentEditor.froalaEditor('html.get');
+	  var currentEditorContentText = $('<textarea />').html(currentEditorContent).text();
+
+	  if(originalEditorContent === currentEditorContentText){
+	  	doneEditing(); 
+	  	$('.imageBtnRow').removeClass('hidden');
+		  $('.attachBtnRow').removeClass('hidden');
+		  $('.pull-right').removeClass('hidden');
+		  return false; 
+	  } 
 	  setStatusLock();
 	  $('.btnCancel').addClass('hidden');
 	  $('.btnSave').LoadingOverlay('show', {
