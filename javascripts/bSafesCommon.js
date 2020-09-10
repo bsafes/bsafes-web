@@ -1,5 +1,6 @@
-var __sliceLength = 512 * 1024;
-var __encryptedDataSliceSize = 524304;
+const __sliceLength = 512 * 1024;
+const __encryptedDataSliceSize = 524304;
+const __GCMOverhead = 8 + 12 + 16; //header + IV + tag 
 
 var isSigningOutFunc;
 
@@ -107,24 +108,36 @@ function __estimateEncryptedDataSize(dataSize) {
   var encryptedDataSize;
 
   if (lastSliceLength) {
-    encryptedDataSize = (Math.floor(lastSliceLength / 16) + 1) * 16 + numberOfSlice * __encryptedDataSliceSize;
+    encryptedDataSize = lastSliceLength + __GCMOverhead + numberOfSlice * (__sliceLength + __GCMOverhead);
   } else {
-    encryptedDataSize = numberOfSlice * __encryptedDataSliceSize;
+    encryptedDataSize = numberOfSlice * (__sliceLength + __GCMOverhead);
   }
 
   return encryptedDataSize;
 };
 
-function __estimateDecryptedDataSize(dataSize) {
-  var numberOfSlice = Math.floor(dataSize / __encryptedDataSliceSize);
-  var lastSliceLength = dataSize % __encryptedDataSliceSize;
-
-  var decryptedDataSize = numberOfSlice * __sliceLength + lastSliceLength - 1;
-
+function __estimateDecryptedDataSize(dataSize, mode) {
+	var encryptedDataSliceSize = __encryptedDataSliceSize;
+	if(mode === "GCMMode") {
+		encryptedDataSliceSize = __sliceLength + __GCMOverhead;
+	}
+  var numberOfSlice = Math.floor(dataSize / encryptedDataSliceSize);
+  var lastSliceLength = dataSize % encryptedDataSliceSize;
+	if(lastSliceLength) {
+		if(mode === "GCMMode") {
+			var decryptedDataSize = numberOfSlice * __sliceLength + lastSliceLength - __GCMOverhead;
+  	} else {
+			var decryptedDataSize = numberOfSlice * __sliceLength + lastSliceLength - 1;
+		}
+	} else {
+		var decryptedDataSize = numberOfSlice * __sliceLength;
+	}
   return decryptedDataSize;
 };
 
-function encryptBinaryString(binaryString, key, iv) {
+const GCMTag = "%GCM371%";
+
+function encryptBinaryStringCBC(binaryString, key, iv) {
   var thisBuffer = forge.util.createBuffer();
   thisBuffer.putBytes(binaryString);
   cipher = forge.cipher.createCipher('AES-CBC', key);
@@ -137,7 +150,7 @@ function encryptBinaryString(binaryString, key, iv) {
   return encryptedBinaryString
 }
 
-function decryptBinaryString(binaryString, key, iv) {
+function decryptBinaryStringCBC(binaryString, key, iv) {
   var thisBuffer = forge.util.createBuffer();
   thisBuffer.putBytes(binaryString);
   var decipher = forge.cipher.createDecipher('AES-CBC', key);
@@ -148,6 +161,65 @@ function decryptBinaryString(binaryString, key, iv) {
   decipher.finish();
   var decryptedBinaryString = decipher.output.data;
   return decryptedBinaryString;
+};
+
+function encryptBinaryStringGCM(binaryString, key, iv) {
+  var thisBuffer = forge.util.createBuffer();
+  thisBuffer.putBytes(binaryString);
+
+	var uniqueIV = forge.random.getBytesSync(12);
+  var cipher = forge.cipher.createCipher('AES-GCM', key);
+  cipher.start({
+    iv: uniqueIV, // should be a 12-byte binary-encoded string or byte buffer
+    tagLength: 128 // optional, defaults to 128 bits
+  });
+  cipher.update(forge.util.createBuffer(binaryString));
+  cipher.finish();
+  var encrypted = cipher.output;
+  var tag = cipher.mode.tag;
+
+  encryptedBinaryString = GCMTag + uniqueIV + cipher.mode.tag.data + cipher.output.data;
+  return encryptedBinaryString
+}
+
+function decryptBinaryStringGCM(binaryString, key, iv) {
+  var thisBuffer = forge.util.createBuffer();
+  thisBuffer.putBytes(binaryString.slice(__GCMOverhead));
+	var uniqueIV = binaryString.slice(8, 20);
+  var tag = forge.util.createBuffer();
+  tag.putBytes(binaryString.slice(20, __GCMOverhead));
+
+  var decipher = forge.cipher.createDecipher('AES-GCM', key);
+  decipher.start({
+    iv: uniqueIV,
+    tagLength: 128, // optional, defaults to 128 bits
+    tag: tag // authentication tag from encryption
+  });
+  decipher.update(thisBuffer);
+  var pass = decipher.finish();
+  // pass is false if there was a failure (eg: authentication tag didn't match)
+  var decryptedBinaryString = null;
+  if(pass) {
+    // outputs decrypted hex
+    decryptedBinaryString = decipher.output.data;
+  } else {
+		alert("Corrupted data.");
+	}
+  return decryptedBinaryString;
+};
+
+
+function encryptBinaryString(binaryString, key, iv) {
+	return encryptBinaryStringGCM(binaryString, key, iv);
+}
+
+function decryptBinaryString(binaryString, key, iv) {
+	var header = binaryString.slice(0,8);
+	if(header === GCMTag) {
+		return decryptBinaryStringGCM(binaryString, key, iv);	
+	}	else {
+		return decryptBinaryStringCBC(binaryString, key, iv);
+	}
 };
 
 function encryptLargeBinaryString(binaryString, key, iv) {
@@ -179,8 +251,16 @@ function encryptLargeBinaryString(binaryString, key, iv) {
 }
 
 function decryptLargeBinaryString(binaryString, key, iv) {
+	var header = binaryString.slice(0, 8);
+	var GCMMode = false;
+	if(header === GCMTag) {
+		GCMMode = true;
+	}
   var start = 0;
   var sliceLength = __encryptedDataSliceSize;
+	if(GCMMode) {
+    sliceLength = __sliceLength + __GCMOverhead;
+  }
   var end;
   var decryptedString = "";
   var numberOfSlices = 0;
@@ -236,10 +316,10 @@ function encryptArrayBuffer(arrayBuffer, key, iv) {
         sliceStr += String.fromCharCode(view.getUint8(offset, false));
       }
       encryptedSlice = encryptBinaryString(sliceStr, key, iv);
-      for (var offset = encryptedStart; offset < encryptedStart + __encryptedDataSliceSize; offset++) {
+      for (var offset = encryptedStart; offset < encryptedStart + __sliceLength + __GCMOverhead; offset++) {
         encryptedUint8Array[offset] = encryptedSlice.charCodeAt(offset - encryptedStart);
       }
-      encryptedStart += __encryptedDataSliceSize;
+      encryptedStart += __sliceLength + __GCMOverhead;
       start = end;
     }
   }
@@ -286,10 +366,10 @@ function encryptArrayBufferAsync(arrayBuffer, key, iv, fn) {
       console.log('encryptedSlice.length:', encryptedSlice.length);
       //var verifiedSlice = decryptBinaryString(encryptedSlice, key, iv);
       //console.log('verifiedSlice.length:', verifiedSlice.length);
-      for (var offset = encryptedStart; offset < encryptedStart + __encryptedDataSliceSize; offset++) {
+      for (var offset = encryptedStart; offset < encryptedStart + __sliceLength + __GCMOverhead; offset++) {
         encryptedUint8Array[offset] = encryptedSlice.charCodeAt(offset - encryptedStart);
       }
-      encryptedStart += __encryptedDataSliceSize;
+      encryptedStart += __sliceLength + __GCMOverhead;
       start = end;
       setTimeout(encryptASlice, 0);
     }
@@ -300,13 +380,24 @@ function encryptArrayBufferAsync(arrayBuffer, key, iv, fn) {
 
 function decryptArrayBufferAsync(arrayBuffer, key, iv, fn) {
   var view = new DataView(arrayBuffer);
+	var mode = "";
+	var header = "";
+	for(var i=0; i< 8; i++) {
+		header += String.fromCharCode(view.getUint8(i, false));
+	}
+	if(header === GCMTag) {
+		mode = "GCMMode";
+	}
   var start = 0;
   var decryptedStart = 0;
   var sliceLength = __encryptedDataSliceSize;
+	if(mode === "GCMMode") {
+		sliceLength = __sliceLength + __GCMOverhead;
+	}
   var end;
   var sliceStr;
   var decryptedSlice;
-  var decryptedDataSize = __estimateDecryptedDataSize(arrayBuffer.byteLength);
+  var decryptedDataSize = __estimateDecryptedDataSize(arrayBuffer.byteLength, mode);
   var decryptedUint8Array = new Uint8Array(decryptedDataSize);
   var numberOfSlices = 0;
   var decryptedLength = 0;
@@ -351,13 +442,24 @@ function decryptArrayBufferAsync(arrayBuffer, key, iv, fn) {
 
 function decryptArrayBuffer(arrayBuffer, key, iv) {
   var view = new DataView(arrayBuffer);
+  var mode = "";
+  var header = "";
+  for(var i=0; i< 8; i++) {
+    header += String.fromCharCode(view.getUint8(i, false));
+  }
+  if(header === GCMTag) {
+    mode = "GCMMode";
+  }
   var start = 0;
   var decryptedStart = 0;
   var sliceLength = __encryptedDataSliceSize;
+  if(mode === "GCMMode") {
+    sliceLength = __sliceLength + __GCMOverhead;
+  }
   var end;
   var sliceStr;
   var decryptedSlice;
-  var decryptedDataSize = __estimateDecryptedDataSize(arrayBuffer.byteLength);
+  var decryptedDataSize = __estimateDecryptedDataSize(arrayBuffer.byteLength, mode);
   var decryptedUint8Array = new Uint8Array(decryptedDataSize);
   var numberOfSlices = 0;
   var decryptedLength = 0;
@@ -395,13 +497,24 @@ function decryptArrayBuffer(arrayBuffer, key, iv) {
 
 function decryptChunkInArrayBufferAsync(arrayBuffer, uint8Array, uint8ArrayStart, key, iv, fn) {
   var view = new DataView(arrayBuffer);
+	var mode = "";
+	var header = "";
+  for(var i=0; i< 8; i++) {
+    header += String.fromCharCode(view.getUint8(i, false));
+  }
+  if(header === GCMTag) {
+    mode = "GCMMode";
+  }
   var start = 0;
   var decryptedStart = 0;
   var sliceLength = __encryptedDataSliceSize;
+  if(mode === "GCMMode") {
+    sliceLength = __sliceLength + __GCMOverhead;
+  }
   var end;
   var sliceStr;
   var decryptedSlice;
-  var decryptedDataSize = __estimateDecryptedDataSize(arrayBuffer.byteLength);
+  var decryptedDataSize = __estimateDecryptedDataSize(arrayBuffer.byteLength, mode);
   var numberOfSlices = 0;
   var decryptedLength = 0;
 
