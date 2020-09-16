@@ -1023,7 +1023,6 @@
 	  if (isBlankPageItem) {
 	    return;
 	  } else {
-	    itemCopy.content = encryptedContent;
 	    $.post('/memberAPI/saveNewPageComment', {
 	      itemId: itemId,
 	      content: encryptedContent,
