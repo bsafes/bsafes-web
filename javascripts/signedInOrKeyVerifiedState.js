@@ -85,7 +85,16 @@
       }
       setTimeout(checkState, 1000);
     } else {
-      window.location.replace("/");
+      $.post('/isMemberSignedIn', {
+        antiCSRF: bSafesCommonUIObj.antiCSRF
+      }, function(data, textStatus, jQxhr) {
+        if (data.status === 'yes') {
+          localStorage.setItem("isSignedIn", "true");
+          setTimeout(checkState, 1000);
+        } else {
+          window.location.replace("/");
+        }
+      }, 'json');
     }
   }
 }());
