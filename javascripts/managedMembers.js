@@ -207,6 +207,7 @@ function loadPage() {
             hideLoadingIn($('.newManagedMemberForm'));
           } else {
 						alert(data.err);
+						hideLoadingIn($('.newManagedMemberForm'));
 					}
         }, 'json');
     };
