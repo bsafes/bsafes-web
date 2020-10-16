@@ -7,8 +7,8 @@ $(function(d, s, id) {
     console.log('forge loaded');
     loadPage();
   };
-  js.src = "https://cdnjs.cloudflare.com/ajax/libs/forge/0.7.6/forge.min.js";
-  js.integrity = "sha384-F1L9GRsA4NrH87gLI5LQu110sQ1OHQDI62gGfUwIEldZLJCC03v/z9v5YLus6yM3";
+  js.src = "https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js";
+  js.integrity = "sha384-YdlvGjpaANY2l5LLtTjrO60cpMIPWnYxQFXMcp7l6lQuQEFdAHNO+yxI9ysch1k6";
   js.setAttribute("crossorigin", "anonymous");
   fjs.parentNode.insertBefore(js, fjs);
 
