@@ -273,12 +273,15 @@
 	  var itemVersionAndVersionHistoryContainer = $('#itemVersion, #itemVersionsHistory');
 	  if (!version) {
 	    itemVersionAndVersionHistoryContainer.addClass('hidden');
+	    $('#shareItem').addClass('hidden'); 
 	    return;
 	  }
 	  itemVersionAndVersionHistoryContainer.removeClass('hidden');
+	  $('#shareItem').removeClass('hidden'); 
 	  currentVersion = version;
 	  $('#itemVersion').text("v." + version);
 	  initializePageItemVersionsHistory();
+	  initializeShareItem(); 
 	};
 
 	function setupPageControlsKeyValue(key, value) {
@@ -306,6 +309,11 @@
 	  keyEnvelope = encryptBinaryString(itemKey, envelopeKey, envelopeIV);
 	  ivEnvelope = encryptBinaryString(itemIV, envelopeKey, ivEnvelopeIV);
 	};
+
+	function initializeShareItem() {
+		initializeShareItemButton(itemId); 
+		return false;
+	}
 
 	function initializePageItemVersionsHistory() {
 		//add here
@@ -668,6 +676,9 @@
 	  $('.btnSave, .btnCancel').addClass('hidden');
 	  $('.othersComment').addClass('hidden');
 	  $('.navbar-fixed-top, .btnWrite, .pathRow').removeClass('hidden');
+	  $('.imageBtnRow').removeClass('hidden');
+	  $('.attachBtnRow').removeClass('hidden');
+	  $('.pull-right').removeClass('hidden');
 
 	  //if (pageContentType != constContentTypeWrite) {
 	  if ($.inArray(pageContentType, [constContentTypeDraw, constContentTypeSpreadsheet, constContentTypeDoc, constContentTypeMxGraph, constContentTypeRecordAudio, constContentTypeRecordVideo]) > -1) {
@@ -779,9 +790,6 @@
 	        updateComment();
 	      }
 	  };
-	  $('.imageBtnRow').removeClass('hidden');
-	  $('.attachBtnRow').removeClass('hidden');
-	  $('.pull-right').removeClass('hidden');
 	  ifEdited = false;
 	  return false;
 	};
@@ -1023,6 +1031,7 @@
 	  if (isBlankPageItem) {
 	    return;
 	  } else {
+	    itemCopy.content = encryptedContent;
 	    $.post('/memberAPI/saveNewPageComment', {
 	      itemId: itemId,
 	      content: encryptedContent,
@@ -3920,6 +3929,7 @@
 	};
 
 	function initializePageControls() {
+		initializeShareItem(); 
 	  initializePageItemVersionsHistory();
 	  initializeEditorButtons();
 	  initializeImageButton();

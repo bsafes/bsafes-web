@@ -443,6 +443,57 @@ function createNewItemVersion(itemId, itemCopy, currentVersion, done) {
 };
 
 
+function initializeShareItemButton(itemId){
+  $('#shareItem').off(); 
+  $("#generatedURL").empty(); 
+  $('#shareItem').click(function(e) {
+    e.preventDefault(); 
+    console.log("Share button clicked"); 
+    $('#shareItemModal').modal('show');
+    getUrl(itemId);  
+    initializeCopyURL(); 
+  })
+}
+
+function initializeCopyURL(){
+  $('#copyURL').off(); 
+  $('#copyURL').click(function(e){
+    e.preventDefault(); 
+    var url = $("#generatedURL");
+    var range = document.createRange(); 
+    range.selectNode(document.getElementById("generatedURL")); 
+    window.getSelection().removeAllRanges(); 
+    window.getSelection().addRange(range); 
+    document.execCommand("Copy"); 
+    window.getSelection().removeAllRanges(); 
+    alert("URL Copied to clipboard: " + url.text()); 
+  })
+}
+
+//tester function
+function getURLtester(){
+  var URL = "https://www.bsafes.com"; 
+  $("#generatedURL").empty().append(URL); 
+  return URL; 
+}
+
+function getUrl(itemId){
+  //post request
+  var url; 
+  $.post('/memberAPI/getItemUrl', {
+    itemId: itemId, 
+    antiCSRF: bSafesCommonUIObj.antiCSRF
+  }, function(data, textStatus, jQxhr) {
+      if(data.status === 'ok'){
+        url = data.itemUrl; 
+        console.log("Received URl:", url); 
+        $("#generatedURL").empty().append(url); 
+      } else {
+        console.log("Cannot fetch URL with status code: ", data.status, data.err); 
+      }
+  }); 
+  return url; 
+}
 
 function initializeItemVersionsHistory(itemId, getItemVersion) {
   $('#itemVersionsHistory').off();

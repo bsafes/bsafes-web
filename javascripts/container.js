@@ -92,7 +92,12 @@ function loadPage() {
     });
   };
 
+  function initializeContainerShareItem() {
+    initializeShareItemButton(itemId); 
+  }
+
   initializeContainerItemVersionsHistory();
+  initializeContainerShareItem(); 
 
   function addItemBottomToolbar() {
     var htmlItemBottomToolbar = ' \
