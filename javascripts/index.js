@@ -1,11 +1,5 @@
 /* global $, window */
-window.fbAsyncInit = function() {
-  FB.init({
-    appId: '768520003317802',
-    cookie: true, // This is important, it's not enabled by default
-    version: 'v2.8'
-  });
-
+function loadPage() {
   let scroll_link = $('.scroll');
 
   //smooth scrolling -----------------------
@@ -41,9 +35,9 @@ window.fbAsyncInit = function() {
       return false;
     }
     $.post('/sendGuestMessage', {
-      senderName: window.btoa(senderName),
-      senderEmail: window.btoa(senderEmail),
-      message: widnow.btoa(message),
+      senderName: forge.util.encode64(senderName),
+      senderEmail: forge.util.encode64(senderEmail),
+      message: forge.util.encode64(message),
 			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
@@ -68,19 +62,4 @@ window.fbAsyncInit = function() {
       .end()
       .appendTo('#slideshow');
   }, 3000);
-
 };
-
-$(function(d, s, id) {
-  'use strict';
-
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) {
-    return;
-  }
-  js = d.createElement(s);
-  js.id = id;
-  js.src = "//connect.facebook.net/en_US/sdk.js";
-  fjs.parentNode.insertBefore(js, fjs);
-
-}(document, 'script', 'facebook-jssdk'));

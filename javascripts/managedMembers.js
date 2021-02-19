@@ -27,7 +27,7 @@ function loadPage() {
       return false;
     }
     $.post('/memberAPI/createNickname', {
-      nickname: window.btoa(nickname),
+      nickname: forge.util.encode64(nickname),
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       hideLoadingIn($('#accountNickname'));
@@ -191,9 +191,9 @@ function loadPage() {
     function addAManagedMember() {
       showLoadingIn($('.newManagedMemberForm'));
       var thisMember = {};
-      thisMember.initialLetter = window.btoa($('#memberName').val().charAt(0));
-      thisMember.memberName = window.btoa(forge.util.encodeUtf8($('#memberName').val()));
-      thisMember.password = window.btoa(newManagedMemberPassword);
+      thisMember.initialLetter = forge.util.encode64($('#memberName').val().charAt(0));
+      thisMember.memberName = forge.util.encode64(forge.util.encodeUtf8($('#memberName').val()));
+      thisMember.password = forge.util.encode64(newManagedMemberPassword);
       thisMember.antiCSRF = bSafesCommonUIObj.antiCSRF;
       $.post('/memberAPI/addAManagedMember',
         thisMember,
@@ -266,7 +266,7 @@ function loadPage() {
       showLoadingInDeleteModal();
       $.post('/memberAPI/deleteAManagedMember', {
         memberId: memberId,
-        memberName: window.btoa(memberName),
+        memberName: forge.util.encode64(memberName),
         antiCSRF: bSafesCommonUIObj.antiCSRF
       }, function(data, textStatus, jQxhr) {
         hideLoadingInDeleteModal();
@@ -313,7 +313,7 @@ function loadPage() {
         showLoadingInExtraMFAModal();
         $.post('/memberAPI/resetManagedMemberMFA', {
           memberId: memberId,
-          memberName: window.btoa(memberName),
+          memberName: forge.util.encode64(memberName),
           antiCSRF: bSafesCommonUIObj.antiCSRF
         }, function(data, textStatus, jQxhr) {
           hideLoadingInExtraMFAModal();
@@ -342,7 +342,7 @@ function loadPage() {
 
     $.post('/memberAPI/isManagedMemberMFAEnabled', {
       memberId: memberId,
-      memberName: window.btoa(memberName),
+      memberName: forge.util.encode64(memberName),
       antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       hideLoadingInExtraMFAModal();

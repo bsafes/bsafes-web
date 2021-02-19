@@ -14,7 +14,7 @@ function loadPage() {
 
     showLoadingIn($('.emailSignUpForm'));
     $.post('/registerEmail', {
-      email: window.btoa(email),
+      email: forge.util.encode64(email),
 			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
@@ -109,8 +109,8 @@ function loadPage() {
     }
     showLoadingIn($('.passwordSetupForm'));
     $.post('/setupPassword', {
-      displayName: window.btoa(displayName),
-      password: window.btoa(password),
+      displayName: forge.util.encode64(displayName),
+      password: forge.util.encode64(password),
 			antiCSRF: bSafesCommonUIObj.antiCSRF
     }, function(data, textStatus, jQxhr) {
       if (data.status === 'ok') {
